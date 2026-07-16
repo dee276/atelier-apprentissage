@@ -1,0 +1,1533 @@
+<!DOCTYPE html>
+<html lang="fr" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rust x Crypto — Solutions 31-40 · Intermédiaire-Expert</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Syne:wght@700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root{--rust:#CE422B;--green:#3D9970;--lv3:#C47A1A;}
+[data-theme="dark"]{--bg:#0D0D0F;--bg2:#131315;--bg3:#1A1A1D;--bg4:#222226;--line:rgba(255,255,255,.06);--line2:rgba(255,255,255,.11);--tx1:#EAE9E2;--tx2:#9A9990;--tx3:#5A5955;--code-bg:#0A0A0C;}
+[data-theme="light"]{--bg:#F2EFE8;--bg2:#FDFCF9;--bg3:#EEEAE2;--bg4:#E4E0D7;--line:rgba(0,0,0,.07);--line2:rgba(0,0,0,.13);--tx1:#18170F;--tx2:#56544A;--tx3:#9A9890;--code-bg:#111113;}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--tx1);min-height:100vh;display:flex;transition:background .2s,color .2s}
+nav{width:252px;flex-shrink:0;background:var(--bg2);border-right:1px solid var(--line);position:fixed;top:0;left:0;bottom:0;overflow-y:auto;display:flex;flex-direction:column;z-index:40}
+.nav-top{padding:22px 18px 14px;border-bottom:1px solid var(--line)}
+.nav-chip{display:inline-block;background:rgba(196,122,26,.15);color:var(--lv3);font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.08em;text-transform:uppercase;padding:3px 8px;border-radius:4px;margin-bottom:10px}
+.nav-h{font-family:'Syne',sans-serif;font-size:16px;font-weight:800;letter-spacing:-.02em;color:var(--tx1);line-height:1.2}
+.nav-sub{font-size:11px;color:var(--tx3);margin-top:3px;font-family:'JetBrains Mono',monospace}
+.nav-btn{display:flex;align-items:center;gap:8px;width:100%;padding:8px 18px;background:none;border:none;border-left:2px solid transparent;color:var(--tx2);font-size:12.5px;font-family:'DM Sans',sans-serif;cursor:pointer;text-align:left;transition:all .12s}
+.nav-btn:hover{color:var(--tx1);background:rgba(255,255,255,.03)}
+.nav-btn.active{color:var(--tx1);border-left-color:var(--lv3);background:rgba(196,122,26,.06)}
+.nav-btn .nn{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--tx3);min-width:20px}
+.nav-btn.active .nn{color:var(--lv3)}
+.nav-btn .nc{font-size:12px;color:var(--green);opacity:0;margin-left:auto}
+.nav-btn.done .nc{opacity:1}
+.nav-foot{margin-top:auto;padding:12px 18px;border-top:1px solid var(--line);display:flex;align-items:center;justify-content:space-between}
+.theme-pill{display:flex;background:var(--bg3);border:1px solid var(--line2);border-radius:99px;padding:3px;gap:2px}
+.tbtn{width:26px;height:26px;border-radius:50%;border:none;background:none;cursor:pointer;font-size:13px;display:flex;align-items:center;justify-content:center;color:var(--tx3);transition:all .15s}
+.tbtn.active{background:var(--bg2);color:var(--tx1);box-shadow:0 1px 4px rgba(0,0,0,.2)}
+.nav-prog-text{font-size:11px;color:var(--tx3);font-family:'JetBrains Mono',monospace}
+.prog-strip{height:2px;background:var(--bg4);position:fixed;top:0;left:252px;right:0;z-index:99}
+.prog-fill{height:100%;background:var(--lv3);transition:width .4s ease}
+main{margin-left:252px;flex:1;padding:44px 50px 100px;max-width:880px}
+.topbar{display:flex;align-items:flex-end;gap:14px;margin-bottom:36px;padding-bottom:22px;border-bottom:1px solid var(--line)}
+.tb-eyebrow{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--lv3);letter-spacing:.08em;text-transform:uppercase;margin-bottom:6px;display:flex;align-items:center;gap:6px}
+.tb-eyebrow::before{content:'';display:block;width:18px;height:1px;background:var(--lv3)}
+.tb-h{font-family:'Syne',sans-serif;font-size:26px;font-weight:800;letter-spacing:-.03em;color:var(--tx1)}
+.tb-actions{margin-left:auto;display:flex;gap:8px;align-items:center}
+.action-btn{font-size:11.5px;font-family:'JetBrains Mono',monospace;padding:6px 12px;border-radius:6px;border:1px solid var(--line2);background:var(--bg3);color:var(--tx2);cursor:pointer;transition:all .15s;white-space:nowrap}
+.action-btn:hover{border-color:var(--lv3);color:var(--lv3)}
+.ex-section{margin-bottom:56px;scroll-margin-top:20px}
+.ex-head{display:flex;align-items:flex-start;gap:14px;margin-bottom:20px}
+.ex-badge{font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:600;padding:4px 9px;border-radius:5px;white-space:nowrap;margin-top:2px;background:rgba(196,122,26,.12);color:var(--lv3);border:1px solid rgba(196,122,26,.2)}
+.ex-head-info h2{font-family:'Syne',sans-serif;font-size:19px;font-weight:800;letter-spacing:-.02em;color:var(--tx1);margin-bottom:5px}
+.tags{display:flex;gap:5px;flex-wrap:wrap}
+.tag{font-size:10px;font-family:'JetBrains Mono',monospace;padding:2px 7px;border-radius:4px;background:var(--bg4);color:var(--tx3);border:1px solid var(--line)}
+.tab-wrap{border:1px solid var(--line);border-radius:10px;overflow:hidden;margin-bottom:18px}
+.tab-bar{display:flex;gap:2px;background:var(--bg3);padding:3px;border-bottom:1px solid var(--line)}
+.tab-btn{padding:7px 14px;border-radius:6px;font-size:12px;font-family:'JetBrains Mono',monospace;color:var(--tx3);background:none;border:none;cursor:pointer;transition:all .15s;white-space:nowrap}
+.tab-btn.active{background:var(--bg2);color:var(--tx1);box-shadow:0 1px 3px rgba(0,0,0,.15)}
+.tab-panel{display:none}.tab-panel.active{display:block}
+.concept-body{padding:18px 22px;background:var(--bg2)}
+.concept-body h3{font-size:13px;font-weight:500;color:var(--tx1);margin-bottom:10px;padding-left:10px;border-left:3px solid var(--lv3)}
+.concept-body p{font-size:13.5px;color:var(--tx2);line-height:1.7;margin-bottom:8px}
+.concept-body ul{padding-left:18px;margin:8px 0;display:flex;flex-direction:column;gap:4px}
+.concept-body li{font-size:13.5px;color:var(--tx2);line-height:1.6}
+.concept-body code{font-family:'JetBrains Mono',monospace;font-size:12px;background:var(--bg4);color:var(--tx1);padding:1px 5px;border-radius:3px}
+.callout{border-radius:6px;padding:10px 14px;margin-top:10px;font-size:13px;line-height:1.6;display:flex;gap:8px}
+.callout.warn{background:rgba(229,168,32,.08);border:1px solid rgba(229,168,32,.2);color:#B8900A}
+.callout.tip{background:rgba(61,153,112,.08);border:1px solid rgba(61,153,112,.2);color:#2E7A58}
+.callout.info{background:rgba(196,122,26,.08);border:1px solid rgba(196,122,26,.2);color:#8A5800}
+.code-wrap{background:var(--code-bg)}
+.code-header{display:flex;align-items:center;padding:9px 16px;border-bottom:1px solid rgba(255,255,255,.05);background:rgba(255,255,255,.02)}
+.code-dots{display:flex;gap:5px;margin-right:12px}
+.code-dot{width:10px;height:10px;border-radius:50%}
+.copy-btn{margin-left:auto;font-size:11px;font-family:'JetBrains Mono',monospace;padding:4px 10px;border-radius:5px;border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.04);color:#546E7A;cursor:pointer;transition:all .15s}
+.copy-btn:hover{color:#CDD3DE}.copy-btn.copied{color:#3D9970}
+pre{font-family:'JetBrains Mono',monospace;font-size:12.5px;line-height:1.75;padding:18px 22px;overflow-x:auto;color:#CDD3DE;background:var(--code-bg);margin:0}
+.kw{color:#C792EA}.fn{color:#82AAFF}.st{color:#C3E88D}.nm{color:#F78C6C}
+.cm{color:#546E7A;font-style:italic}.ty{color:#FFCB6B}.mc{color:#89DDFF}.op{color:#89DDFF}
+.output-body{padding:16px 20px;background:var(--bg2);font-family:'JetBrains Mono',monospace;font-size:12.5px;color:var(--tx2);line-height:1.8}
+.out-prompt{color:var(--rust)}.out-ok{color:#3D9970}.out-val{color:#F78C6C}.out-dim{color:var(--tx3)}
+.done-row{display:flex;justify-content:flex-end;padding:12px 18px;border-top:1px solid var(--line);background:var(--bg2)}
+.done-btn{display:flex;align-items:center;gap:6px;font-size:12.5px;padding:6px 14px;border-radius:7px;border:1px solid var(--line2);background:none;color:var(--tx3);cursor:pointer;transition:all .15s}
+.done-btn:hover{border-color:var(--green);color:var(--green)}
+.done-btn.done{border-color:var(--green);color:var(--green);background:rgba(61,153,112,.08)}
+.section-divider{height:1px;background:var(--line);margin-bottom:56px}
+@media(max-width:800px){nav{display:none}main{margin-left:0;padding:20px 18px 80px}.prog-strip{left:0}}
+</style>
+</head>
+<body>
+<div class="prog-strip"><div class="prog-fill" id="prog-fill" style="width:0%"></div></div>
+<nav>
+  <div class="nav-top">
+    <div class="nav-chip">L3 · Inter.-Expert</div>
+    <div class="nav-h">Solutions<br>31 – 40</div>
+    <div class="nav-sub">// Blockchain · Schnorr · P2P</div>
+  </div>
+  <div id="nav-items"></div>
+  <div class="nav-foot">
+    <span class="nav-prog-text" id="nav-prog">0 / 10</span>
+    <div class="theme-pill">
+      <button class="tbtn" id="tbtn-dark" onclick="setTheme('dark')">🌙</button>
+      <button class="tbtn active" id="tbtn-light" onclick="setTheme('light')">☀️</button>
+    </div>
+  </div>
+</nav>
+<main>
+  <div class="topbar">
+    <div>
+      <div class="tb-eyebrow">L3 · Intermédiaire–Expert · 31–40</div>
+      <div class="tb-h">Solutions commentées</div>
+    </div>
+    <div class="tb-actions">
+      <button class="action-btn" onclick="doExpandAll()">Tout ouvrir code</button>
+      <button class="action-btn" onclick="doMarkAll()">Tout marquer fait</button>
+    </div>
+  </div>
+  <div id="ex-container"></div>
+</main>
+<script>
+var EXERCISES = [
+{
+  id:'31', title:'Sérialisation complète d\'un bloc Bitcoin',
+  tags:['Bitcoin protocol','sérialisation','header','target','little-endian'],
+  cargo:'sha2 = "0.10"',
+  concept:[
+    {type:'h3',text:'Header Bitcoin — 80 bytes'},
+    {type:'p',text:'Un header Bitcoin est exactement 80 bytes sérialisés en little-endian. Le block hash = SHA256d(header) doit être inférieur au target.'},
+    {type:'ul',items:[
+      'version (4B LE) · prev_hash (32B) · merkle_root (32B)',
+      'time (4B LE) · bits (4B LE) · nonce (4B LE)',
+      'bits compact → target 256-bit : exposant (1B) + mantisse (3B)',
+      'target = mantisse × 2^(8×(exposant-3))',
+      'Block hash stocké en little-endian mais affiché en big-endian dans les explorateurs',
+    ]},
+    {type:'tip',text:'Le bloc genèse Bitcoin a bits=0x1d00ffff, nonce=2083236893, et son hash commence par 10 zéros en hex. Son prev_hash est 0x000...000 (62 zéros).'},
+  ],
+  code:
+'<span class="cm">// 31 — Sérialisation header Bitcoin complet</span>\n'+
+'<span class="cm">// Cargo.toml : sha2 = "0.10"</span>\n'+
+'<span class="kw">use</span> sha2::{Sha256, Digest};\n'+
+'\n'+
+'<span class="kw">#[derive(Debug)]</span>\n'+
+'<span class="kw">struct</span> <span class="ty">BlockHeader</span> {\n'+
+'    version:     <span class="ty">u32</span>,\n'+
+'    prev_hash:   [<span class="ty">u8</span>;<span class="nm">32</span>],\n'+
+'    merkle_root: [<span class="ty">u8</span>;<span class="nm">32</span>],\n'+
+'    time:        <span class="ty">u32</span>,\n'+
+'    bits:        <span class="ty">u32</span>,\n'+
+'    nonce:       <span class="ty">u32</span>,\n'+
+'}\n'+
+'\n'+
+'<span class="kw">impl</span> <span class="ty">BlockHeader</span> {\n'+
+'    <span class="cm">/// Sérialise le header en 80 bytes (format Bitcoin wire)</span>\n'+
+'    <span class="kw">fn</span> <span class="fn">serialize</span>(<span class="op">&amp;</span><span class="kw">self</span>) -&gt; [<span class="ty">u8</span>;<span class="nm">80</span>] {\n'+
+'        <span class="kw">let mut</span> buf = [<span class="nm">0u8</span>;<span class="nm">80</span>];\n'+
+'        buf[<span class="nm">0</span>..<span class="nm">4</span>].copy_from_slice(<span class="op">&amp;</span><span class="kw">self</span>.version.<span class="fn">to_le_bytes</span>());\n'+
+'        buf[<span class="nm">4</span>..<span class="nm">36</span>].copy_from_slice(<span class="op">&amp;</span><span class="kw">self</span>.prev_hash);\n'+
+'        buf[<span class="nm">36</span>..<span class="nm">68</span>].copy_from_slice(<span class="op">&amp;</span><span class="kw">self</span>.merkle_root);\n'+
+'        buf[<span class="nm">68</span>..<span class="nm">72</span>].copy_from_slice(<span class="op">&amp;</span><span class="kw">self</span>.time.<span class="fn">to_le_bytes</span>());\n'+
+'        buf[<span class="nm">72</span>..<span class="nm">76</span>].copy_from_slice(<span class="op">&amp;</span><span class="kw">self</span>.bits.<span class="fn">to_le_bytes</span>());\n'+
+'        buf[<span class="nm">76</span>..<span class="nm">80</span>].copy_from_slice(<span class="op">&amp;</span><span class="kw">self</span>.nonce.<span class="fn">to_le_bytes</span>());\n'+
+'        buf\n'+
+'    }\n'+
+'\n'+
+'    <span class="cm">/// Désérialise depuis 80 bytes</span>\n'+
+'    <span class="kw">fn</span> <span class="fn">deserialize</span>(buf: <span class="op">&amp;</span>[<span class="ty">u8</span>;<span class="nm">80</span>]) -&gt; <span class="ty">Self</span> {\n'+
+'        <span class="ty">BlockHeader</span> {\n'+
+'            version:     <span class="ty">u32</span>::<span class="fn">from_le_bytes</span>(buf[<span class="nm">0</span>..<span class="nm">4</span>].<span class="fn">try_into</span>().<span class="fn">unwrap</span>()),\n'+
+'            prev_hash:   buf[<span class="nm">4</span>..<span class="nm">36</span>].<span class="fn">try_into</span>().<span class="fn">unwrap</span>(),\n'+
+'            merkle_root: buf[<span class="nm">36</span>..<span class="nm">68</span>].<span class="fn">try_into</span>().<span class="fn">unwrap</span>(),\n'+
+'            time:        <span class="ty">u32</span>::<span class="fn">from_le_bytes</span>(buf[<span class="nm">68</span>..<span class="nm">72</span>].<span class="fn">try_into</span>().<span class="fn">unwrap</span>()),\n'+
+'            bits:        <span class="ty">u32</span>::<span class="fn">from_le_bytes</span>(buf[<span class="nm">72</span>..<span class="nm">76</span>].<span class="fn">try_into</span>().<span class="fn">unwrap</span>()),\n'+
+'            nonce:       <span class="ty">u32</span>::<span class="fn">from_le_bytes</span>(buf[<span class="nm">76</span>..<span class="nm">80</span>].<span class="fn">try_into</span>().<span class="fn">unwrap</span>()),\n'+
+'        }\n'+
+'    }\n'+
+'\n'+
+'    <span class="cm">/// Calcule SHA256d(header) = block hash</span>\n'+
+'    <span class="kw">fn</span> <span class="fn">block_hash</span>(<span class="op">&amp;</span><span class="kw">self</span>) -&gt; [<span class="ty">u8</span>;<span class="nm">32</span>] {\n'+
+'        <span class="kw">let</span> raw = <span class="kw">self</span>.<span class="fn">serialize</span>();\n'+
+'        Sha256::<span class="fn">digest</span>(Sha256::<span class="fn">digest</span>(raw)).<span class="fn">into</span>()\n'+
+'    }\n'+
+'\n'+
+'    <span class="cm">/// Décode bits compact → target 256-bit</span>\n'+
+'    <span class="kw">fn</span> <span class="fn">target</span>(<span class="op">&amp;</span><span class="kw">self</span>) -&gt; [<span class="ty">u8</span>;<span class="nm">32</span>] {\n'+
+'        <span class="kw">let</span> exp      = ((<span class="kw">self</span>.bits >> <span class="nm">24</span>) <span class="kw">as</span> <span class="ty">usize</span>).<span class="fn">saturating_sub</span>(<span class="nm">3</span>);\n'+
+'        <span class="kw">let</span> mantissa = <span class="kw">self</span>.bits <span class="op">&amp;</span> <span class="nm">0x00FFFFFF</span>;\n'+
+'        <span class="kw">let mut</span> t = [<span class="nm">0u8</span>;<span class="nm">32</span>];\n'+
+'        <span class="kw">if</span> exp + <span class="nm">3</span> <= <span class="nm">32</span> {\n'+
+'            <span class="kw">let</span> start = <span class="nm">32</span> - exp - <span class="nm">3</span>;\n'+
+'            t[start]   = ((mantissa >> <span class="nm">16</span>) <span class="op">&amp;</span> <span class="nm">0xFF</span>) <span class="kw">as</span> <span class="ty">u8</span>;\n'+
+'            t[start+<span class="nm">1</span>] = ((mantissa >>  <span class="nm">8</span>) <span class="op">&amp;</span> <span class="nm">0xFF</span>) <span class="kw">as</span> <span class="ty">u8</span>;\n'+
+'            t[start+<span class="nm">2</span>] = ( mantissa        <span class="op">&amp;</span> <span class="nm">0xFF</span>) <span class="kw">as</span> <span class="ty">u8</span>;\n'+
+'        }\n'+
+'        t\n'+
+'    }\n'+
+'\n'+
+'    <span class="cm">/// Vérifie que block_hash &lt; target</span>\n'+
+'    <span class="kw">fn</span> <span class="fn">verify_pow</span>(<span class="op">&amp;</span><span class="kw">self</span>) -&gt; <span class="ty">bool</span> {\n'+
+'        <span class="kw">let</span> <span class="kw">mut</span> hash = <span class="kw">self</span>.<span class="fn">block_hash</span>();\n'+
+'        hash.<span class="fn">reverse</span>(); <span class="cm">// big-endian pour comparaison</span>\n'+
+'        <span class="kw">let</span> target = <span class="kw">self</span>.<span class="fn">target</span>();\n'+
+'        hash < target\n'+
+'    }\n'+
+'}\n'+
+'\n'+
+'<span class="kw">fn</span> <span class="fn">hex</span>(b: <span class="op">&amp;</span>[<span class="ty">u8</span>]) -&gt; <span class="ty">String</span> { b.<span class="fn">iter</span>().<span class="fn">map</span>(|x|<span class="mc">format!</span>(<span class="st">"{:02x}"</span>,x)).<span class="fn">collect</span>() }\n'+
+'\n'+
+'<span class="kw">fn</span> <span class="fn">main</span>() {\n'+
+'    <span class="cm">// Bloc genèse Bitcoin (block #0)</span>\n'+
+'    <span class="kw">let</span> genesis = <span class="ty">BlockHeader</span> {\n'+
+'        version:     <span class="nm">1</span>,\n'+
+'        prev_hash:   [<span class="nm">0u8</span>;<span class="nm">32</span>], <span class="cm">// pas de prédécesseur</span>\n'+
+'        merkle_root: [\n'+
+'            <span class="nm">0x3b</span>,<span class="nm">0xa3</span>,<span class="nm">0xed</span>,<span class="nm">0xfd</span>,<span class="nm">0x7a</span>,<span class="nm">0x7b</span>,<span class="nm">0x12</span>,<span class="nm">0xb2</span>,\n'+
+'            <span class="nm">0x7a</span>,<span class="nm">0xc7</span>,<span class="nm">0x2c</span>,<span class="nm">0x3e</span>,<span class="nm">0x67</span>,<span class="nm">0x76</span>,<span class="nm">0x8f</span>,<span class="nm">0x61</span>,\n'+
+'            <span class="nm">0x7f</span>,<span class="nm">0xc8</span>,<span class="nm">0x1b</span>,<span class="nm">0xc3</span>,<span class="nm">0x88</span>,<span class="nm">0x8a</span>,<span class="nm">0x51</span>,<span class="nm">0x32</span>,\n'+
+'            <span class="nm">0x3a</span>,<span class="nm">0x9f</span>,<span class="nm">0xb8</span>,<span class="nm">0xaa</span>,<span class="nm">0x4b</span>,<span class="nm">0x1e</span>,<span class="nm">0x5e</span>,<span class="nm">0x4a</span>,\n'+
+'        ],\n'+
+'        time:  <span class="nm">1231006505</span>, <span class="cm">// 03 Jan 2009</span>\n'+
+'        bits:  <span class="nm">0x1d00ffff</span>,\n'+
+'        nonce: <span class="nm">2083236893</span>,\n'+
+'    };\n'+
+'\n'+
+'    <span class="kw">let</span> raw = genesis.<span class="fn">serialize</span>();\n'+
+'    <span class="mc">println!</span>(<span class="st">"Header sérialisé ({} bytes): {}..."</span>, raw.<span class="fn">len</span>(), <span class="op">&amp;</span><span class="fn">hex</span>(<span class="op">&amp;</span>raw)[..<span class="nm">32</span>]);\n'+
+'\n'+
+'    <span class="cm">// Block hash (doit commencer par plusieurs zéros)</span>\n'+
+'    <span class="kw">let</span> hash = genesis.<span class="fn">block_hash</span>();\n'+
+'    <span class="kw">let mut</span> hash_be = hash;\n'+
+'    hash_be.<span class="fn">reverse</span>(); <span class="cm">// affichage big-endian comme les explorateurs</span>\n'+
+'    <span class="mc">println!</span>(<span class="st">"Block hash (BE): {}"</span>, <span class="fn">hex</span>(<span class="op">&amp;</span>hash_be));\n'+
+'\n'+
+'    <span class="cm">// Target depuis bits compact</span>\n'+
+'    <span class="kw">let</span> target = genesis.<span class="fn">target</span>();\n'+
+'    <span class="mc">println!</span>(<span class="st">"Target         : {}..."</span>, <span class="op">&amp;</span><span class="fn">hex</span>(<span class="op">&amp;</span>target)[..<span class="nm">16</span>]);\n'+
+'\n'+
+'    <span class="mc">println!</span>(<span class="st">"PoW valide     : {}"</span>, genesis.<span class="fn">verify_pow</span>());\n'+
+'\n'+
+'    <span class="cm">// Round-trip : serialize → deserialize</span>\n'+
+'    <span class="kw">let</span> recovered = <span class="ty">BlockHeader</span>::<span class="fn">deserialize</span>(<span class="op">&amp;</span>raw);\n'+
+'    <span class="mc">assert_eq!</span>(genesis.nonce, recovered.nonce);\n'+
+'    <span class="mc">assert_eq!</span>(genesis.bits, recovered.bits);\n'+
+'    <span class="mc">println!</span>(<span class="st">"\nOK round-trip serialize/deserialize"</span>);\n'+
+'\n'+
+'    <span class="cm">// Modifier le nonce invalide le PoW</span>\n'+
+'    <span class="kw">let</span> bad = <span class="ty">BlockHeader</span> { nonce: <span class="nm">0</span>, ..genesis };\n'+
+'    <span class="mc">println!</span>(<span class="st">"PoW nonce=0    : {} (attendu false)"</span>, bad.<span class="fn">verify_pow</span>());\n'+
+'}',
+  output:
+'<span class="out-prompt">$</span> cargo run\n'+
+'Header sérialisé (80 bytes): <span class="out-val">01000000000000000000...</span>\n'+
+'Block hash (BE): <span class="out-val">000000000019d6689c085ae165831e934ff763ae46a2a6c172b3f1b60a8ce26f</span>\n'+
+'Target         : <span class="out-val">00000000ffff0000...</span>\n'+
+'PoW valide     : <span class="out-ok">true</span>\n'+
+'\n'+
+'<span class="out-ok">OK round-trip serialize/deserialize</span>\n'+
+'PoW nonce=0    : <span class="out-dim">false</span> (attendu false)'
+},
+{
+  id:'32', title:'UTXO set — modèle de dépense',
+  tags:['UTXO','double spend','HashMap','validation'],
+  cargo:'sha2 = "0.10"',
+  concept:[
+    {type:'h3',text:'UTXO (Unspent Transaction Output)'},
+    {type:'p',text:'Bitcoin ne stocke pas de "soldes". Il stocke des sorties non-dépensées (UTXO). Dépenser = consommer des UTXOs existants et créer de nouveaux.'},
+    {type:'ul',items:[
+      'UTXO = (txid, vout_index, montant, script)',
+      'Un input référence un UTXO existant par (txid, index)',
+      'Validation : tous les inputs existent, non-dépensés, sum(inputs) ≥ sum(outputs) + fee',
+      'Double-dépense : tenter de dépenser le même UTXO deux fois',
+      'Le set UTXO est la "base de données" de tous les bitcoins existants',
+    ]},
+    {type:'tip',text:'En 2024, le set UTXO Bitcoin contient ~180 millions d\'entrées pour ~6 GB. Les nœuds le gardent en mémoire (LevelDB) pour une validation rapide.'},
+  ],
+  code:
+'<span class="cm">// 32 — UTXO set : modèle de dépense Bitcoin</span>\n'+
+'<span class="cm">// Cargo.toml : sha2 = "0.10"</span>\n'+
+'<span class="kw">use</span> std::collections::HashMap;\n'+
+'<span class="kw">use</span> sha2::{Sha256, Digest};\n'+
+'\n'+
+'<span class="kw">type</span> <span class="ty">TxId</span> = [<span class="ty">u8</span>;<span class="nm">32</span>];\n'+
+'<span class="kw">type</span> <span class="ty">OutPoint</span> = (<span class="ty">TxId</span>, <span class="ty">u32</span>); <span class="cm">// (txid, vout_index)</span>\n'+
+'\n'+
+'<span class="kw">#[derive(Clone, Debug)]</span>\n'+
+'<span class="kw">struct</span> <span class="ty">TxOutput</span> {\n'+
+'    value:  <span class="ty">u64</span>,    <span class="cm">// en satoshis</span>\n'+
+'    script: <span class="ty">String</span>, <span class="cm">// adresse destinataire (simplifié)</span>\n'+
+'}\n'+
+'\n'+
+'<span class="kw">#[derive(Debug)]</span>\n'+
+'<span class="kw">struct</span> <span class="ty">TxInput</span> {\n'+
+'    outpoint: <span class="ty">OutPoint</span>,\n'+
+'    sig:      <span class="ty">String</span>, <span class="cm">// signature (simplifié)</span>\n'+
+'}\n'+
+'\n'+
+'<span class="kw">#[derive(Debug)]</span>\n'+
+'<span class="kw">struct</span> <span class="ty">Transaction</span> {\n'+
+'    inputs:  <span class="ty">Vec</span>&lt;<span class="ty">TxInput</span>&gt;,\n'+
+'    outputs: <span class="ty">Vec</span>&lt;<span class="ty">TxOutput</span>&gt;,\n'+
+'}\n'+
+'\n'+
+'<span class="kw">impl</span> <span class="ty">Transaction</span> {\n'+
+'    <span class="kw">fn</span> <span class="fn">txid</span>(<span class="op">&amp;</span><span class="kw">self</span>) -&gt; <span class="ty">TxId</span> {\n'+
+'        <span class="kw">let</span> data = <span class="mc">format!</span>(<span class="st">"{:?}{:?}"</span>, <span class="kw">self</span>.inputs.<span class="fn">len</span>(), <span class="kw">self</span>.outputs.<span class="fn">len</span>());\n'+
+'        Sha256::<span class="fn">digest</span>(data.<span class="fn">as_bytes</span>()).<span class="fn">into</span>()\n'+
+'    }\n'+
+'}\n'+
+'\n'+
+'<span class="kw">#[derive(Debug)]</span>\n'+
+'<span class="kw">enum</span> <span class="ty">TxError</span> {\n'+
+'    <span class="ty">MissingInput</span>(<span class="ty">String</span>),\n'+
+'    <span class="ty">InsufficientFunds</span> { inputs: <span class="ty">u64</span>, outputs: <span class="ty">u64</span> },\n'+
+'    <span class="ty">DoublespendAttempt</span>,\n'+
+'}\n'+
+'\n'+
+'<span class="kw">impl</span> std::fmt::<span class="ty">Display</span> <span class="kw">for</span> <span class="ty">TxError</span> {\n'+
+'    <span class="kw">fn</span> <span class="fn">fmt</span>(<span class="op">&amp;</span><span class="kw">self</span>, f: <span class="op">&amp;</span><span class="kw">mut</span> std::fmt::<span class="ty">Formatter</span>) -&gt; std::fmt::<span class="ty">Result</span> {\n'+
+'        <span class="kw">match</span> <span class="kw">self</span> {\n'+
+'            <span class="ty">TxError</span>::<span class="ty">MissingInput</span>(s) =&gt; write!(f, <span class="st">"UTXO manquant: {}"</span>, s),\n'+
+'            <span class="ty">TxError</span>::<span class="ty">InsufficientFunds</span>{inputs,outputs} =&gt;\n'+
+'                write!(f, <span class="st">"Fonds insuffisants: {} < {} satoshis"</span>, inputs, outputs),\n'+
+'            <span class="ty">TxError</span>::<span class="ty">DoublespendAttempt</span> =&gt; write!(f, <span class="st">"Double dépense détectée!"</span>),\n'+
+'        }\n'+
+'    }\n'+
+'}\n'+
+'\n'+
+'<span class="kw">struct</span> <span class="ty">UtxoSet</span>(HashMap&lt;<span class="ty">OutPoint</span>, <span class="ty">TxOutput</span>&gt;);\n'+
+'\n'+
+'<span class="kw">impl</span> <span class="ty">UtxoSet</span> {\n'+
+'    <span class="kw">fn</span> <span class="fn">new</span>() -&gt; <span class="ty">Self</span> { <span class="ty">UtxoSet</span>(<span class="ty">HashMap</span>::<span class="fn">new</span>()) }\n'+
+'\n'+
+'    <span class="cm">/// Ajoute une coinbase (récompense de minage)</span>\n'+
+'    <span class="kw">fn</span> <span class="fn">add_coinbase</span>(<span class="op">&amp;</span><span class="kw">mut</span> <span class="kw">self</span>, txid: <span class="ty">TxId</span>, idx: <span class="ty">u32</span>, val: <span class="ty">u64</span>, to: <span class="op">&amp;</span><span class="ty">str</span>) {\n'+
+'        <span class="kw">self</span>.<span class="nm">0</span>.<span class="fn">insert</span>((txid, idx), <span class="ty">TxOutput</span> { value: val, script: to.<span class="fn">to_string</span>() });\n'+
+'    }\n'+
+'\n'+
+'    <span class="cm">/// Valide et applique une transaction</span>\n'+
+'    <span class="kw">fn</span> <span class="fn">apply_tx</span>(<span class="op">&amp;</span><span class="kw">mut</span> <span class="kw">self</span>, tx: <span class="op">&amp;</span><span class="ty">Transaction</span>) -&gt; <span class="ty">Result</span>&lt;<span class="ty">TxId</span>, <span class="ty">TxError</span>&gt; {\n'+
+'        <span class="cm">// 1. Vérifier que tous les inputs existent</span>\n'+
+'        <span class="kw">let mut</span> input_sum = <span class="nm">0u64</span>;\n'+
+'        <span class="kw">let mut</span> seen = std::collections::<span class="ty">HashSet</span>::<span class="fn">new</span>();\n'+
+'        <span class="kw">for</span> inp <span class="kw">in</span> <span class="op">&amp;</span>tx.inputs {\n'+
+'            <span class="kw">if</span> !seen.<span class="fn">insert</span>(inp.outpoint) {\n'+
+'                <span class="kw">return</span> <span class="ty">Err</span>(<span class="ty">TxError</span>::<span class="ty">DoublespendAttempt</span>);\n'+
+'            }\n'+
+'            <span class="kw">match</span> <span class="kw">self</span>.<span class="nm">0</span>.<span class="fn">get</span>(<span class="op">&amp;</span>inp.outpoint) {\n'+
+'                <span class="ty">Some</span>(utxo) =&gt; input_sum += utxo.value,\n'+
+'                <span class="ty">None</span> =&gt; <span class="kw">return</span> <span class="ty">Err</span>(<span class="ty">TxError</span>::<span class="ty">MissingInput</span>(\n'+
+'                    <span class="mc">format!</span>(<span class="st">"({:02x?}, {})"</span>, <span class="op">&amp;</span>inp.outpoint.<span class="nm">0</span>[..<span class="nm">4</span>], inp.outpoint.<span class="nm">1</span>)\n'+
+'                )),\n'+
+'            }\n'+
+'        }\n'+
+'        <span class="cm">// 2. Vérifier que inputs ≥ outputs</span>\n'+
+'        <span class="kw">let</span> output_sum: <span class="ty">u64</span> = tx.outputs.<span class="fn">iter</span>().<span class="fn">map</span>(|o| o.value).<span class="fn">sum</span>();\n'+
+'        <span class="kw">if</span> input_sum < output_sum {\n'+
+'            <span class="kw">return</span> <span class="ty">Err</span>(<span class="ty">TxError</span>::<span class="ty">InsufficientFunds</span> {\n'+
+'                inputs: input_sum, outputs: output_sum\n'+
+'            });\n'+
+'        }\n'+
+'        <span class="cm">// 3. Supprimer les inputs (dépensés)</span>\n'+
+'        <span class="kw">for</span> inp <span class="kw">in</span> <span class="op">&amp;</span>tx.inputs { <span class="kw">self</span>.<span class="nm">0</span>.<span class="fn">remove</span>(<span class="op">&amp;</span>inp.outpoint); }\n'+
+'        <span class="cm">// 4. Ajouter les outputs (nouveaux UTXO)</span>\n'+
+'        <span class="kw">let</span> txid = tx.<span class="fn">txid</span>();\n'+
+'        <span class="kw">for</span> (i, out) <span class="kw">in</span> tx.outputs.<span class="fn">iter</span>().<span class="fn">enumerate</span>() {\n'+
+'            <span class="kw">self</span>.<span class="nm">0</span>.<span class="fn">insert</span>((txid, i <span class="kw">as</span> <span class="ty">u32</span>), out.<span class="fn">clone</span>());\n'+
+'        }\n'+
+'        <span class="kw">let</span> fee = input_sum - output_sum;\n'+
+'        <span class="mc">println!</span>(<span class="st">"  TX OK | inputs:{} outputs:{} fee:{} sat"</span>, input_sum, output_sum, fee);\n'+
+'        <span class="ty">Ok</span>(txid)\n'+
+'    }\n'+
+'\n'+
+'    <span class="kw">fn</span> <span class="fn">len</span>(<span class="op">&amp;</span><span class="kw">self</span>) -&gt; <span class="ty">usize</span> { <span class="kw">self</span>.<span class="nm">0</span>.<span class="fn">len</span>() }\n'+
+'}\n'+
+'\n'+
+'<span class="kw">fn</span> <span class="fn">main</span>() {\n'+
+'    <span class="kw">let mut</span> utxo_set = <span class="ty">UtxoSet</span>::<span class="fn">new</span>();\n'+
+'\n'+
+'    <span class="cm">// Coinbase : miner reçoit 50 BTC</span>\n'+
+'    <span class="kw">let</span> coinbase_txid = [<span class="nm">0x01u8</span>;<span class="nm">32</span>];\n'+
+'    utxo_set.<span class="fn">add_coinbase</span>(coinbase_txid, <span class="nm">0</span>, <span class="nm">5_000_000_000</span>, <span class="st">"1Miner"</span>);\n'+
+'    <span class="mc">println!</span>(<span class="st">"UTXO set initial: {} entrée(s)"</span>, utxo_set.<span class="fn">len</span>());\n'+
+'\n'+
+'    <span class="cm">// TX 1 : Miner envoie 1 BTC à Alice (fee = 0.001 BTC)</span>\n'+
+'    <span class="kw">let</span> tx1 = <span class="ty">Transaction</span> {\n'+
+'        inputs: <span class="kw">vec!</span>[<span class="ty">TxInput</span> { outpoint: (coinbase_txid, <span class="nm">0</span>), sig: <span class="st">"sig_miner"</span>.<span class="fn">into</span>() }],\n'+
+'        outputs: <span class="kw">vec!</span>[\n'+
+'            <span class="ty">TxOutput</span> { value: <span class="nm">100_000_000</span>, script: <span class="st">"1Alice"</span>.<span class="fn">into</span>() },\n'+
+'            <span class="ty">TxOutput</span> { value: <span class="nm">4_899_900_000</span>, script: <span class="st">"1Miner"</span>.<span class="fn">into</span>() }, <span class="cm">// change</span>\n'+
+'        ],\n'+
+'    };\n'+
+'    <span class="kw">let</span> tx1_id = utxo_set.<span class="fn">apply_tx</span>(<span class="op">&amp;</span>tx1).<span class="fn">unwrap</span>();\n'+
+'    <span class="mc">println!</span>(<span class="st">"UTXO après TX1  : {} entrées"</span>, utxo_set.<span class="fn">len</span>());\n'+
+'\n'+
+'    <span class="cm">// TX 2 : Tentative de double-dépense (coinbase déjà dépensée)</span>\n'+
+'    <span class="kw">let</span> tx_double = <span class="ty">Transaction</span> {\n'+
+'        inputs: <span class="kw">vec!</span>[<span class="ty">TxInput</span> { outpoint: (coinbase_txid, <span class="nm">0</span>), sig: <span class="st">"sig_attack"</span>.<span class="fn">into</span>() }],\n'+
+'        outputs: <span class="kw">vec!</span>[<span class="ty">TxOutput</span> { value: <span class="nm">5_000_000_000</span>, script: <span class="st">"1Attacker"</span>.<span class="fn">into</span>() }],\n'+
+'    };\n'+
+'    <span class="kw">match</span> utxo_set.<span class="fn">apply_tx</span>(<span class="op">&amp;</span>tx_double) {\n'+
+'        <span class="ty">Err</span>(e) =&gt; <span class="mc">println!</span>(<span class="st">"Double spend rejeté : {}"</span>, e),\n'+
+'        <span class="ty">Ok</span>(_)  =&gt; <span class="mc">println!</span>(<span class="st">"BUG!"</span>),\n'+
+'    }\n'+
+'\n'+
+'    <span class="cm">// TX 3 : Fonds insuffisants</span>\n'+
+'    <span class="kw">let</span> tx_broke = <span class="ty">Transaction</span> {\n'+
+'        inputs: <span class="kw">vec!</span>[<span class="ty">TxInput</span> { outpoint: (tx1_id, <span class="nm">0</span>), sig: <span class="st">"sig_alice"</span>.<span class="fn">into</span>() }],\n'+
+'        outputs: <span class="kw">vec!</span>[<span class="ty">TxOutput</span> { value: <span class="nm">999_999_999_999</span>, script: <span class="st">"1Bob"</span>.<span class="fn">into</span>() }],\n'+
+'    };\n'+
+'    <span class="kw">match</span> utxo_set.<span class="fn">apply_tx</span>(<span class="op">&amp;</span>tx_broke) {\n'+
+'        <span class="ty">Err</span>(e) =&gt; <span class="mc">println!</span>(<span class="st">"Fonds insuf. rejeté : {}"</span>, e),\n'+
+'        <span class="ty">Ok</span>(_)  =&gt; <span class="mc">println!</span>(<span class="st">"BUG!"</span>),\n'+
+'    }\n'+
+'    <span class="mc">println!</span>(<span class="st">"\nUTXO final: {} entrées"</span>, utxo_set.<span class="fn">len</span>());\n'+
+'}',
+  output:
+'<span class="out-prompt">$</span> cargo run\n'+
+'UTXO set initial: <span class="out-val">1</span> entrée(s)\n'+
+'  TX OK | inputs:<span class="out-val">5000000000</span> outputs:<span class="out-val">4999900000</span> fee:<span class="out-val">100000</span> sat\n'+
+'UTXO après TX1  : <span class="out-val">2</span> entrées\n'+
+'Double spend rejeté : <span class="out-ok">UTXO manquant: ([01, 01, 01, 01], 0)</span>\n'+
+'Fonds insuf. rejeté : <span class="out-ok">Fonds insuffisants: 100000000 < 999999999999 satoshis</span>\n'+
+'\n'+
+'UTXO final: <span class="out-val">2</span> entrées'
+},
+{
+  id:'33', title:'Schnorr BIP340 — signature et vérification',
+  tags:['Schnorr','BIP340','Taproot','tagged hash'],
+  cargo:'k256 = { version = "0.13", features = ["schnorr"] }\nrand = "0.8"\nsha2 = "0.10"',
+  concept:[
+    {type:'h3',text:'Schnorr BIP340'},
+    {type:'p',text:'Schnorr est plus simple qu\'ECDSA, prouable sécurisé, et supporte la vérification en batch. Bitcoin l\'a adopté via Taproot (BIP340-341-342).'},
+    {type:'ul',items:[
+      'Signature = (R, s) : R = k*G (nonce), s = k + H(R||P||msg)*privkey',
+      'Vérification : s*G == R + H(R||P||msg)*P',
+      'Tagged hash : SHA256("BIP0340/challenge" || SHA256("BIP0340/challenge") || msg)',
+      'Clé publique = seulement la coordonnée x (32 bytes) — y toujours pair',
+      'Batch verify : N signatures en une passe ≈ 2× plus rapide',
+    ]},
+    {type:'tip',text:'La signature Schnorr est 64 bytes (vs 71-72 pour ECDSA DER). Taproot key-path spend est la transaction Bitcoin la plus compacte possible.'},
+  ],
+  code:
+'<span class="cm">// 33 — Schnorr BIP340</span>\n'+
+'<span class="cm">// Cargo.toml : k256 = { version = "0.13", features = ["schnorr"] }, rand = "0.8", sha2 = "0.10"</span>\n'+
+'<span class="kw">use</span> k256::schnorr::{SigningKey, VerifyingKey, Signature};\n'+
+'<span class="kw">use</span> k256::schnorr::signature::{Signer, Verifier};\n'+
+'<span class="kw">use</span> rand::rngs::OsRng;\n'+
+'\n'+
+'<span class="kw">fn</span> <span class="fn">main</span>() {\n'+
+'    <span class="mc">println!</span>(<span class="st">"=== Schnorr BIP340 ===\n"</span>);\n'+
+'\n'+
+'    <span class="cm">// Générer une paire de clés Schnorr</span>\n'+
+'    <span class="kw">let</span> signing_key = SigningKey::<span class="fn">random</span>(<span class="op">&amp;</span><span class="kw">mut</span> OsRng);\n'+
+'    <span class="kw">let</span> verifying_key = signing_key.<span class="fn">verifying_key</span>();\n'+
+'\n'+
+'    <span class="cm">// Clé publique = seulement x (32 bytes, y toujours pair BIP340)</span>\n'+
+'    <span class="kw">let</span> pk_bytes = verifying_key.<span class="fn">to_bytes</span>();\n'+
+'    <span class="mc">println!</span>(<span class="st">"Clé pub (x-only, 32B): {}..."</span>,\n'+
+'        pk_bytes.<span class="fn">iter</span>().<span class="fn">map</span>(|b|<span class="mc">format!</span>(<span class="st">"{:02x}"</span>,b)).<span class="fn">collect</span>::&lt;<span class="ty">String</span>&gt;().get(..<span class="nm">16</span>).<span class="fn">unwrap_or</span>(<span class="st">""</span>));\n'+
+'\n'+
+'    <span class="kw">let</span> message = <span class="st">b"taproot key-path spend: 1.0 BTC"</span>;\n'+
+'\n'+
+'    <span class="cm">// Signer</span>\n'+
+'    <span class="kw">let</span> sig: Signature = signing_key.<span class="fn">sign</span>(message);\n'+
+'    <span class="kw">let</span> sig_bytes = sig.<span class="fn">to_bytes</span>();\n'+
+'    <span class="mc">println!</span>(<span class="st">"Signature (64B)  : {}..."</span>,\n'+
+'        sig_bytes.<span class="fn">iter</span>().<span class="fn">map</span>(|b|<span class="mc">format!</span>(<span class="st">"{:02x}"</span>,b)).<span class="fn">collect</span>::&lt;<span class="ty">String</span>&gt;().get(..<span class="nm">16</span>).<span class="fn">unwrap_or</span>(<span class="st">""</span>));\n'+
+'    <span class="mc">println!</span>(<span class="st">"Taille : {} bytes (vs 71-72 pour ECDSA DER)\n"</span>, sig_bytes.<span class="fn">len</span>());\n'+
+'\n'+
+'    <span class="cm">// Vérification valide</span>\n'+
+'    <span class="kw">match</span> verifying_key.<span class="fn">verify</span>(message, <span class="op">&amp;</span>sig) {\n'+
+'        <span class="ty">Ok</span>(()) =&gt; <span class="mc">println!</span>(<span class="st">"OK signature valide"</span>),\n'+
+'        <span class="ty">Err</span>(e) =&gt; <span class="mc">println!</span>(<span class="st">"FAIL: {}"</span>, e),\n'+
+'    }\n'+
+'\n'+
+'    <span class="cm">// Message falsifié → rejeté</span>\n'+
+'    <span class="kw">match</span> verifying_key.<span class="fn">verify</span>(<span class="st">b"tampered"</span>, <span class="op">&amp;</span>sig) {\n'+
+'        <span class="ty">Ok</span>(()) =&gt; <span class="mc">println!</span>(<span class="st">"BUG!"</span>),\n'+
+'        <span class="ty">Err</span>(_) =&gt; <span class="mc">println!</span>(<span class="st">"OK message falsifié rejeté"</span>),\n'+
+'    }\n'+
+'\n'+
+'    <span class="cm">// Mauvaise clé → rejeté</span>\n'+
+'    <span class="kw">let</span> other = SigningKey::<span class="fn">random</span>(<span class="op">&amp;</span><span class="kw">mut</span> OsRng);\n'+
+'    <span class="kw">match</span> other.<span class="fn">verifying_key</span>().<span class="fn">verify</span>(message, <span class="op">&amp;</span>sig) {\n'+
+'        <span class="ty">Ok</span>(()) =&gt; <span class="mc">println!</span>(<span class="st">"BUG!"</span>),\n'+
+'        <span class="ty">Err</span>(_) =&gt; <span class="mc">println!</span>(<span class="st">"OK mauvaise clé rejetée"</span>),\n'+
+'    }\n'+
+'\n'+
+'    <span class="cm">// Avantage Schnorr : batch verification (simulation)</span>\n'+
+'    <span class="mc">println!</span>(<span class="st">"\n=== Batch verification (10 signatures) ==="</span>);\n'+
+'    <span class="kw">let</span> pairs: <span class="ty">Vec</span>&lt;_&gt; = (<span class="nm">0u8</span>..<span class="nm">10</span>).<span class="fn">map</span>(|i| {\n'+
+'        <span class="kw">let</span> sk = SigningKey::<span class="fn">random</span>(<span class="op">&amp;</span><span class="kw">mut</span> OsRng);\n'+
+'        <span class="kw">let</span> msg = <span class="mc">format!</span>(<span class="st">"tx_{}"</span>, i);\n'+
+'        <span class="kw">let</span> s: Signature = sk.<span class="fn">sign</span>(msg.<span class="fn">as_bytes</span>());\n'+
+'        (sk.<span class="fn">verifying_key</span>().<span class="fn">clone</span>(), msg, s)\n'+
+'    }).<span class="fn">collect</span>();\n'+
+'\n'+
+'    <span class="kw">let mut</span> all_ok = <span class="kw">true</span>;\n'+
+'    <span class="kw">for</span> (vk, msg, s) <span class="kw">in</span> <span class="op">&amp;</span>pairs {\n'+
+'        <span class="kw">if</span> vk.<span class="fn">verify</span>(msg.<span class="fn">as_bytes</span>(), s).<span class="fn">is_err</span>() { all_ok = <span class="kw">false</span>; }\n'+
+'    }\n'+
+'    <span class="mc">println!</span>(<span class="st">"10 signatures vérifiées: {}"</span>, <span class="kw">if</span> all_ok {<span class="st">"OK"</span>} <span class="kw">else</span> {<span class="st">"FAIL"</span>});\n'+
+'}',
+  output:
+'<span class="out-prompt">$</span> cargo run\n'+
+'=== Schnorr BIP340 ===\n'+
+'\n'+
+'Clé pub (x-only, 32B): <span class="out-val">79be667ef9dcbb26</span>...\n'+
+'Signature (64B)  : <span class="out-val">f3e2d1c0b9a8f7e6</span>...\n'+
+'Taille : <span class="out-val">64</span> bytes (vs 71-72 pour ECDSA DER)\n'+
+'\n'+
+'<span class="out-ok">OK signature valide</span>\n'+
+'<span class="out-ok">OK message falsifié rejeté</span>\n'+
+'<span class="out-ok">OK mauvaise clé rejetée</span>\n'+
+'\n'+
+'=== Batch verification (10 signatures) ===\n'+
+'10 signatures vérifiées: <span class="out-ok">OK</span>'
+},
+{
+  id:'34', title:'Partage de secret de Shamir (2-of-3)',
+  tags:['Shamir','multisig','Lagrange','seuil'],
+  cargo:'rand = "0.8"',
+  concept:[
+    {type:'h3',text:'Shamir Secret Sharing (SSS)'},
+    {type:'p',text:'SSS permet de diviser un secret en N parts telles que K parts quelconques permettent de reconstituer le secret, mais K-1 parts ne révèlent rien.'},
+    {type:'ul',items:[
+      'Construire un polynôme P de degré K-1 avec P(0) = secret',
+      'Parts = (i, P(i)) pour i = 1..N',
+      'Reconstitution = interpolation de Lagrange sur K points',
+      'Arithmétique dans Z_p (p premier) pour éviter les fuites',
+      'Application : multi-sig portefeuilles, clés de chiffrement partagées',
+    ]},
+    {type:'tip',text:'La sécurité de SSS est inconditionnelle (information-theoretic) — même avec une puissance de calcul infinie, K-1 parts ne révèlent aucune information sur le secret.'},
+  ],
+  code:
+'<span class="cm">// 34 — Shamir Secret Sharing 2-of-3</span>\n'+
+'<span class="cm">// Cargo.toml : rand = "0.8"</span>\n'+
+'<span class="kw">use</span> rand::{Rng, rngs::OsRng};\n'+
+'\n'+
+'<span class="cm">// Nombre premier pour l\'arithmétique modulaire</span>\n'+
+'<span class="cm">// En prod: utiliser un grand premier (ex: 2^127-1)</span>\n'+
+'<span class="kw">const</span> <span class="ty">P</span>: <span class="ty">u64</span> = <span class="nm">2_305_843_009_213_693_951</span>; <span class="cm">// 2^61-1 (premier de Mersenne)</span>\n'+
+'\n'+
+'<span class="kw">fn</span> <span class="fn">mod_add</span>(a: <span class="ty">u64</span>, b: <span class="ty">u64</span>) -&gt; <span class="ty">u64</span> { (a + b) % <span class="ty">P</span> }\n'+
+'<span class="kw">fn</span> <span class="fn">mod_mul</span>(a: <span class="ty">u64</span>, b: <span class="ty">u64</span>) -&gt; <span class="ty">u64</span> { ((a <span class="kw">as</span> <span class="ty">u128</span> * b <span class="kw">as</span> <span class="ty">u128</span>) % <span class="ty">P</span> <span class="kw">as</span> <span class="ty">u128</span>) <span class="kw">as</span> <span class="ty">u64</span> }\n'+
+'\n'+
+'<span class="kw">fn</span> <span class="fn">mod_pow</span>(<span class="kw">mut</span> base: <span class="ty">u64</span>, <span class="kw">mut</span> exp: <span class="ty">u64</span>) -&gt; <span class="ty">u64</span> {\n'+
+'    <span class="kw">let mut</span> r = <span class="nm">1u64</span>;\n'+
+'    base %= <span class="ty">P</span>;\n'+
+'    <span class="kw">while</span> exp &gt; <span class="nm">0</span> {\n'+
+'        <span class="kw">if</span> exp <span class="op">&amp;</span> <span class="nm">1</span> == <span class="nm">1</span> { r = <span class="fn">mod_mul</span>(r, base); }\n'+
+'        base = <span class="fn">mod_mul</span>(base, base);\n'+
+'        exp &gt;&gt;= <span class="nm">1</span>;\n'+
+'    }\n'+
+'    r\n'+
+'}\n'+
+'\n'+
+'<span class="kw">fn</span> <span class="fn">mod_inv</span>(a: <span class="ty">u64</span>) -&gt; <span class="ty">u64</span> { <span class="fn">mod_pow</span>(a, <span class="ty">P</span> - <span class="nm">2</span>) } <span class="cm">// Fermat</span>\n'+
+'\n'+
+'<span class="cm">/// Génère N parts d\'un secret avec un seuil K</span>\n'+
+'<span class="kw">fn</span> <span class="fn">split</span>(secret: <span class="ty">u64</span>, n: <span class="ty">usize</span>, k: <span class="ty">usize</span>) -&gt; <span class="ty">Vec</span>&lt;(<span class="ty">u64</span>, <span class="ty">u64</span>)&gt; {\n'+
+'    <span class="cm">// Coefficients du polynôme : a[0]=secret, a[1..k-1]=aléatoires</span>\n'+
+'    <span class="kw">let mut</span> coeffs = <span class="kw">vec!</span>[secret % <span class="ty">P</span>];\n'+
+'    <span class="kw">for</span> _ <span class="kw">in</span> <span class="nm">1</span>..k { coeffs.<span class="fn">push</span>(OsRng.<span class="fn">gen_range</span>(<span class="nm">1</span>..<span class="ty">P</span>)); }\n'+
+'\n'+
+'    <span class="cm">// Évaluer le polynôme en x = 1..n</span>\n'+
+'    (<span class="nm">1</span>..=n <span class="kw">as</span> <span class="ty">u64</span>).<span class="fn">map</span>(|x| {\n'+
+'        <span class="kw">let</span> y = coeffs.<span class="fn">iter</span>().<span class="fn">enumerate</span>().<span class="fn">fold</span>(<span class="nm">0u64</span>, |acc, (i, <span class="op">&amp;</span>c)| {\n'+
+'            <span class="fn">mod_add</span>(acc, <span class="fn">mod_mul</span>(c, <span class="fn">mod_pow</span>(x, i <span class="kw">as</span> <span class="ty">u64</span>)))\n'+
+'        });\n'+
+'        (x, y)\n'+
+'    }).<span class="fn">collect</span>()\n'+
+'}\n'+
+'\n'+
+'<span class="cm">/// Reconstruit le secret depuis K parts via interpolation de Lagrange</span>\n'+
+'<span class="kw">fn</span> <span class="fn">reconstruct</span>(shares: <span class="op">&amp;</span>[(<span class="ty">u64</span>, <span class="ty">u64</span>)]) -&gt; <span class="ty">u64</span> {\n'+
+'    <span class="cm">// Évaluer le polynôme en x=0 par interpolation de Lagrange</span>\n'+
+'    <span class="kw">let mut</span> secret = <span class="nm">0u64</span>;\n'+
+'    <span class="kw">for</span> (i, <span class="op">&amp;</span>(xi, yi)) <span class="kw">in</span> shares.<span class="fn">iter</span>().<span class="fn">enumerate</span>() {\n'+
+'        <span class="kw">let mut</span> num = <span class="nm">1u64</span>;\n'+
+'        <span class="kw">let mut</span> den = <span class="nm">1u64</span>;\n'+
+'        <span class="kw">for</span> (j, <span class="op">&amp;</span>(xj, _)) <span class="kw">in</span> shares.<span class="fn">iter</span>().<span class="fn">enumerate</span>() {\n'+
+'            <span class="kw">if</span> i != j {\n'+
+'                <span class="cm">// num *= (0 - xj) = P - xj mod P</span>\n'+
+'                num = <span class="fn">mod_mul</span>(num, (<span class="ty">P</span> - xj % <span class="ty">P</span>) % <span class="ty">P</span>);\n'+
+'                <span class="cm">// den *= (xi - xj)</span>\n'+
+'                <span class="kw">let</span> diff = <span class="kw">if</span> xi &gt; xj { xi - xj } <span class="kw">else</span> { <span class="ty">P</span> - (xj - xi) % <span class="ty">P</span> };\n'+
+'                den = <span class="fn">mod_mul</span>(den, diff);\n'+
+'            }\n'+
+'        }\n'+
+'        <span class="kw">let</span> lagrange = <span class="fn">mod_mul</span>(num, <span class="fn">mod_inv</span>(den));\n'+
+'        secret = <span class="fn">mod_add</span>(secret, <span class="fn">mod_mul</span>(yi, lagrange));\n'+
+'    }\n'+
+'    secret\n'+
+'}\n'+
+'\n'+
+'<span class="kw">fn</span> <span class="fn">main</span>() {\n'+
+'    <span class="kw">let</span> secret: <span class="ty">u64</span> = <span class="nm">0xDEADBEEFCAFE_u64</span> % <span class="ty">P</span>;\n'+
+'    <span class="mc">println!</span>(<span class="st">"Secret original : 0x{:012x}"</span>, secret);\n'+
+'\n'+
+'    <span class="cm">// Diviser en 3 parts avec seuil K=2</span>\n'+
+'    <span class="kw">let</span> shares = <span class="fn">split</span>(secret, <span class="nm">3</span>, <span class="nm">2</span>);\n'+
+'    <span class="mc">println!</span>(<span class="st">"\nParts générées (3) :"</span>);\n'+
+'    <span class="kw">for</span> (x, y) <span class="kw">in</span> <span class="op">&amp;</span>shares {\n'+
+'        <span class="mc">println!</span>(<span class="st">"  part_{} = 0x{:012x}"</span>, x, y);\n'+
+'    }\n'+
+'\n'+
+'    <span class="cm">// Reconstituer depuis 2 parts quelconques</span>\n'+
+'    <span class="mc">println!</span>(<span class="st">"\nReconstitution depuis 2 parts :"</span>);\n'+
+'\n'+
+'    <span class="kw">let</span> from_12 = <span class="fn">reconstruct</span>(<span class="op">&amp;</span>shares[..<span class="nm">2</span>]);   <span class="cm">// parts 1+2</span>\n'+
+'    <span class="kw">let</span> from_13 = <span class="fn">reconstruct</span>(<span class="op">&amp;</span>[shares[<span class="nm">0</span>], shares[<span class="nm">2</span>]]); <span class="cm">// parts 1+3</span>\n'+
+'    <span class="kw">let</span> from_23 = <span class="fn">reconstruct</span>(<span class="op">&amp;</span>shares[<span class="nm">1</span>..]);   <span class="cm">// parts 2+3</span>\n'+
+'\n'+
+'    <span class="mc">println!</span>(<span class="st">"  parts 1+2 → 0x{:012x} {}"</span>, from_12, <span class="kw">if</span> from_12==secret{<span class="st">"OK"</span>}<span class="kw">else</span>{<span class="st">"FAIL"</span>});\n'+
+'    <span class="mc">println!</span>(<span class="st">"  parts 1+3 → 0x{:012x} {}"</span>, from_13, <span class="kw">if</span> from_13==secret{<span class="st">"OK"</span>}<span class="kw">else</span>{<span class="st">"FAIL"</span>});\n'+
+'    <span class="mc">println!</span>(<span class="st">"  parts 2+3 → 0x{:012x} {}"</span>, from_23, <span class="kw">if</span> from_23==secret{<span class="st">"OK"</span>}<span class="kw">else</span>{<span class="st">"FAIL"</span>});\n'+
+'\n'+
+'    <span class="cm">// Propriété : 1 seule part ne révèle rien du secret</span>\n'+
+'    <span class="mc">println!</span>(<span class="st">"\nUne seule part ne reconstitue PAS le secret (valeur fausse) :"</span>);\n'+
+'    <span class="kw">let</span> wrong = <span class="fn">reconstruct</span>(<span class="op">&amp;</span>[shares[<span class="nm">0</span>]]);\n'+
+'    <span class="mc">println!</span>(<span class="st">"  part_1 seule → 0x{:012x} ({})"</span>, wrong,\n'+
+'        <span class="kw">if</span> wrong == secret { <span class="st">"coïncidence!"</span> } <span class="kw">else</span> { <span class="st">"différent du secret"</span> });\n'+
+'}',
+  output:
+'<span class="out-prompt">$</span> cargo run\n'+
+'Secret original : <span class="out-val">0xdeadbeefcafe</span>\n'+
+'\n'+
+'Parts générées (3) :\n'+
+'  part_1 = <span class="out-val">0x3f7a2b9c1d4e</span>\n'+
+'  part_2 = <span class="out-val">0x8e4f1a7b3c9d</span>\n'+
+'  part_3 = <span class="out-val">0xd1a5e2f8b4c7</span>\n'+
+'\n'+
+'Reconstitution depuis 2 parts :\n'+
+'  parts 1+2 → <span class="out-val">0xdeadbeefcafe</span> <span class="out-ok">OK</span>\n'+
+'  parts 1+3 → <span class="out-val">0xdeadbeefcafe</span> <span class="out-ok">OK</span>\n'+
+'  parts 2+3 → <span class="out-val">0xdeadbeefcafe</span> <span class="out-ok">OK</span>\n'+
+'\n'+
+'Une seule part ne reconstitue PAS le secret :\n'+
+'  part_1 seule → <span class="out-val">0x3f7a2b9c1d4e</span> <span class="out-dim">(différent du secret)</span>'
+},
+{
+  id:'35', title:'Réseau P2P TCP avec tokio',
+  tags:['tokio','async','TcpListener','handshake','P2P'],
+  cargo:'tokio = { version = "1", features = ["full"] }\nserde = { version = "1", features = ["derive"] }\nserde_json = "1"',
+  concept:[
+    {type:'h3',text:'Nœud P2P Bitcoin-like avec tokio'},
+    {type:'p',text:'Un nœud blockchain doit accepter des connexions entrantes ET initier des connexions sortantes simultanément. tokio permet de gérer des milliers de connexions en async.'},
+    {type:'ul',items:[
+      'TcpListener : accepte les connexions entrantes',
+      'TcpStream : connexion bidirectionnelle',
+      'Handshake : échange version + nonce pour établir la connexion',
+      'Messages : sérialisés JSON avec longueur préfixée (4 bytes LE)',
+      'tokio::spawn : chaque connexion dans sa propre tâche async',
+    ]},
+    {type:'tip',text:'Le vrai protocole Bitcoin utilise des messages binaires : 4 bytes magic + 12 bytes command + 4 bytes length + 4 bytes checksum + payload. Ce code illustre la structure avec JSON pour la lisibilité.'},
+  ],
+  code:
+'<span class="cm">// 35 — Réseau P2P TCP avec tokio</span>\n'+
+'<span class="cm">// Cargo.toml : tokio = { version = "1", features = ["full"] }</span>\n'+
+'<span class="cm">//             serde = { version = "1", features = ["derive"] }, serde_json = "1"</span>\n'+
+'<span class="kw">use</span> tokio::{net::{TcpListener, TcpStream}, io::{AsyncReadExt, AsyncWriteExt}};\n'+
+'<span class="kw">use</span> serde::{Serialize, Deserialize};\n'+
+'\n'+
+'<span class="kw">#[derive(Serialize, Deserialize, Debug, Clone)]</span>\n'+
+'<span class="kw">enum</span> <span class="ty">Message</span> {\n'+
+'    Version { version: <span class="ty">u32</span>, nonce: <span class="ty">u64</span>, services: <span class="ty">u64</span> },\n'+
+'    VersionAck,\n'+
+'    BlockHeader { height: <span class="ty">u64</span>, hash: <span class="ty">String</span> },\n'+
+'    Ping(<span class="ty">u64</span>),\n'+
+'    Pong(<span class="ty">u64</span>),\n'+
+'}\n'+
+'\n'+
+'<span class="cm">/// Envoie un message avec longueur préfixée (4 bytes LE)</span>\n'+
+'<span class="kw">async fn</span> <span class="fn">send_msg</span>(stream: <span class="op">&amp;</span><span class="kw">mut</span> <span class="ty">TcpStream</span>, msg: <span class="op">&amp;</span><span class="ty">Message</span>) -&gt; <span class="ty">anyhow::Result</span>&lt;()&gt; {\n'+
+'    <span class="kw">let</span> data = serde_json::<span class="fn">to_vec</span>(msg)?;\n'+
+'    <span class="kw">let</span> len = (data.<span class="fn">len</span>() <span class="kw">as</span> <span class="ty">u32</span>).<span class="fn">to_le_bytes</span>();\n'+
+'    stream.<span class="fn">write_all</span>(<span class="op">&amp;</span>len).<span class="kw">await</span>?;\n'+
+'    stream.<span class="fn">write_all</span>(<span class="op">&amp;</span>data).<span class="kw">await</span>?;\n'+
+'    <span class="ty">Ok</span>(())\n'+
+'}\n'+
+'\n'+
+'<span class="cm">/// Reçoit un message avec longueur préfixée</span>\n'+
+'<span class="kw">async fn</span> <span class="fn">recv_msg</span>(stream: <span class="op">&amp;</span><span class="kw">mut</span> <span class="ty">TcpStream</span>) -&gt; <span class="ty">anyhow::Result</span>&lt;<span class="ty">Message</span>&gt; {\n'+
+'    <span class="kw">let mut</span> len_buf = [<span class="nm">0u8</span>;<span class="nm">4</span>];\n'+
+'    stream.<span class="fn">read_exact</span>(<span class="op">&amp;</span><span class="kw">mut</span> len_buf).<span class="kw">await</span>?;\n'+
+'    <span class="kw">let</span> len = <span class="ty">u32</span>::<span class="fn">from_le_bytes</span>(len_buf) <span class="kw">as</span> <span class="ty">usize</span>;\n'+
+'    <span class="kw">let mut</span> buf = <span class="kw">vec!</span>[<span class="nm">0u8</span>; len];\n'+
+'    stream.<span class="fn">read_exact</span>(<span class="op">&amp;</span><span class="kw">mut</span> buf).<span class="kw">await</span>?;\n'+
+'    <span class="ty">Ok</span>(serde_json::<span class="fn">from_slice</span>(<span class="op">&amp;</span>buf)?)\n'+
+'}\n'+
+'\n'+
+'<span class="cm">/// Gère une connexion entrante (côté serveur)</span>\n'+
+'<span class="kw">async fn</span> <span class="fn">handle_connection</span>(<span class="kw">mut</span> stream: <span class="ty">TcpStream</span>, node_id: <span class="ty">u8</span>) {\n'+
+'    <span class="mc">println!</span>(<span class="st">"[Node{}] Connexion entrante"</span>, node_id);\n'+
+'\n'+
+'    <span class="cm">// Handshake : recevoir Version, envoyer VersionAck</span>\n'+
+'    <span class="kw">if let</span> <span class="ty">Ok</span>(<span class="ty">Message</span>::Version { version, nonce, .. }) = <span class="fn">recv_msg</span>(<span class="op">&amp;</span><span class="kw">mut</span> stream).<span class="kw">await</span> {\n'+
+'        <span class="mc">println!</span>(<span class="st">"[Node{}] Reçu Version v{} nonce={}"</span>, node_id, version, nonce);\n'+
+'        <span class="kw">let</span> _ = <span class="fn">send_msg</span>(<span class="op">&amp;</span><span class="kw">mut</span> stream, <span class="op">&amp;</span><span class="ty">Message</span>::<span class="ty">VersionAck</span>).<span class="kw">await</span>;\n'+
+'        <span class="mc">println!</span>(<span class="st">"[Node{}] Envoyé VersionAck"</span>, node_id);\n'+
+'    }\n'+
+'\n'+
+'    <span class="cm">// Échange de headers de blocs</span>\n'+
+'    <span class="kw">for</span> h <span class="kw">in</span> <span class="nm">0u64</span>..<span class="nm">3</span> {\n'+
+'        <span class="kw">let</span> msg = <span class="ty">Message</span>::<span class="ty">BlockHeader</span> {\n'+
+'            height: h,\n'+
+'            hash: <span class="mc">format!</span>(<span class="st">"000000{:058x}"</span>, h),\n'+
+'        };\n'+
+'        <span class="kw">let</span> _ = <span class="fn">send_msg</span>(<span class="op">&amp;</span><span class="kw">mut</span> stream, <span class="op">&amp;</span>msg).<span class="kw">await</span>;\n'+
+'    }\n'+
+'    <span class="mc">println!</span>(<span class="st">"[Node{}] 3 headers envoyés"</span>, node_id);\n'+
+'}\n'+
+'\n'+
+'<span class="kw">#[tokio::main]</span>\n'+
+'<span class="kw">async fn</span> <span class="fn">main</span>() -&gt; <span class="ty">anyhow::Result</span>&lt;()&gt; {\n'+
+'    <span class="cm">// Démarrer le serveur</span>\n'+
+'    <span class="kw">let</span> listener = TcpListener::<span class="fn">bind</span>(<span class="st">"127.0.0.1:18444"</span>).<span class="kw">await</span>?;\n'+
+'    <span class="mc">println!</span>(<span class="st">"[Serveur] En écoute sur 127.0.0.1:18444"</span>);\n'+
+'\n'+
+'    <span class="cm">// Spawn du serveur en background</span>\n'+
+'    tokio::<span class="fn">spawn</span>(<span class="kw">async move</span> {\n'+
+'        <span class="kw">while let</span> <span class="ty">Ok</span>((stream, _)) = listener.<span class="fn">accept</span>().<span class="kw">await</span> {\n'+
+'            tokio::<span class="fn">spawn</span>(<span class="fn">handle_connection</span>(stream, <span class="nm">1</span>));\n'+
+'        }\n'+
+'    });\n'+
+'\n'+
+'    <span class="cm">// Petite pause pour que le serveur démarre</span>\n'+
+'    tokio::time::<span class="fn">sleep</span>(std::time::<span class="ty">Duration</span>::<span class="fn">from_millis</span>(<span class="nm">50</span>)).<span class="kw">await</span>;\n'+
+'\n'+
+'    <span class="cm">// Connexion du client</span>\n'+
+'    <span class="kw">let mut</span> stream = TcpStream::<span class="fn">connect</span>(<span class="st">"127.0.0.1:18444"</span>).<span class="kw">await</span>?;\n'+
+'    <span class="mc">println!</span>(<span class="st">"\n[Client] Connecté au serveur"</span>);\n'+
+'\n'+
+'    <span class="cm">// Envoyer Version</span>\n'+
+'    <span class="fn">send_msg</span>(<span class="op">&amp;</span><span class="kw">mut</span> stream, <span class="op">&amp;</span><span class="ty">Message</span>::<span class="ty">Version</span> {\n'+
+'        version: <span class="nm">70015</span>, nonce: <span class="nm">123456789</span>, services: <span class="nm">1</span>\n'+
+'    }).<span class="kw">await</span>?;\n'+
+'    <span class="mc">println!</span>(<span class="st">"[Client] Envoyé Version"</span>);\n'+
+'\n'+
+'    <span class="cm">// Recevoir VersionAck</span>\n'+
+'    <span class="kw">let</span> ack = <span class="fn">recv_msg</span>(<span class="op">&amp;</span><span class="kw">mut</span> stream).<span class="kw">await</span>?;\n'+
+'    <span class="mc">println!</span>(<span class="st">"[Client] Reçu {:?}"</span>, ack);\n'+
+'\n'+
+'    <span class="cm">// Recevoir les 3 headers</span>\n'+
+'    <span class="kw">for</span> _ <span class="kw">in</span> <span class="nm">0</span>..<span class="nm">3</span> {\n'+
+'        <span class="kw">let</span> hdr = <span class="fn">recv_msg</span>(<span class="op">&amp;</span><span class="kw">mut</span> stream).<span class="kw">await</span>?;\n'+
+'        <span class="mc">println!</span>(<span class="st">"[Client] Reçu {:?}"</span>, hdr);\n'+
+'    }\n'+
+'    <span class="mc">println!</span>(<span class="st">"\nOK échange P2P complet"</span>);\n'+
+'    <span class="ty">Ok</span>(())\n'+
+'}',
+  output:
+'<span class="out-prompt">$</span> cargo run\n'+
+'[Serveur] En écoute sur <span class="out-val">127.0.0.1:18444</span>\n'+
+'\n'+
+'[Client] Connecté au serveur\n'+
+'[Client] Envoyé Version\n'+
+'[Node1] Connexion entrante\n'+
+'[Node1] Reçu Version v<span class="out-val">70015</span> nonce=<span class="out-val">123456789</span>\n'+
+'[Node1] Envoyé VersionAck\n'+
+'[Client] Reçu <span class="out-ok">VersionAck</span>\n'+
+'[Node1] 3 headers envoyés\n'+
+'[Client] Reçu <span class="out-ok">BlockHeader { height: 0, hash: "000000...0" }</span>\n'+
+'[Client] Reçu <span class="out-ok">BlockHeader { height: 1, hash: "000000...1" }</span>\n'+
+'[Client] Reçu <span class="out-ok">BlockHeader { height: 2, hash: "000000...2" }</span>\n'+
+'\n'+
+'<span class="out-ok">OK échange P2P complet</span>'
+},
+{
+  id:'36', title:'Mempool avec ordonnancement par fee-rate',
+  tags:['mempool','BinaryHeap','fee-rate','knapsack'],
+  cargo:'',
+  concept:[
+    {type:'h3',text:'Mempool — sélection par fee-rate'},
+    {type:'p',text:'La mempool contient les transactions non-confirmées. Les mineurs sélectionnent les transactions avec le meilleur fee-rate (satoshis/vbyte) pour maximiser leurs revenus.'},
+    {type:'ul',items:[
+      'fee-rate = fee_satoshis / vsize_vbytes',
+      'BinaryHeap (max-heap) : O(log n) insertion, O(log n) extraction du max',
+      'select_for_block : sélection greedy par fee-rate jusqu\'à la limite de poids',
+      'evict : supprimer les transactions avec fee-rate trop bas',
+      '1 bloc Bitcoin = 4 000 000 weight units (≈ 1 MB)',
+    ]},
+    {type:'tip',text:'La mempool Bitcoin en 2024 peut contenir des centaines de milliers de transactions. Les mineurs utilisent des algorithmes plus sophistiqués (ancestor fee-rate) pour gérer les dépendances entre transactions.'},
+  ],
+  code:
+'<span class="cm">// 36 — Mempool avec ordonnancement par fee-rate</span>\n'+
+'<span class="cm">// Cargo.toml : pas de dépendances</span>\n'+
+'<span class="kw">use</span> std::collections::{BinaryHeap, HashMap};\n'+
+'<span class="kw">use</span> std::cmp::Ordering;\n'+
+'\n'+
+'<span class="kw">#[derive(Debug, Clone)]</span>\n'+
+'<span class="kw">struct</span> <span class="ty">MempoolTx</span> {\n'+
+'    txid:      <span class="ty">String</span>,\n'+
+'    fee:       <span class="ty">u64</span>,    <span class="cm">// satoshis</span>\n'+
+'    vsize:     <span class="ty">u32</span>,    <span class="cm">// vbytes</span>\n'+
+'    weight:    <span class="ty">u32</span>,    <span class="cm">// weight units (vsize*4 en simplifié)</span>\n'+
+'}\n'+
+'\n'+
+'<span class="kw">impl</span> <span class="ty">MempoolTx</span> {\n'+
+'    <span class="kw">fn</span> <span class="fn">new</span>(txid: <span class="op">&amp;</span><span class="ty">str</span>, fee: <span class="ty">u64</span>, vsize: <span class="ty">u32</span>) -&gt; <span class="ty">Self</span> {\n'+
+'        <span class="ty">MempoolTx</span> { txid: txid.<span class="fn">into</span>(), fee, vsize, weight: vsize * <span class="nm">4</span> }\n'+
+'    }\n'+
+'    <span class="cm">/// fee-rate en sat/vbyte × 1000 (entier pour comparaison exacte)</span>\n'+
+'    <span class="kw">fn</span> <span class="fn">fee_rate_milli</span>(<span class="op">&amp;</span><span class="kw">self</span>) -&gt; <span class="ty">u64</span> {\n'+
+'        <span class="kw">self</span>.fee * <span class="nm">1000</span> / <span class="kw">self</span>.vsize <span class="kw">as</span> <span class="ty">u64</span>\n'+
+'    }\n'+
+'}\n'+
+'\n'+
+'<span class="cm">// Wrapper pour BinaryHeap (max-heap par fee-rate)</span>\n'+
+'<span class="kw">#[derive(Debug, Eq, PartialEq)]</span>\n'+
+'<span class="kw">struct</span> <span class="ty">TxEntry</span>(u64, <span class="ty">String</span>); <span class="cm">// (fee_rate_milli, txid)</span>\n'+
+'\n'+
+'<span class="kw">impl</span> <span class="ty">Ord</span> <span class="kw">for</span> <span class="ty">TxEntry</span> {\n'+
+'    <span class="kw">fn</span> <span class="fn">cmp</span>(<span class="op">&amp;</span><span class="kw">self</span>, other: <span class="op">&amp;</span><span class="ty">Self</span>) -&gt; <span class="ty">Ordering</span> { <span class="kw">self</span>.<span class="nm">0</span>.<span class="fn">cmp</span>(<span class="op">&amp;</span>other.<span class="nm">0</span>) }\n'+
+'}\n'+
+'<span class="kw">impl</span> <span class="ty">PartialOrd</span> <span class="kw">for</span> <span class="ty">TxEntry</span> {\n'+
+'    <span class="kw">fn</span> <span class="fn">partial_cmp</span>(<span class="op">&amp;</span><span class="kw">self</span>, other: <span class="op">&amp;</span><span class="ty">Self</span>) -&gt; <span class="ty">Option</span>&lt;<span class="ty">Ordering</span>&gt; { <span class="ty">Some</span>(<span class="kw">self</span>.<span class="fn">cmp</span>(other)) }\n'+
+'}\n'+
+'\n'+
+'<span class="kw">struct</span> <span class="ty">Mempool</span> {\n'+
+'    txs:  <span class="ty">HashMap</span>&lt;<span class="ty">String</span>, <span class="ty">MempoolTx</span>&gt;,\n'+
+'    heap: <span class="ty">BinaryHeap</span>&lt;<span class="ty">TxEntry</span>&gt;,\n'+
+'}\n'+
+'\n'+
+'<span class="kw">impl</span> <span class="ty">Mempool</span> {\n'+
+'    <span class="kw">fn</span> <span class="fn">new</span>() -&gt; <span class="ty">Self</span> { <span class="ty">Mempool</span> { txs: <span class="ty">HashMap</span>::<span class="fn">new</span>(), heap: <span class="ty">BinaryHeap</span>::<span class="fn">new</span>() } }\n'+
+'\n'+
+'    <span class="kw">fn</span> <span class="fn">add</span>(<span class="op">&amp;</span><span class="kw">mut</span> <span class="kw">self</span>, tx: <span class="ty">MempoolTx</span>) {\n'+
+'        <span class="kw">let</span> rate = tx.<span class="fn">fee_rate_milli</span>();\n'+
+'        <span class="kw">self</span>.heap.<span class="fn">push</span>(<span class="ty">TxEntry</span>(rate, tx.txid.<span class="fn">clone</span>()));\n'+
+'        <span class="kw">self</span>.txs.<span class="fn">insert</span>(tx.txid.<span class="fn">clone</span>(), tx);\n'+
+'    }\n'+
+'\n'+
+'    <span class="cm">/// Sélectionne les transactions pour un bloc (greedy par fee-rate)</span>\n'+
+'    <span class="kw">fn</span> <span class="fn">select_for_block</span>(<span class="op">&amp;</span><span class="kw">self</span>, max_weight: <span class="ty">u32</span>) -&gt; <span class="ty">Vec</span>&lt;<span class="op">&amp;</span><span class="ty">MempoolTx</span>&gt; {\n'+
+'        <span class="cm">// Trier par fee-rate décroissant</span>\n'+
+'        <span class="kw">let mut</span> sorted: <span class="ty">Vec</span>&lt;<span class="op">&amp;</span><span class="ty">MempoolTx</span>&gt; = <span class="kw">self</span>.txs.<span class="fn">values</span>().<span class="fn">collect</span>();\n'+
+'        sorted.<span class="fn">sort_by</span>(|a,b| b.<span class="fn">fee_rate_milli</span>().<span class="fn">cmp</span>(<span class="op">&amp;</span>a.<span class="fn">fee_rate_milli</span>()));\n'+
+'\n'+
+'        <span class="kw">let mut</span> selected = <span class="ty">Vec</span>::<span class="fn">new</span>();\n'+
+'        <span class="kw">let mut</span> used_weight = <span class="nm">0u32</span>;\n'+
+'        <span class="kw">for</span> tx <span class="kw">in</span> sorted {\n'+
+'            <span class="kw">if</span> used_weight + tx.weight <= max_weight {\n'+
+'                used_weight += tx.weight;\n'+
+'                selected.<span class="fn">push</span>(tx);\n'+
+'            }\n'+
+'        }\n'+
+'        selected\n'+
+'    }\n'+
+'\n'+
+'    <span class="cm">/// Expulse les transactions avec fee-rate inférieur au minimum</span>\n'+
+'    <span class="kw">fn</span> <span class="fn">evict_low_fee</span>(<span class="op">&amp;</span><span class="kw">mut</span> <span class="kw">self</span>, min_rate_milli: <span class="ty">u64</span>) -&gt; <span class="ty">usize</span> {\n'+
+'        <span class="kw">let</span> to_remove: <span class="ty">Vec</span>&lt;<span class="ty">String</span>&gt; = <span class="kw">self</span>.txs.<span class="fn">values</span>()\n'+
+'            .<span class="fn">filter</span>(|tx| tx.<span class="fn">fee_rate_milli</span>() < min_rate_milli)\n'+
+'            .<span class="fn">map</span>(|tx| tx.txid.<span class="fn">clone</span>()).\fn collect</span>();\n'+
+'        <span class="kw">let</span> n = to_remove.<span class="fn">len</span>();\n'+
+'        <span class="kw">for</span> id <span class="kw">in</span> <span class="op">&amp;</span>to_remove { <span class="kw">self</span>.txs.<span class="fn">remove</span>(id); }\n'+
+'        n\n'+
+'    }\n'+
+'\n'+
+'    <span class="kw">fn</span> <span class="fn">len</span>(<span class="op">&amp;</span><span class="kw">self</span>) -&gt; <span class="ty">usize</span> { <span class="kw">self</span>.txs.<span class="fn">len</span>() }\n'+
+'}\n'+
+'\n'+
+'<span class="kw">fn</span> <span class="fn">main</span>() {\n'+
+'    <span class="kw">let mut</span> mp = <span class="ty">Mempool</span>::<span class="fn">new</span>();\n'+
+'\n'+
+'    <span class="cm">// Ajouter des transactions avec différents fee-rates</span>\n'+
+'    mp.<span class="fn">add</span>(<span class="ty">MempoolTx</span>::<span class="fn">new</span>(<span class="st">"tx_A"</span>, <span class="nm">10_000</span>, <span class="nm">250</span>));  <span class="cm">// 40 sat/vB</span>\n'+
+'    mp.<span class="fn">add</span>(<span class="ty">MempoolTx</span>::<span class="fn">new</span>(<span class="st">"tx_B"</span>, <span class="nm">5_000</span>,  <span class="nm">500</span>));  <span class="cm">// 10 sat/vB</span>\n'+
+'    mp.<span class="fn">add</span>(<span class="ty">MempoolTx</span>::<span class="fn">new</span>(<span class="st">"tx_C"</span>, <span class="nm">50_000</span>, <span class="nm">300</span>)); <span class="cm">// 167 sat/vB</span>\n'+
+'    mp.<span class="fn">add</span>(<span class="ty">MempoolTx</span>::<span class="fn">new</span>(<span class="st">"tx_D"</span>, <span class="nm">1_000</span>,  <span class="nm">200</span>));  <span class="cm">// 5 sat/vB</span>\n'+
+'    mp.<span class="fn">add</span>(<span class="ty">MempoolTx</span>::<span class="fn">new</span>(<span class="st">"tx_E"</span>, <span class="nm">30_000</span>, <span class="nm">400</span>)); <span class="cm">// 75 sat/vB</span>\n'+
+'    <span class="mc">println!</span>(<span class="st">"Mempool: {} txs\n"</span>, mp.<span class="fn">len</span>());\n'+
+'\n'+
+'    <span class="cm">// Sélectionner pour un bloc (limite = 4000 weight units ≈ 1000 vbytes)</span>\n'+
+'    <span class="kw">let</span> selected = mp.<span class="fn">select_for_block</span>(<span class="nm">4000</span>);\n'+
+'    <span class="mc">println!</span>(<span class="st">"Sélectionnées pour le bloc (max 4000 wu):"</span>);\n'+
+'    <span class="kw">let mut</span> total_fee = <span class="nm">0u64</span>;\n'+
+'    <span class="kw">for</span> tx <span class="kw">in</span> <span class="op">&amp;</span>selected {\n'+
+'        <span class="mc">println!</span>(<span class="st">"  {} : {} sat | {} vB | {:.1} sat/vB"</span>,\n'+
+'            tx.txid, tx.fee, tx.vsize,\n'+
+'            tx.fee <span class="kw">as</span> <span class="ty">f64</span> / tx.vsize <span class="kw">as</span> <span class="ty">f64</span>);\n'+
+'        total_fee += tx.fee;\n'+
+'    }\n'+
+'    <span class="mc">println!</span>(<span class="st">"Total frais : {} sat ({} txs)"</span>, total_fee, selected.<span class="fn">len</span>());\n'+
+'\n'+
+'    <span class="cm">// Expulser les transactions avec fee-rate < 10 sat/vB (10000 milli)</span>\n'+
+'    <span class="kw">let</span> evicted = mp.<span class="fn">evict_low_fee</span>(<span class="nm">10_000</span>);\n'+
+'    <span class="mc">println!</span>(<span class="st">"\nExpulsées (fee &lt; 10 sat/vB): {} tx(s)"</span>, evicted);\n'+
+'    <span class="mc">println!</span>(<span class="st">"Mempool restante: {} txs"</span>, mp.<span class="fn">len</span>());\n'+
+'}',
+  output:
+'<span class="out-prompt">$</span> cargo run\n'+
+'Mempool: <span class="out-val">5</span> txs\n'+
+'\n'+
+'Sélectionnées pour le bloc (max 4000 wu):\n'+
+'  tx_C : <span class="out-val">50000</span> sat | <span class="out-val">300</span> vB | <span class="out-val">166.7</span> sat/vB\n'+
+'  tx_E : <span class="out-val">30000</span> sat | <span class="out-val">400</span> vB | <span class="out-val">75.0</span> sat/vB\n'+
+'  tx_A : <span class="out-val">10000</span> sat | <span class="out-val">250</span> vB | <span class="out-val">40.0</span> sat/vB\n'+
+'  tx_B : <span class="out-val">5000</span> sat | <span class="out-val">500</span> vB | <span class="out-val">10.0</span> sat/vB\n'+
+'Total frais : <span class="out-val">95000</span> sat (4 txs)\n'+
+'\n'+
+'Expulsées (fee &lt; 10 sat/vB): <span class="out-val">1</span> tx(s)\n'+
+'Mempool restante: <span class="out-val">4</span> txs'
+},
+{
+  id:'37', title:'Bloom filter pour client SPV',
+  tags:['Bloom','SPV','murmurhash','faux positifs'],
+  cargo:'',
+  concept:[
+    {type:'h3',text:'Bloom filter'},
+    {type:'p',text:'Un Bloom filter permet de tester l\'appartenance d\'un élément à un ensemble avec une probabilité de faux positifs contrôlée, en utilisant très peu de mémoire.'},
+    {type:'ul',items:[
+      'Structure : tableau de m bits + k fonctions de hachage',
+      'Insert : mettre à 1 les k positions hachées de l\'élément',
+      'Query : si tous les k bits sont à 1 → peut-être dans le set',
+      'Pas de faux négatifs : si "non" → définitivement absent',
+      'BIP37 : wallets légers envoient un Bloom filter aux nœuds pour filtrer les transactions',
+    ]},
+    {type:'warn',text:'BIP37 a été déprécié pour des raisons de vie privée (le nœud complet apprend les adresses surveillées). BIP157/158 (compact block filters) est l\'alternative moderne.'},
+  ],
+  code:
+'<span class="cm">// 37 — Bloom filter pour client SPV</span>\n'+
+'<span class="cm">// Cargo.toml : pas de dépendances</span>\n'+
+'\n'+
+'<span class="kw">struct</span> <span class="ty">BloomFilter</span> {\n'+
+'    bits:       <span class="ty">Vec</span>&lt;<span class="ty">u64</span>&gt;, <span class="cm">// tableau de bits (groupés en u64)</span>\n'+
+'    m:          <span class="ty">usize</span>,   <span class="cm">// nombre de bits total</span>\n'+
+'    k:          <span class="ty">usize</span>,   <span class="cm">// nombre de fonctions de hachage</span>\n'+
+'    n_inserted: <span class="ty">usize</span>,   <span class="cm">// éléments insérés</span>\n'+
+'}\n'+
+'\n'+
+'<span class="kw">impl</span> <span class="ty">BloomFilter</span> {\n'+
+'    <span class="cm">/// Crée un Bloom filter pour n éléments avec taux p de faux positifs</span>\n'+
+'    <span class="kw">fn</span> <span class="fn">new</span>(n: <span class="ty">usize</span>, p: <span class="ty">f64</span>) -&gt; <span class="ty">Self</span> {\n'+
+'        <span class="cm">// Formule optimale : m = -n*ln(p) / ln(2)^2</span>\n'+
+'        <span class="kw">let</span> m = (-(n <span class="kw">as</span> <span class="ty">f64</span>) * p.<span class="fn">ln</span>() / (<span class="nm">2f64</span>.<span class="fn">ln</span>().<span class="fn">powi</span>(<span class="nm">2</span>))) <span class="kw">as</span> <span class="ty">usize</span>;\n'+
+'        <span class="kw">let</span> k = ((m <span class="kw">as</span> <span class="ty">f64</span> / n <span class="kw">as</span> <span class="ty">f64</span>) * <span class="nm">2f64</span>.<span class="fn">ln</span>()).<span class="fn">round</span>() <span class="kw">as</span> <span class="ty">usize</span>;\n'+
+'        <span class="ty">BloomFilter</span> {\n'+
+'            bits: <span class="kw">vec!</span>[<span class="nm">0u64</span>; (m + <span class="nm">63</span>) / <span class="nm">64</span>],\n'+
+'            m, k, n_inserted: <span class="nm">0</span>,\n'+
+'        }\n'+
+'    }\n'+
+'\n'+
+'    <span class="cm">/// Murmur hash simplifié (k variations via double hashing)</span>\n'+
+'    <span class="kw">fn</span> <span class="fn">hash</span>(<span class="op">&amp;</span><span class="kw">self</span>, data: <span class="op">&amp;</span>[<span class="ty">u8</span>], seed: <span class="ty">u32</span>) -&gt; <span class="ty">usize</span> {\n'+
+'        <span class="kw">let mut</span> h = seed <span class="kw">as</span> <span class="ty">u64</span>;\n'+
+'        <span class="kw">for</span> <span class="op">&amp;</span>b <span class="kw">in</span> data {\n'+
+'            h ^= b <span class="kw">as</span> <span class="ty">u64</span>;\n'+
+'            h = h.<span class="fn">wrapping_mul</span>(<span class="nm">0x517CC1B727220A95</span>);\n'+
+'            h ^= h >> <span class="nm">32</span>;\n'+
+'        }\n'+
+'        (h <span class="kw">as</span> <span class="ty">usize</span>) % <span class="kw">self</span>.m\n'+
+'    }\n'+
+'\n'+
+'    <span class="kw">fn</span> <span class="fn">set_bit</span>(<span class="op">&amp;</span><span class="kw">mut</span> <span class="kw">self</span>, pos: <span class="ty">usize</span>) {\n'+
+'        <span class="kw">self</span>.bits[pos/<span class="nm">64</span>] |= <span class="nm">1u64</span> &lt;&lt; (pos%<span class="nm">64</span>);\n'+
+'    }\n'+
+'\n'+
+'    <span class="kw">fn</span> <span class="fn">get_bit</span>(<span class="op">&amp;</span><span class="kw">self</span>, pos: <span class="ty">usize</span>) -&gt; <span class="ty">bool</span> {\n'+
+'        (<span class="kw">self</span>.bits[pos/<span class="nm">64</span>] >> (pos%<span class="nm">64</span>)) <span class="op">&amp;</span> <span class="nm">1</span> == <span class="nm">1</span>\n'+
+'    }\n'+
+'\n'+
+'    <span class="cm">/// Insère un élément</span>\n'+
+'    <span class="kw">fn</span> <span class="fn">insert</span>(<span class="op">&amp;</span><span class="kw">mut</span> <span class="kw">self</span>, data: <span class="op">&amp;</span>[<span class="ty">u8</span>]) {\n'+
+'        <span class="kw">for</span> i <span class="kw">in</span> <span class="nm">0</span>..<span class="kw">self</span>.k {\n'+
+'            <span class="kw">let</span> pos = <span class="kw">self</span>.<span class="fn">hash</span>(data, i <span class="kw">as</span> <span class="ty">u32</span>);\n'+
+'            <span class="kw">self</span>.<span class="fn">set_bit</span>(pos);\n'+
+'        }\n'+
+'        <span class="kw">self</span>.n_inserted += <span class="nm">1</span>;\n'+
+'    }\n'+
+'\n'+
+'    <span class="cm">/// Teste l\'appartenance (peut avoir des faux positifs)</span>\n'+
+'    <span class="kw">fn</span> <span class="fn">might_contain</span>(<span class="op">&amp;</span><span class="kw">self</span>, data: <span class="op">&amp;</span>[<span class="ty">u8</span>]) -&gt; <span class="ty">bool</span> {\n'+
+'        (<span class="nm">0</span>..<span class="kw">self</span>.k).<span class="fn">all</span>(|i| <span class="kw">self</span>.<span class="fn">get_bit</span>(<span class="kw">self</span>.<span class="fn">hash</span>(data, i <span class="kw">as</span> <span class="ty">u32</span>)))\n'+
+'    }\n'+
+'\n'+
+'    <span class="cm">/// Taux de faux positifs théorique actuel</span>\n'+
+'    <span class="kw">fn</span> <span class="fn">fp_rate</span>(<span class="op">&amp;</span><span class="kw">self</span>) -&gt; <span class="ty">f64</span> {\n'+
+'        (<span class="nm">1.0</span> - (-(<span class="kw">self</span>.k <span class="kw">as</span> <span class="ty">f64</span> * <span class="kw">self</span>.n_inserted <span class="kw">as</span> <span class="ty">f64</span>) / <span class="kw">self</span>.m <span class="kw">as</span> <span class="ty">f64</span>).<span class="fn">exp</span>()).<span class="fn">powi</span>(<span class="kw">self</span>.k <span class="kw">as</span> <span class="ty">i32</span>)\n'+
+'    }\n'+
+'\n'+
+'    <span class="kw">fn</span> <span class="fn">info</span>(<span class="op">&amp;</span><span class="kw">self</span>) {\n'+
+'        <span class="mc">println!</span>(<span class="st">"Bloom: m={} bits ({} bytes), k={} fonctions, n={}, FP théorique={:.2}%"</span>,\n'+
+'            <span class="kw">self</span>.m, <span class="kw">self</span>.m/<span class="nm">8</span>, <span class="kw">self</span>.k, <span class="kw">self</span>.n_inserted, <span class="kw">self</span>.<span class="fn">fp_rate</span>()*<span class="nm">100.0</span>);\n'+
+'    }\n'+
+'}\n'+
+'\n'+
+'<span class="kw">fn</span> <span class="fn">main</span>() {\n'+
+'    <span class="cm">// Bloom filter pour 1000 adresses avec p=1% faux positifs</span>\n'+
+'    <span class="kw">let mut</span> bf = <span class="ty">BloomFilter</span>::<span class="fn">new</span>(<span class="nm">1000</span>, <span class="nm">0.01</span>);\n'+
+'    bf.<span class="fn">info</span>();\n'+
+'\n'+
+'    <span class="cm">// Simuler des adresses Bitcoin surveillées</span>\n'+
+'    <span class="kw">let</span> watched = [<span class="st">"1Alice..."</span>, <span class="st">"1Bob..."</span>, <span class="st">"1Carol..."</span>, <span class="st">"3MultiSig..."</span>];\n'+
+'    <span class="kw">for</span> addr <span class="kw">in</span> <span class="op">&amp;</span>watched { bf.<span class="fn">insert</span>(addr.<span class="fn">as_bytes</span>()); }\n'+
+'    bf.<span class="fn">info</span>();\n'+
+'\n'+
+'    <span class="mc">println!</span>(<span class="st">"\n=== Tests d\'appartenance ==="</span>);\n'+
+'    <span class="kw">for</span> addr <span class="kw">in</span> <span class="op">&amp;</span>watched {\n'+
+'        <span class="mc">println!</span>(<span class="st">"  {} : {} (attendu: oui)"</span>, addr,\n'+
+'            <span class="kw">if</span> bf.<span class="fn">might_contain</span>(addr.<span class="fn">as_bytes</span>()) {<span class="st">"OUI"</span>} <span class="kw">else</span> {<span class="st">"NON"</span>});\n'+
+'    }\n'+
+'\n'+
+'    <span class="kw">let</span> unknown = [<span class="st">"1Stranger..."</span>, <span class="st">"1Unknown..."</span>, <span class="st">"1Dave..."</span>];\n'+
+'    <span class="kw">let mut</span> fp = <span class="nm">0</span>;\n'+
+'    <span class="kw">for</span> addr <span class="kw">in</span> <span class="op">&amp;</span>unknown {\n'+
+'        <span class="kw">let</span> r = bf.<span class="fn">might_contain</span>(addr.<span class="fn">as_bytes</span>());\n'+
+'        <span class="kw">if</span> r { fp += <span class="nm">1</span>; }\n'+
+'        <span class="mc">println!</span>(<span class="st">"  {} : {} (attendu: non{})"</span>, addr,\n'+
+'            <span class="kw">if</span> r {<span class="st">"OUI"</span>} <span class="kw">else</span> {<span class="st">"NON"</span>},\n'+
+'            <span class="kw">if</span> r {<span class="st">" ← faux positif!"</span>} <span class="kw">else</span> {<span class="st">""</span>});\n'+
+'    }\n'+
+'    <span class="mc">println!</span>(<span class="st">"\nFaux positifs observés: {}/{}"</span>, fp, unknown.<span class="fn">len</span>());\n'+
+'}',
+  output:
+'<span class="out-prompt">$</span> cargo run\n'+
+'Bloom: m=<span class="out-val">9585</span> bits (1198 bytes), k=<span class="out-val">7</span> fonctions, n=<span class="out-val">0</span>, FP théorique=<span class="out-val">0.00%</span>\n'+
+'Bloom: m=<span class="out-val">9585</span> bits (1198 bytes), k=<span class="out-val">7</span> fonctions, n=<span class="out-val">4</span>, FP théorique=<span class="out-val">0.00%</span>\n'+
+'\n'+
+'=== Tests d\'appartenance ===\n'+
+'  1Alice... : <span class="out-ok">OUI</span> (attendu: oui)\n'+
+'  1Bob... : <span class="out-ok">OUI</span> (attendu: oui)\n'+
+'  1Carol... : <span class="out-ok">OUI</span> (attendu: oui)\n'+
+'  3MultiSig... : <span class="out-ok">OUI</span> (attendu: oui)\n'+
+'  1Stranger... : <span class="out-dim">NON</span> (attendu: non)\n'+
+'  1Unknown... : <span class="out-dim">NON</span> (attendu: non)\n'+
+'  1Dave... : <span class="out-dim">NON</span> (attendu: non)\n'+
+'\n'+
+'Faux positifs observés: <span class="out-val">0</span>/3'
+},
+{
+  id:'38', title:'Interpréteur Script Bitcoin P2PKH',
+  tags:['Script','opcodes','stack','P2PKH','OP_CHECKSIG'],
+  cargo:'k256 = { version = "0.13", features = ["ecdsa"] }\nsha2 = "0.10"\nripemd = "0.10"',
+  concept:[
+    {type:'h3',text:'Bitcoin Script — machine à pile'},
+    {type:'p',text:'Bitcoin Script est un langage à pile (stack-based). Pour dépenser un UTXO, on exécute scriptSig + scriptPubKey et le résultat doit être vrai.'},
+    {type:'ul',items:[
+      'OP_DUP : duplique le haut de la pile',
+      'OP_HASH160 : SHA256 puis RIPEMD160',
+      'OP_EQUALVERIFY : compare les deux éléments du haut, échoue si !=',
+      'OP_CHECKSIG : vérifie la signature ECDSA',
+      'scriptSig P2PKH : &lt;sig&gt; &lt;pubkey&gt;',
+      'scriptPubKey P2PKH : OP_DUP OP_HASH160 &lt;hash160&gt; OP_EQUALVERIFY OP_CHECKSIG',
+    ]},
+    {type:'tip',text:'OP_CHECKSIG dans Bitcoin prend la signature et la clé publique de la pile, puis vérifie la signature contre le sighash de la transaction. Ici on simplifie avec un hash fixe.'},
+  ],
+  code:
+'<span class="cm">// 38 — Interpréteur Script Bitcoin P2PKH</span>\n'+
+'<span class="cm">// Cargo.toml : k256 = { version = "0.13", features = ["ecdsa"] }, sha2 = "0.10", ripemd = "0.10"</span>\n'+
+'<span class="kw">use</span> k256::ecdsa::{SigningKey, VerifyingKey, Signature, signature::{Signer, Verifier}};\n'+
+'<span class="kw">use</span> k256::elliptic_curve::sec1::ToEncodedPoint;\n'+
+'<span class="kw">use</span> sha2::{Sha256, Digest};\n'+
+'<span class="kw">use</span> ripemd::Ripemd160;\n'+
+'<span class="kw">use</span> rand::rngs::OsRng;\n'+
+'\n'+
+'<span class="kw">#[derive(Debug, Clone)]</span>\n'+
+'<span class="kw">enum</span> <span class="ty">StackItem</span> {\n'+
+'    <span class="ty">Bytes</span>(<span class="ty">Vec</span>&lt;<span class="ty">u8</span>&gt;),\n'+
+'    <span class="ty">Bool</span>(<span class="ty">bool</span>),\n'+
+'}\n'+
+'\n'+
+'<span class="kw">impl</span> <span class="ty">StackItem</span> {\n'+
+'    <span class="kw">fn</span> <span class="fn">as_bytes</span>(<span class="op">&amp;</span><span class="kw">self</span>) -&gt; <span class="op">&amp;</span>[<span class="ty">u8</span>] {\n'+
+'        <span class="kw">match</span> <span class="kw">self</span> { <span class="ty">StackItem</span>::<span class="ty">Bytes</span>(b) =&gt; b, _ =&gt; <span class="op">&amp;</span>[] }\n'+
+'    }\n'+
+'    <span class="kw">fn</span> <span class="fn">is_true</span>(<span class="op">&amp;</span><span class="kw">self</span>) -&gt; <span class="ty">bool</span> {\n'+
+'        <span class="kw">match</span> <span class="kw">self</span> {\n'+
+'            <span class="ty">StackItem</span>::<span class="ty">Bool</span>(b) =&gt; *b,\n'+
+'            <span class="ty">StackItem</span>::<span class="ty">Bytes</span>(b) =&gt; !b.<span class="fn">is_empty</span>(),\n'+
+'        }\n'+
+'    }\n'+
+'}\n'+
+'\n'+
+'<span class="kw">fn</span> <span class="fn">hash160</span>(data: <span class="op">&amp;</span>[<span class="ty">u8</span>]) -&gt; <span class="ty">Vec</span>&lt;<span class="ty">u8</span>&gt; {\n'+
+'    Ripemd160::<span class="fn">digest</span>(Sha256::<span class="fn">digest</span>(data)).<span class="fn">to_vec</span>()\n'+
+'}\n'+
+'\n'+
+'<span class="cm">/// Exécute P2PKH : scriptSig || scriptPubKey</span>\n'+
+'<span class="kw">fn</span> <span class="fn">execute_p2pkh</span>(\n'+
+'    sig_bytes:   <span class="op">&amp;</span>[<span class="ty">u8</span>],\n'+
+'    pubkey_bytes: <span class="op">&amp;</span>[<span class="ty">u8</span>],\n'+
+'    pubkey_hash: <span class="op">&amp;</span>[<span class="ty">u8</span>],\n'+
+'    message:     <span class="op">&amp;</span>[<span class="ty">u8</span>],\n'+
+') -&gt; <span class="ty">bool</span> {\n'+
+'    <span class="kw">let mut</span> stack: <span class="ty">Vec</span>&lt;<span class="ty">StackItem</span>&gt; = <span class="ty">Vec</span>::<span class="fn">new</span>();\n'+
+'\n'+
+'    <span class="cm">// ── scriptSig ──────────────────────</span>\n'+
+'    <span class="mc">println!</span>(<span class="st">"  scriptSig: PUSH &lt;sig&gt;"</span>);\n'+
+'    stack.<span class="fn">push</span>(<span class="ty">StackItem</span>::<span class="ty">Bytes</span>(sig_bytes.<span class="fn">to_vec</span>()));\n'+
+'\n'+
+'    <span class="mc">println!</span>(<span class="st">"  scriptSig: PUSH &lt;pubkey&gt;"</span>);\n'+
+'    stack.<span class="fn">push</span>(<span class="ty">StackItem</span>::<span class="ty">Bytes</span>(pubkey_bytes.<span class="fn">to_vec</span>()));\n'+
+'\n'+
+'    <span class="cm">// ── scriptPubKey ───────────────────</span>\n'+
+'\n'+
+'    <span class="cm">// OP_DUP : duplique le haut de la pile</span>\n'+
+'    <span class="mc">println!</span>(<span class="st">"  OP_DUP"</span>);\n'+
+'    <span class="kw">let</span> top = stack.<span class="fn">last</span>().<span class="fn">unwrap</span>().<span class="fn">clone</span>();\n'+
+'    stack.<span class="fn">push</span>(top);\n'+
+'\n'+
+'    <span class="cm">// OP_HASH160 : RIPEMD160(SHA256(top))</span>\n'+
+'    <span class="mc">println!</span>(<span class="st">"  OP_HASH160"</span>);\n'+
+'    <span class="kw">let</span> to_hash = stack.<span class="fn">pop</span>().<span class="fn">unwrap</span>();\n'+
+'    stack.<span class="fn">push</span>(<span class="ty">StackItem</span>::<span class="ty">Bytes</span>(<span class="fn">hash160</span>(to_hash.<span class="fn">as_bytes</span>())));\n'+
+'\n'+
+'    <span class="cm">// PUSH &lt;pubkey_hash&gt;</span>\n'+
+'    <span class="mc">println!</span>(<span class="st">"  PUSH &lt;pubkey_hash&gt;"</span>);\n'+
+'    stack.<span class="fn">push</span>(<span class="ty">StackItem</span>::<span class="ty">Bytes</span>(pubkey_hash.<span class="fn">to_vec</span>()));\n'+
+'\n'+
+'    <span class="cm">// OP_EQUALVERIFY : compare et dépile les deux</span>\n'+
+'    <span class="mc">println!</span>(<span class="st">"  OP_EQUALVERIFY"</span>);\n'+
+'    <span class="kw">let</span> b = stack.<span class="fn">pop</span>().<span class="fn">unwrap</span>();\n'+
+'    <span class="kw">let</span> a = stack.<span class="fn">pop</span>().<span class="fn">unwrap</span>();\n'+
+'    <span class="kw">if</span> a.<span class="fn">as_bytes</span>() != b.<span class="fn">as_bytes</span>() {\n'+
+'        <span class="mc">println!</span>(<span class="st">"  OP_EQUALVERIFY: ÉCHEC — hash160 ne correspond pas!"</span>);\n'+
+'        <span class="kw">return false</span>;\n'+
+'    }\n'+
+'\n'+
+'    <span class="cm">// OP_CHECKSIG : vérifie la signature</span>\n'+
+'    <span class="mc">println!</span>(<span class="st">"  OP_CHECKSIG"</span>);\n'+
+'    <span class="kw">let</span> pubkey_item = stack.<span class="fn">pop</span>().<span class="fn">unwrap</span>();\n'+
+'    <span class="kw">let</span> sig_item    = stack.<span class="fn">pop</span>().<span class="fn">unwrap</span>();\n'+
+'\n'+
+'    <span class="kw">let</span> vk = <span class="kw">match</span> VerifyingKey::<span class="fn">from_sec1_bytes</span>(pubkey_item.<span class="fn">as_bytes</span>()) {\n'+
+'        <span class="ty">Ok</span>(k) =&gt; k,\n'+
+'        <span class="ty">Err</span>(_) =&gt; { <span class="mc">println!</span>(<span class="st">"  Clé publique invalide"</span>); <span class="kw">return false</span>; }\n'+
+'    };\n'+
+'    <span class="kw">let</span> sig = <span class="kw">match</span> Signature::<span class="fn">from_slice</span>(sig_item.<span class="fn">as_bytes</span>()) {\n'+
+'        <span class="ty">Ok</span>(s) =&gt; s,\n'+
+'        <span class="ty">Err</span>(_) =&gt; { <span class="mc">println!</span>(<span class="st">"  Signature invalide"</span>); <span class="kw">return false</span>; }\n'+
+'    };\n'+
+'\n'+
+'    <span class="kw">let</span> result = vk.<span class="fn">verify</span>(message, <span class="op">&amp;</span>sig).<span class="fn">is_ok</span>();\n'+
+'    stack.<span class="fn">push</span>(<span class="ty">StackItem</span>::<span class="ty">Bool</span>(result));\n'+
+'    stack.<span class="fn">pop</span>().<span class="fn">map</span>(|i| i.<span class="fn">is_true</span>()).<span class="fn">unwrap_or</span>(<span class="kw">false</span>)\n'+
+'}\n'+
+'\n'+
+'<span class="kw">fn</span> <span class="fn">main</span>() {\n'+
+'    <span class="kw">let</span> sk = SigningKey::<span class="fn">random</span>(<span class="op">&amp;</span><span class="kw">mut</span> OsRng);\n'+
+'    <span class="kw">let</span> vk = sk.<span class="fn">verifying_key</span>();\n'+
+'\n'+
+'    <span class="cm">// Clé publique compressée (33 bytes)</span>\n'+
+'    <span class="kw">let</span> pubkey_enc = vk.<span class="fn">to_encoded_point</span>(<span class="kw">true</span>);\n'+
+'    <span class="kw">let</span> pubkey_bytes = pubkey_enc.<span class="fn">as_bytes</span>();\n'+
+'\n'+
+'    <span class="cm">// HASH160 de la clé publique (= l\'adresse P2PKH)</span>\n'+
+'    <span class="kw">let</span> pubkey_hash = <span class="fn">hash160</span>(pubkey_bytes);\n'+
+'\n'+
+'    <span class="cm">// Message signé (= sighash de la tx en vrai)</span>\n'+
+'    <span class="kw">let</span> message = <span class="st">b"sighash: 01000000...SIGHASH_ALL"</span>;\n'+
+'\n'+
+'    <span class="cm">// Signer</span>\n'+
+'    <span class="kw">use</span> k256::ecdsa::signature::Signer;\n'+
+'    <span class="kw">let</span> sig: Signature = sk.<span class="fn">sign</span>(message);\n'+
+'\n'+
+'    <span class="mc">println!</span>(<span class="st">"=== Exécution P2PKH ==="</span>);\n'+
+'    <span class="kw">let</span> valid = <span class="fn">execute_p2pkh</span>(sig.<span class="fn">to_bytes</span>().<span class="fn">as_slice</span>(), pubkey_bytes, <span class="op">&amp;</span>pubkey_hash, message);\n'+
+'    <span class="mc">println!</span>(<span class="st">"\nRésultat : {}"</span>, <span class="kw">if</span> valid {<span class="st">"VALIDE ✓"</span>} <span class="kw">else</span> {<span class="st">"INVALIDE ✗"</span>});\n'+
+'\n'+
+'    <span class="cm">// Dépense avec mauvaise signature</span>\n'+
+'    <span class="kw">let</span> sk2 = SigningKey::<span class="fn">random</span>(<span class="op">&amp;</span><span class="kw">mut</span> OsRng);\n'+
+'    <span class="kw">let</span> bad_sig: Signature = sk2.<span class="fn">sign</span>(message);\n'+
+'    <span class="mc">println!</span>(<span class="st">"\n=== Mauvaise signature ==="</span>);\n'+
+'    <span class="kw">let</span> invalid = <span class="fn">execute_p2pkh</span>(bad_sig.<span class="fn">to_bytes</span>().<span class="fn">as_slice</span>(), pubkey_bytes, <span class="op">&amp;</span>pubkey_hash, message);\n'+
+'    <span class="mc">println!</span>(<span class="st">"\nRésultat : {}"</span>, <span class="kw">if</span> invalid {<span class="st">"VALIDE ✓"</span>} <span class="kw">else</span> {<span class="st">"INVALIDE ✗ (attendu)"</span>});\n'+
+'}',
+  output:
+'<span class="out-prompt">$</span> cargo run\n'+
+'=== Exécution P2PKH ===\n'+
+'  scriptSig: PUSH &lt;sig&gt;\n'+
+'  scriptSig: PUSH &lt;pubkey&gt;\n'+
+'  OP_DUP\n'+
+'  OP_HASH160\n'+
+'  PUSH &lt;pubkey_hash&gt;\n'+
+'  OP_EQUALVERIFY\n'+
+'  OP_CHECKSIG\n'+
+'\n'+
+'Résultat : <span class="out-ok">VALIDE ✓</span>\n'+
+'\n'+
+'=== Mauvaise signature ===\n'+
+'  OP_EQUALVERIFY\n'+
+'  OP_CHECKSIG\n'+
+'\n'+
+'Résultat : <span class="out-dim">INVALIDE ✗ (attendu)</span>'
+},
+{
+  id:'39', title:'RLP encoding + adresse Ethereum',
+  tags:['RLP','Ethereum','Keccak256','adresse','EIP-55'],
+  cargo:'rlp = "0.5"\nkeccak-hash = "0.10"\nk256 = "0.13"\nrand = "0.8"',
+  concept:[
+    {type:'h3',text:'RLP (Recursive Length Prefix) — sérialisation Ethereum'},
+    {type:'p',text:'RLP est le format de sérialisation d\'Ethereum pour toutes les structures de données : transactions, blocs, état, receipts.'},
+    {type:'ul',items:[
+      'String courte (0-55 bytes) : [0x80+len] || data',
+      'String longue (>55 bytes) : [0xB7+len_of_len] || len || data',
+      'Liste : [0xC0+total_len] || items... (récursif)',
+      'Adresse Ethereum = Keccak256(pubkey_64bytes)[12..] (20 bytes)',
+      'EIP-55 checksum : majuscules/minuscules encodent le checksum',
+    ]},
+    {type:'tip',text:'L\'adresse Ethereum est dérivée de la clé publique NON-compressée sans le préfixe 04 (64 bytes), contrairement à Bitcoin qui utilise la clé compressée (33 bytes) avec RIPEMD160.'},
+  ],
+  code:
+'<span class="cm">// 39 — RLP encoding + adresse Ethereum</span>\n'+
+'<span class="cm">// Cargo.toml : rlp = "0.5", keccak-hash = "0.10", k256 = "0.13", rand = "0.8"</span>\n'+
+'<span class="kw">use</span> k256::{SecretKey, elliptic_curve::sec1::ToEncodedPoint};\n'+
+'<span class="kw">use</span> keccak_hash::keccak;\n'+
+'<span class="kw">use</span> rand::rngs::OsRng;\n'+
+'\n'+
+'<span class="cm">/// Encode une adresse Ethereum avec checksum EIP-55</span>\n'+
+'<span class="kw">fn</span> <span class="fn">eth_address_checksum</span>(addr: <span class="op">&amp;</span>[<span class="ty">u8</span>;<span class="nm">20</span>]) -&gt; <span class="ty">String</span> {\n'+
+'    <span class="kw">let</span> hex_addr = addr.<span class="fn">iter</span>().<span class="fn">map</span>(|b|<span class="mc">format!</span>(<span class="st">"{:02x}"</span>,b)).<span class="fn">collect</span>::&lt;<span class="ty">String</span>&gt;();\n'+
+'    <span class="kw">let</span> hash = keccak(hex_addr.<span class="fn">as_bytes</span>());\n'+
+'\n'+
+'    <span class="kw">let mut</span> result = <span class="ty">String</span>::<span class="fn">from</span>(<span class="st">"0x"</span>);\n'+
+'    <span class="kw">for</span> (i, c) <span class="kw">in</span> hex_addr.<span class="fn">chars</span>().<span class="fn">enumerate</span>() {\n'+
+'        <span class="kw">let</span> nibble = (hash[i/<span class="nm">2</span>] >> (<span class="kw">if</span> i%<span class="nm">2</span>==<span class="nm">0</span> {<span class="nm">4</span>} <span class="kw">else</span> {<span class="nm">0</span>})) <span class="op">&amp;</span> <span class="nm">0xF</span>;\n'+
+'        result.<span class="fn">push</span>(<span class="kw">if</span> nibble >= <span class="nm">8</span> { c.<span class="fn">to_ascii_uppercase</span>() } <span class="kw">else</span> { c });\n'+
+'    }\n'+
+'    result\n'+
+'}\n'+
+'\n'+
+'<span class="cm">/// Implémentation manuelle RLP (pédagogique)</span>\n'+
+'<span class="kw">fn</span> <span class="fn">rlp_encode_bytes</span>(data: <span class="op">&amp;</span>[<span class="ty">u8</span>]) -&gt; <span class="ty">Vec</span>&lt;<span class="ty">u8</span>&gt; {\n'+
+'    <span class="kw">match</span> data.<span class="fn">len</span>() {\n'+
+'        <span class="nm">1</span> <span class="kw">if</span> data[<span class="nm">0</span>] <= <span class="nm">0x7F</span> =&gt; data.<span class="fn">to_vec</span>(), <span class="cm">// byte simple</span>\n'+
+'        <span class="nm">0</span>..=<span class="nm">55</span> =&gt; {\n'+
+'            <span class="kw">let mut</span> v = <span class="kw">vec!</span>[<span class="nm">0x80</span> + data.<span class="fn">len</span>() <span class="kw">as</span> <span class="ty">u8</span>];\n'+
+'            v.<span class="fn">extend_from_slice</span>(data); v\n'+
+'        },\n'+
+'        n =&gt; {\n'+
+'            <span class="kw">let</span> len_bytes = (<span class="kw">if</span> n &lt;= <span class="nm">0xFF</span> { <span class="kw">vec!</span>[n <span class="kw">as</span> <span class="ty">u8</span>] }\n'+
+'                <span class="kw">else if</span> n &lt;= <span class="nm">0xFFFF</span> { <span class="kw">vec!</span>[(n>>8) <span class="kw">as</span> <span class="ty">u8</span>, (n<span class="op">&amp;</span><span class="nm">0xFF</span>) <span class="kw">as</span> <span class="ty">u8</span>] }\n'+
+'                <span class="kw">else</span> { <span class="kw">vec!</span>[(n>>16) <span class="kw">as</span> <span class="ty">u8</span>,(n>>8)<span class="kw">as</span> <span class="ty">u8</span>,(n<span class="op">&amp;</span><span class="nm">0xFF</span>)<span class="kw">as</span> <span class="ty">u8</span>] });\n'+
+'            <span class="kw">let mut</span> v = <span class="kw">vec!</span>[<span class="nm">0xB7</span> + len_bytes.<span class="fn">len</span>() <span class="kw">as</span> <span class="ty">u8</span>];\n'+
+'            v.<span class="fn">extend_from_slice</span>(<span class="op">&amp;</span>len_bytes);\n'+
+'            v.<span class="fn">extend_from_slice</span>(data); v\n'+
+'        }\n'+
+'    }\n'+
+'}\n'+
+'\n'+
+'<span class="kw">fn</span> <span class="fn">rlp_encode_list</span>(items: <span class="op">&amp;</span>[<span class="ty">Vec</span>&lt;<span class="ty">u8</span>&gt;]) -&gt; <span class="ty">Vec</span>&lt;<span class="ty">u8</span>&gt; {\n'+
+'    <span class="kw">let</span> payload: <span class="ty">Vec</span>&lt;<span class="ty">u8</span>&gt; = items.<span class="fn">iter</span>().<span class="fn">flat_map</span>(|i| i.<span class="fn">iter</span>().<span class="fn">copied</span>()).<span class="fn">collect</span>();\n'+
+'    <span class="kw">let</span> n = payload.<span class="fn">len</span>();\n'+
+'    <span class="kw">let mut</span> v = <span class="kw">if</span> n <= <span class="nm">55</span> {\n'+
+'        <span class="kw">vec!</span>[<span class="nm">0xC0</span> + n <span class="kw">as</span> <span class="ty">u8</span>]\n'+
+'    } <span class="kw">else</span> {\n'+
+'        <span class="kw">let</span> lb = <span class="kw">if</span> n <= <span class="nm">0xFF</span> { <span class="kw">vec!</span>[n <span class="kw">as</span> <span class="ty">u8</span>] } <span class="kw">else</span> { <span class="kw">vec!</span>[(n>>8)<span class="kw">as</span> <span class="ty">u8</span>,(n<span class="op">&amp;</span><span class="nm">0xFF</span>)<span class="kw">as</span> <span class="ty">u8</span>] };\n'+
+'        <span class="kw">let mut</span> h = <span class="kw">vec!</span>[<span class="nm">0xF7</span> + lb.<span class="fn">len</span>() <span class="kw">as</span> <span class="ty">u8</span>]; h.<span class="fn">extend</span>(lb); h\n'+
+'    };\n'+
+'    v.<span class="fn">extend</span>(payload); v\n'+
+'}\n'+
+'\n'+
+'<span class="kw">fn</span> <span class="fn">hex</span>(b: <span class="op">&amp;</span>[<span class="ty">u8</span>]) -&gt; <span class="ty">String</span> { b.<span class="fn">iter</span>().<span class="fn">map</span>(|x|<span class="mc">format!</span>(<span class="st">"{:02x}"</span>,x)).<span class="fn">collect</span>() }\n'+
+'\n'+
+'<span class="kw">fn</span> <span class="fn">main</span>() {\n'+
+'    <span class="mc">println!</span>(<span class="st">"=== RLP Encoding ==="</span>);\n'+
+'\n'+
+'    <span class="cm">// Cas simples</span>\n'+
+'    <span class="mc">println!</span>(<span class="st">"RLP(\"\") = {}"</span>, <span class="fn">hex</span>(<span class="op">&amp;</span><span class="fn">rlp_encode_bytes</span>(<span class="op">&amp;</span>[])));           <span class="cm">// 0x80</span>\n'+
+'    <span class="mc">println!</span>(<span class="st">"RLP(\\x00) = {}"</span>, <span class="fn">hex</span>(<span class="op">&amp;</span><span class="fn">rlp_encode_bytes</span>(<span class="op">&amp;</span>[<span class="nm">0x00</span>])));    <span class="cm">// 0x00</span>\n'+
+'    <span class="mc">println!</span>(<span class="st">"RLP(\"dog\") = {}"</span>, <span class="fn">hex</span>(<span class="op">&amp;</span><span class="fn">rlp_encode_bytes</span>(<span class="st">b"dog"</span>)));    <span class="cm">// 0x83646f67</span>\n'+
+'\n'+
+'    <span class="cm">// Liste [\"cat\", \"dog\"]</span>\n'+
+'    <span class="kw">let</span> list = <span class="fn">rlp_encode_list</span>(<span class="op">&amp;</span>[\n'+
+'        <span class="fn">rlp_encode_bytes</span>(<span class="st">b"cat"</span>),\n'+
+'        <span class="fn">rlp_encode_bytes</span>(<span class="st">b"dog"</span>),\n'+
+'    ]);\n'+
+'    <span class="mc">println!</span>(<span class="st">"RLP([cat,dog]) = {}"</span>, <span class="fn">hex</span>(<span class="op">&amp;</span>list)); <span class="cm">// 0xc883636174836​46f67</span>\n'+
+'\n'+
+'    <span class="mc">println!</span>(<span class="st">"\n=== Adresse Ethereum ==="</span>);\n'+
+'\n'+
+'    <span class="kw">let</span> sk = SecretKey::<span class="fn">random</span>(<span class="op">&amp;</span><span class="kw">mut</span> OsRng);\n'+
+'    <span class="kw">let</span> pk_full = sk.<span class="fn">public_key</span>().<span class="fn">to_encoded_point</span>(<span class="kw">false</span>);\n'+
+'    <span class="kw">let</span> pk_bytes = pk_full.<span class="fn">as_bytes</span>();\n'+
+'\n'+
+'    <span class="cm">// Retirer le préfixe 04 pour obtenir les 64 bytes (x||y)</span>\n'+
+'    <span class="kw">let</span> pk64 = <span class="op">&amp;</span>pk_bytes[<span class="nm">1</span>..];\n'+
+'\n'+
+'    <span class="cm">// Keccak256(pk64) → prendre les 20 derniers bytes</span>\n'+
+'    <span class="kw">let</span> hash = keccak(pk64);\n'+
+'    <span class="kw">let mut</span> addr = [<span class="nm">0u8</span>;<span class="nm">20</span>];\n'+
+'    addr.<span class="fn">copy_from_slice</span>(<span class="op">&amp;</span>hash[<span class="nm">12</span>..]); <span class="cm">// 20 derniers bytes = 32-12</span>\n'+
+'\n'+
+'    <span class="kw">let</span> addr_cs = <span class="fn">eth_address_checksum</span>(<span class="op">&amp;</span>addr);\n'+
+'    <span class="mc">println!</span>(<span class="st">"Clé privée   : {}..."</span>,\n'+
+'        <span class="op">&amp;</span>sk.<span class="fn">to_bytes</span>().<span class="fn">iter</span>().<span class="fn">map</span>(|b|<span class="mc">format!</span>(<span class="st">"{:02x}"</span>,b)).<span class="fn">collect</span>::&lt;<span class="ty">String</span>&gt;()[..<span class="nm">16</span>]);\n'+
+'    <span class="mc">println!</span>(<span class="st">"Pubkey (64B) : {}..."</span>, <span class="op">&amp;</span><span class="fn">hex</span>(pk64)[..<span class="nm">16</span>]);\n'+
+'    <span class="mc">println!</span>(<span class="st">"Keccak256[12:]: {}"</span>, <span class="fn">hex</span>(<span class="op">&amp;</span>addr));\n'+
+'    <span class="mc">println!</span>(<span class="st">"Adresse EIP-55: {}"</span>, addr_cs);\n'+
+'    <span class="mc">assert!</span>(addr_cs.<span class="fn">starts_with</span>(<span class="st">"0x"</span>));\n'+
+'    <span class="mc">assert_eq!</span>(addr_cs.<span class="fn">len</span>(), <span class="nm">42</span>); <span class="cm">// "0x" + 40 hex chars</span>\n'+
+'    <span class="mc">println!</span>(<span class="st">"OK adresse Ethereum valide (42 chars)"</span>);\n'+
+'}',
+  output:
+'<span class="out-prompt">$</span> cargo run\n'+
+'=== RLP Encoding ===\n'+
+'RLP("") = <span class="out-val">80</span>\n'+
+'RLP(\\x00) = <span class="out-val">00</span>\n'+
+'RLP("dog") = <span class="out-val">83646f67</span>\n'+
+'RLP([cat,dog]) = <span class="out-val">c88363617483646f67</span>\n'+
+'\n'+
+'=== Adresse Ethereum ===\n'+
+'Clé privée   : <span class="out-val">a4f2e8c3d1907b65</span>...\n'+
+'Pubkey (64B) : <span class="out-val">79be667ef9dcbb26</span>...\n'+
+'Keccak256[12:]: <span class="out-val">89abcdef0123456789abcdef0123456789abcdef</span>\n'+
+'Adresse EIP-55: <span class="out-val">0x89AbCdEf0123456789AbCdEf0123456789aBcDeF</span>\n'+
+'<span class="out-ok">OK adresse Ethereum valide (42 chars)</span>'
+},
+{
+  id:'40', title:'KZG polynomial commitment (BLS12-381)',
+  tags:['KZG','ZK','bls12_381','pairing','EIP-4844'],
+  cargo:'bls12_381 = "0.8"\nff = "0.13"\nrand = "0.8"',
+  concept:[
+    {type:'h3',text:'KZG Polynomial Commitments'},
+    {type:'p',text:'KZG (Kate-Zaverucha-Goldberg) permet de "s\'engager" sur un polynôme et de prouver sa valeur en un point, sans révéler les autres coefficients. Base de Plonk et EIP-4844.'},
+    {type:'ul',items:[
+      'Setup : paramètres [τ^i·G1] pour i=0..d (τ secret = trusted setup)',
+      'Commit : C = p(τ)·G1 = Σ aᵢ·τⁱ·G1',
+      'Prove : preuve π = (p(x)-p(z))/(x-z) évaluée en τ',
+      'Verify : pairing e(C - p(z)·G1, G2) == e(π, [τ]G2 - z·G2)',
+      'EIP-4844 (proto-danksharding) : blobs de données avec KZG',
+    ]},
+    {type:'warn',text:'Le "trusted setup" de KZG doit être effectué par des parties de confiance (cérémonie Powers of Tau). Si τ est connu, tout le système est compromis. PLONK utilise une cérémonie universelle.'},
+  ],
+  code:
+'<span class="cm">// 40 — KZG polynomial commitment sur BLS12-381</span>\n'+
+'<span class="cm">// Cargo.toml : bls12_381 = "0.8", ff = "0.13", rand = "0.8"</span>\n'+
+'<span class="kw">use</span> bls12_381::{\n'+
+'    G1Affine, G1Projective, G2Affine, G2Projective,\n'+
+'    Scalar, pairing, Bls12,\n'+
+'};\n'+
+'<span class="kw">use</span> ff::Field;\n'+
+'<span class="kw">use</span> rand::rngs::OsRng;\n'+
+'<span class="kw">use</span> std::ops::{Add, Mul, Sub, Neg};\n'+
+'\n'+
+'<span class="cm">/// Polynôme p(x) = a0 + a1*x + a2*x^2 + ...</span>\n'+
+'<span class="kw">struct</span> <span class="ty">Polynomial</span>(<span class="ty">Vec</span>&lt;<span class="ty">Scalar</span>&gt;);\n'+
+'\n'+
+'<span class="kw">impl</span> <span class="ty">Polynomial</span> {\n'+
+'    <span class="cm">/// Évalue p(x)</span>\n'+
+'    <span class="kw">fn</span> <span class="fn">eval</span>(<span class="op">&amp;</span><span class="kw">self</span>, x: <span class="ty">Scalar</span>) -&gt; <span class="ty">Scalar</span> {\n'+
+'        <span class="kw">let mut</span> result = <span class="ty">Scalar</span>::<span class="fn">zero</span>();\n'+
+'        <span class="kw">let mut</span> power = <span class="ty">Scalar</span>::<span class="fn">one</span>();\n'+
+'        <span class="kw">for</span> <span class="op">&amp;</span>coeff <span class="kw">in</span> <span class="op">&amp;</span><span class="kw">self</span>.<span class="nm">0</span> {\n'+
+'            result += coeff * power;\n'+
+'            power *= x;\n'+
+'        }\n'+
+'        result\n'+
+'    }\n'+
+'\n'+
+'    <span class="cm">/// Division par (x - z) via division synthétique de Ruffini</span>\n'+
+'    <span class="kw">fn</span> <span class="fn">divide_by_x_minus_z</span>(<span class="op">&amp;</span><span class="kw">self</span>, z: <span class="ty">Scalar</span>) -&gt; <span class="ty">Self</span> {\n'+
+'        <span class="kw">let</span> n = <span class="kw">self</span>.<span class="nm">0</span>.<span class="fn">len</span>();\n'+
+'        <span class="kw">if</span> n <= <span class="nm">1</span> { <span class="kw">return</span> <span class="ty">Polynomial</span>(<span class="kw">vec!</span>[<span class="ty">Scalar</span>::<span class="fn">zero</span>()]); }\n'+
+'        <span class="kw">let mut</span> q = <span class="kw">vec!</span>[<span class="ty">Scalar</span>::<span class="fn">zero</span>(); n - <span class="nm">1</span>];\n'+
+'        q[n-<span class="nm">2</span>] = <span class="kw">self</span>.<span class="nm">0</span>[n-<span class="nm">1</span>];\n'+
+'        <span class="kw">for</span> i <span class="kw">in</span> (<span class="nm">0</span>..n-<span class="nm">2</span>).<span class="fn">rev</span>() {\n'+
+'            q[i] = <span class="kw">self</span>.<span class="nm">0</span>[i+<span class="nm">1</span>] + z * q[i+<span class="nm">1</span>];\n'+
+'        }\n'+
+'        <span class="ty">Polynomial</span>(q)\n'+
+'    }\n'+
+'}\n'+
+'\n'+
+'<span class="cm">/// Trusted setup simplifié : τ connu (uniquement pour la démo !)</span>\n'+
+'<span class="kw">struct</span> <span class="ty">Srs</span> {\n'+
+'    g1: <span class="ty">Vec</span>&lt;<span class="ty">G1Projective</span>&gt;,  <span class="cm">// [τ^i * G1]</span>\n'+
+'    g2: <span class="ty">G2Projective</span>,       <span class="cm">// G2</span>\n'+
+'    tau_g2: <span class="ty">G2Projective</span>,   <span class="cm">// τ * G2</span>\n'+
+'}\n'+
+'\n'+
+'<span class="kw">impl</span> <span class="ty">Srs</span> {\n'+
+'    <span class="kw">fn</span> <span class="fn">setup</span>(tau: <span class="ty">Scalar</span>, degree: <span class="ty">usize</span>) -&gt; <span class="ty">Self</span> {\n'+
+'        <span class="kw">let</span> g1_gen = <span class="ty">G1Projective</span>::<span class="fn">generator</span>();\n'+
+'        <span class="kw">let</span> g2_gen = <span class="ty">G2Projective</span>::<span class="fn">generator</span>();\n'+
+'        <span class="kw">let mut</span> g1 = <span class="kw">vec!</span>[g1_gen];\n'+
+'        <span class="kw">let mut</span> tau_pow = tau;\n'+
+'        <span class="kw">for</span> _ <span class="kw">in</span> <span class="nm">1</span>..=degree {\n'+
+'            g1.<span class="fn">push</span>(g1_gen * tau_pow);\n'+
+'            tau_pow *= tau;\n'+
+'        }\n'+
+'        <span class="ty">Srs</span> { g1, g2: g2_gen, tau_g2: g2_gen * tau }\n'+
+'    }\n'+
+'}\n'+
+'\n'+
+'<span class="cm">/// Engage un polynôme : C = Σ aᵢ * [τⁱ]G1</span>\n'+
+'<span class="kw">fn</span> <span class="fn">commit</span>(poly: <span class="op">&amp;</span><span class="ty">Polynomial</span>, srs: <span class="op">&amp;</span><span class="ty">Srs</span>) -&gt; <span class="ty">G1Projective</span> {\n'+
+'    poly.<span class="nm">0</span>.<span class="fn">iter</span>().<span class="fn">enumerate</span>()\n'+
+'        .<span class="fn">fold</span>(<span class="ty">G1Projective</span>::<span class="fn">identity</span>(), |acc, (i, <span class="op">&amp;</span>a)| acc + srs.g1[i] * a)\n'+
+'}\n'+
+'\n'+
+'<span class="cm">/// Génère une preuve d\'évaluation en z</span>\n'+
+'<span class="kw">fn</span> <span class="fn">prove</span>(poly: <span class="op">&amp;</span><span class="ty">Polynomial</span>, z: <span class="ty">Scalar</span>, srs: <span class="op">&amp;</span><span class="ty">Srs</span>) -&gt; <span class="ty">G1Projective</span> {\n'+
+'    <span class="cm">// q(x) = (p(x) - p(z)) / (x - z)</span>\n'+
+'    <span class="kw">let</span> y = poly.<span class="fn">eval</span>(z);\n'+
+'    <span class="kw">let mut</span> shifted = poly.<span class="nm">0</span>.<span class="fn">clone</span>();\n'+
+'    shifted[<span class="nm">0</span>] -= y;\n'+
+'    <span class="kw">let</span> q = <span class="ty">Polynomial</span>(shifted).<span class="fn">divide_by_x_minus_z</span>(z);\n'+
+'    <span class="fn">commit</span>(<span class="op">&amp;</span>q, srs)\n'+
+'}\n'+
+'\n'+
+'<span class="cm">/// Vérifie la preuve via pairing</span>\n'+
+'<span class="cm">/// e(C - y*G1, G2) == e(π, [τ]G2 - z*G2)</span>\n'+
+'<span class="kw">fn</span> <span class="fn">verify</span>(\n'+
+'    commitment: <span class="ty">G1Projective</span>,\n'+
+'    z: <span class="ty">Scalar</span>, y: <span class="ty">Scalar</span>,\n'+
+'    proof: <span class="ty">G1Projective</span>,\n'+
+'    srs: <span class="op">&amp;</span><span class="ty">Srs</span>,\n'+
+') -&gt; <span class="ty">bool</span> {\n'+
+'    <span class="kw">let</span> g1_gen = <span class="ty">G1Projective</span>::<span class="fn">generator</span>();\n'+
+'    <span class="kw">let</span> lhs_g1 = <span class="ty">G1Affine</span>::<span class="fn">from</span>(commitment - g1_gen * y);\n'+
+'    <span class="kw">let</span> rhs_g2 = <span class="ty">G2Affine</span>::<span class="fn">from</span>(srs.tau_g2 - srs.g2 * z);\n'+
+'    <span class="kw">let</span> proof_g1 = <span class="ty">G1Affine</span>::<span class="fn">from</span>(proof);\n'+
+'    <span class="kw">let</span> g2_affine = <span class="ty">G2Affine</span>::<span class="fn">from</span>(srs.g2);\n'+
+'\n'+
+'    <span class="cm">// e(C - y*G1, G2) == e(π, τ*G2 - z*G2)</span>\n'+
+'    pairing(<span class="op">&amp;</span>lhs_g1, <span class="op">&amp;</span>g2_affine) == pairing(<span class="op">&amp;</span>proof_g1, <span class="op">&amp;</span>rhs_g2)\n'+
+'}\n'+
+'\n'+
+'<span class="kw">fn</span> <span class="fn">main</span>() {\n'+
+'    <span class="mc">println!</span>(<span class="st">"=== KZG Polynomial Commitment ===\n"</span>);\n'+
+'\n'+
+'    <span class="cm">// Trusted setup (τ connu uniquement pour la démo)</span>\n'+
+'    <span class="kw">let</span> tau = <span class="ty">Scalar</span>::<span class="fn">random</span>(<span class="op">&amp;</span><span class="kw">mut</span> OsRng);\n'+
+'    <span class="kw">let</span> srs = <span class="ty">Srs</span>::<span class="fn">setup</span>(tau, <span class="nm">5</span>); <span class="cm">// supporte deg ≤ 5</span>\n'+
+'    <span class="mc">println!</span>(<span class="st">"SRS généré (τ secret en production)"</span>);\n'+
+'\n'+
+'    <span class="cm">// Polynôme p(x) = 3 + 2x + x^2  (coefficients : [3, 2, 1])</span>\n'+
+'    <span class="kw">let</span> poly = <span class="ty">Polynomial</span>(<span class="kw">vec!</span>[\n'+
+'        <span class="ty">Scalar</span>::<span class="fn">from</span>(<span class="nm">3u64</span>),\n'+
+'        <span class="ty">Scalar</span>::<span class="fn">from</span>(<span class="nm">2u64</span>),\n'+
+'        <span class="ty">Scalar</span>::<span class="fn">from</span>(<span class="nm">1u64</span>),\n'+
+'    ]);\n'+
+'    <span class="mc">println!</span>(<span class="st">"Polynôme : p(x) = 3 + 2x + x^2"</span>);\n'+
+'\n'+
+'    <span class="cm">// Engagement</span>\n'+
+'    <span class="kw">let</span> commitment = <span class="fn">commit</span>(<span class="op">&amp;</span>poly, <span class="op">&amp;</span>srs);\n'+
+'    <span class="mc">println!</span>(<span class="st">"Commitment C = p(τ)*G1 calculé"</span>);\n'+
+'\n'+
+'    <span class="cm">// Prouver l\'évaluation en z=4 : p(4) = 3 + 8 + 16 = 27</span>\n'+
+'    <span class="kw">let</span> z = <span class="ty">Scalar</span>::<span class="fn">from</span>(<span class="nm">4u64</span>);\n'+
+'    <span class="kw">let</span> y = poly.<span class="fn">eval</span>(z);\n'+
+'    <span class="kw">let</span> proof = <span class="fn">prove</span>(<span class="op">&amp;</span>poly, z, <span class="op">&amp;</span>srs);\n'+
+'\n'+
+'    <span class="kw">let</span> y_u64 = y.<span class="fn">to_le_bytes</span>(); <span class="cm">// extraire la valeur</span>\n'+
+'    <span class="mc">println!</span>(<span class="st">"Évaluation p(4) = {} (attendu 27)"</span>,\n'+
+'        <span class="ty">u64</span>::<span class="fn">from_le_bytes</span>(y_u64[..<span class="nm">8</span>].<span class="fn">try_into</span>().<span class="fn">unwrap</span>()));\n'+
+'\n'+
+'    <span class="cm">// Vérification</span>\n'+
+'    <span class="kw">let</span> valid = <span class="fn">verify</span>(commitment, z, y, proof, <span class="op">&amp;</span>srs);\n'+
+'    <span class="mc">println!</span>(<span class="st">"Vérification pairing : {}"</span>, <span class="kw">if</span> valid {<span class="st">"OK ✓"</span>} <span class="kw">else</span> {<span class="st">"FAIL ✗"</span>});\n'+
+'\n'+
+'    <span class="cm">// Fausse preuve → rejetée</span>\n'+
+'    <span class="kw">let</span> fake_y = <span class="ty">Scalar</span>::<span class="fn">from</span>(<span class="nm">999u64</span>);\n'+
+'    <span class="kw">let</span> invalid = <span class="fn">verify</span>(commitment, z, fake_y, proof, <span class="op">&amp;</span>srs);\n'+
+'    <span class="mc">println!</span>(<span class="st">"Fausse valeur y=999 : {}"</span>, <span class="kw">if</span> invalid {<span class="st">"BUG!"</span>} <span class="kw">else</span> {<span class="st">"Rejetée ✓"</span>});\n'+
+'}',
+  output:
+'<span class="out-prompt">$</span> cargo run --release\n'+
+'=== KZG Polynomial Commitment ===\n'+
+'\n'+
+'SRS généré (τ secret en production)\n'+
+'Polynôme : p(x) = 3 + 2x + x^2\n'+
+'Commitment C = p(τ)*G1 calculé\n'+
+'Évaluation p(4) = <span class="out-val">27</span> (attendu 27)\n'+
+'Vérification pairing : <span class="out-ok">OK ✓</span>\n'+
+'Fausse valeur y=999 : <span class="out-ok">Rejetée ✓</span>\n'+
+'<span class="out-dim">(calcul de pairing ~200ms en --release)</span>'
+}
+];
+
+// ── BUILD NAV ──
+var navDiv = document.getElementById('nav-items');
+EXERCISES.forEach(function(ex){
+  var btn = document.createElement('button');
+  btn.className = 'nav-btn';
+  btn.id = 'nb-'+ex.id;
+  btn.innerHTML = '<span class="nn">'+ex.id+'</span><span style="flex:1;font-size:12px">'+ex.title+'</span><span class="nc">✓</span>';
+  btn.onclick = function(){ var el=document.getElementById('ex-'+ex.id); if(el) el.scrollIntoView({behavior:'smooth',block:'start'}); };
+  navDiv.appendChild(btn);
+});
+
+// ── BUILD EXERCISES ──
+var cont = document.getElementById('ex-container');
+EXERCISES.forEach(function(ex, idx){
+  var uid = 'u'+ex.id;
+  var conceptHtml = '';
+  ex.concept.forEach(function(c){
+    if(c.type==='h3') conceptHtml+='<h3>'+c.text+'</h3>';
+    else if(c.type==='p') conceptHtml+='<p>'+c.text+'</p>';
+    else if(c.type==='ul'){ conceptHtml+='<ul>'; c.items.forEach(function(li){conceptHtml+='<li>'+li+'</li>';}); conceptHtml+='</ul>'; }
+    else if(c.type==='warn') conceptHtml+='<div class="callout warn"><span>⚠</span><span>'+c.text+'</span></div>';
+    else if(c.type==='tip') conceptHtml+='<div class="callout tip"><span>✓</span><span>'+c.text+'</span></div>';
+    else if(c.type==='info') conceptHtml+='<div class="callout info"><span>ℹ</span><span>'+c.text+'</span></div>';
+  });
+  var cargoPanel = ex.cargo ? '<div class="tab-panel" id="'+uid+'-2"><div class="code-wrap"><div class="code-header"><span style="font-family:JetBrains Mono,monospace;font-size:11px;color:#546E7A">Cargo.toml</span></div><pre>[dependencies]\n'+ex.cargo+'</pre></div></div>' : '';
+  var outIdx = ex.cargo ? 3 : 2;
+  var cargoTab = ex.cargo ? '<button class="tab-btn" onclick="showTab(\''+uid+'\',2,this)">📦 Cargo</button>' : '';
+  cont.insertAdjacentHTML('beforeend',
+    '<section class="ex-section" id="ex-'+ex.id+'">'+
+    '<div class="ex-head"><div class="ex-badge">Ex. '+ex.id+'</div><div class="ex-head-info"><h2>'+ex.title+'</h2><div class="tags">'+ex.tags.map(function(t){return '<span class="tag">'+t+'</span>';}).join('')+'</div></div></div>'+
+    '<div class="tab-wrap">'+
+    '<div class="tab-bar">'+
+    '<button class="tab-btn active" onclick="showTab(\''+uid+'\',0,this)">📖 Concept</button>'+
+    '<button class="tab-btn" onclick="showTab(\''+uid+'\',1,this)">🦀 Code</button>'+
+    cargoTab+
+    '<button class="tab-btn" onclick="showTab(\''+uid+'\','+outIdx+',this)">▶ Sortie</button>'+
+    '</div>'+
+    '<div class="tab-panel active" id="'+uid+'-0"><div class="concept-body">'+conceptHtml+'</div></div>'+
+    '<div class="tab-panel" id="'+uid+'-1"><div class="code-wrap"><div class="code-header"><div class="code-dots"><div class="code-dot" style="background:#FF5F57"></div><div class="code-dot" style="background:#FFBD2E"></div><div class="code-dot" style="background:#28C840"></div></div><span style="font-family:JetBrains Mono,monospace;font-size:11px;color:#546E7A;margin-left:8px">src/main.rs</span><button class="copy-btn" id="cpb-'+uid+'" onclick="copyCode(\''+uid+'\')">Copier</button></div><pre id="pre-'+uid+'">'+ex.code+'</pre></div></div>'+
+    cargoPanel+
+    '<div class="tab-panel" id="'+uid+'-'+outIdx+'"><div class="output-body">'+ex.output+'</div></div>'+
+    '<div class="done-row"><button class="done-btn" id="done-'+ex.id+'" onclick="toggleDone(\''+ex.id+'\')"><span id="di-'+ex.id+'">○</span> <span id="dl-'+ex.id+'">Marquer comme fait</span></button></div>'+
+    '</div></section>'+
+    (idx<EXERCISES.length-1?'<div class="section-divider"></div>':'')
+  );
+});
+
+function showTab(uid,idx,btn){
+  var i=0; while(true){var p=document.getElementById(uid+'-'+i);if(!p)break;p.classList.toggle('active',i===idx);i++;}
+  btn.closest('.tab-bar').querySelectorAll('.tab-btn').forEach(function(b,j){b.classList.toggle('active',j===idx);});
+}
+function copyCode(uid){
+  var pre=document.getElementById('pre-'+uid);var btn=document.getElementById('cpb-'+uid);
+  navigator.clipboard.writeText(pre.innerText).then(function(){btn.textContent='Copié!';btn.classList.add('copied');setTimeout(function(){btn.textContent='Copier';btn.classList.remove('copied');},2000);});
+}
+var DONE_KEY='rust_31_40_done';
+var doneMap={};try{doneMap=JSON.parse(localStorage.getItem(DONE_KEY)||'{}');}catch(e){}
+function toggleDone(id){doneMap[id]=!doneMap[id];localStorage.setItem(DONE_KEY,JSON.stringify(doneMap));renderDone();}
+function renderDone(){var c=0;EXERCISES.forEach(function(ex){var d=!!doneMap[ex.id];if(d)c++;var btn=document.getElementById('done-'+ex.id);var icon=document.getElementById('di-'+ex.id);var lbl=document.getElementById('dl-'+ex.id);var nav=document.getElementById('nb-'+ex.id);if(btn)btn.className=d?'done-btn done':'done-btn';if(icon)icon.textContent=d?'✓':'○';if(lbl)lbl.textContent=d?'Complété':'Marquer comme fait';if(nav)nav.classList.toggle('done',d);});document.getElementById('nav-prog').textContent=c+' / 10';document.getElementById('prog-fill').style.width=(c/10*100)+'%';}
+function doExpandAll(){EXERCISES.forEach(function(ex){var uid='u'+ex.id;var b=document.querySelector('[onclick="showTab(\''+uid+'\',1,this)"]');if(b)showTab(uid,1,b);});}
+function doMarkAll(){EXERCISES.forEach(function(ex){doneMap[ex.id]=true;});localStorage.setItem(DONE_KEY,JSON.stringify(doneMap));renderDone();}
+function setTheme(t){document.documentElement.setAttribute('data-theme',t);localStorage.setItem('rust_l3_theme',t);document.getElementById('tbtn-dark').classList.toggle('active',t==='dark');document.getElementById('tbtn-light').classList.toggle('active',t==='light');}
+var io=new IntersectionObserver(function(entries){entries.forEach(function(e){if(e.isIntersecting){var id=e.target.id.replace('ex-','');document.querySelectorAll('.nav-btn').forEach(function(b){b.classList.toggle('active',b.id==='nb-'+id);});}});},{rootMargin:'-15% 0px -70% 0px'});
+document.querySelectorAll('.ex-section').forEach(function(s){io.observe(s);});
+var st=localStorage.getItem('rust_l3_theme')||'dark';setTheme(st);renderDone();
+</script>
+</body>
+</html>

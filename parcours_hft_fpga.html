@@ -1,0 +1,1085 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Parcours HFT/FPGA — Feuille de route autodidacte</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0a0f;
+    --surface: #12121a;
+    --surface2: #1a1a26;
+    --border: rgba(255,255,255,0.07);
+    --border-bright: rgba(255,255,255,0.15);
+    --text: #e8e8f0;
+    --text-muted: #6b6b80;
+    --text-dim: #3a3a50;
+    --accent-purple: #7c5cfc;
+    --accent-teal: #00d4aa;
+    --accent-amber: #f0a500;
+    --accent-coral: #ff6b5b;
+    --accent-blue: #4a9eff;
+    --glow-purple: rgba(124,92,252,0.15);
+    --glow-teal: rgba(0,212,170,0.12);
+    --glow-amber: rgba(240,165,0,0.12);
+    --glow-coral: rgba(255,107,91,0.12);
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 14px;
+    line-height: 1.6;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* Grid background */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(124,92,252,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(124,92,252,0.03) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* Ambient glow */
+  body::after {
+    content: '';
+    position: fixed;
+    top: -200px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 800px;
+    height: 400px;
+    background: radial-gradient(ellipse, rgba(124,92,252,0.08) 0%, transparent 70%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .container {
+    position: relative;
+    z-index: 1;
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 60px 24px 100px;
+  }
+
+  /* ── Header ── */
+  .header {
+    margin-bottom: 64px;
+  }
+
+  .header-eyebrow {
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--accent-purple);
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .header-eyebrow::before {
+    content: '';
+    display: inline-block;
+    width: 24px;
+    height: 1px;
+    background: var(--accent-purple);
+  }
+
+  .header h1 {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(36px, 6vw, 64px);
+    font-weight: 800;
+    line-height: 1.05;
+    letter-spacing: -0.02em;
+    margin-bottom: 20px;
+  }
+
+  .header h1 span {
+    background: linear-gradient(135deg, var(--accent-purple), var(--accent-teal));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .header-desc {
+    color: var(--text-muted);
+    max-width: 560px;
+    font-size: 13px;
+    line-height: 1.7;
+  }
+
+  /* ── Skills snapshot ── */
+  .skills-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 64px;
+  }
+
+  @media (max-width: 600px) { .skills-row { grid-template-columns: 1fr; } }
+
+  .skills-box {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
+  }
+
+  .skills-box-label {
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 12px;
+  }
+
+  .chip-row { display: flex; flex-wrap: wrap; gap: 6px; }
+
+  .chip {
+    font-size: 11px;
+    padding: 3px 9px;
+    border-radius: 4px;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid var(--border);
+    color: var(--text-muted);
+    font-family: 'JetBrains Mono', monospace;
+    transition: border-color 0.2s;
+  }
+
+  .chip.acquired { border-color: rgba(0,212,170,0.3); color: var(--accent-teal); background: rgba(0,212,170,0.05); }
+  .chip.target { border-color: rgba(124,92,252,0.3); color: var(--accent-purple); background: rgba(124,92,252,0.05); }
+
+  /* ── Timeline ── */
+  .timeline {
+    position: relative;
+  }
+
+  .timeline::before {
+    content: '';
+    position: absolute;
+    left: 28px;
+    top: 0;
+    bottom: 0;
+    width: 1px;
+    background: linear-gradient(to bottom, var(--accent-purple), var(--accent-teal), var(--accent-amber), var(--accent-coral), transparent);
+    opacity: 0.3;
+  }
+
+  /* ── Phase card ── */
+  .phase {
+    position: relative;
+    padding-left: 72px;
+    margin-bottom: 48px;
+    opacity: 0;
+    transform: translateY(24px);
+    transition: opacity 0.6s ease, transform 0.6s ease;
+  }
+
+  .phase.visible { opacity: 1; transform: none; }
+
+  .phase-dot {
+    position: absolute;
+    left: 18px;
+    top: 24px;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    border: 2px solid currentColor;
+    background: var(--bg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 9px;
+    font-weight: 700;
+    font-family: 'Syne', sans-serif;
+  }
+
+  .phase[data-phase="1"] .phase-dot { color: var(--accent-purple); box-shadow: 0 0 16px var(--glow-purple); }
+  .phase[data-phase="2"] .phase-dot { color: var(--accent-teal); box-shadow: 0 0 16px var(--glow-teal); }
+  .phase[data-phase="3"] .phase-dot { color: var(--accent-amber); box-shadow: 0 0 16px var(--glow-amber); }
+  .phase[data-phase="4"] .phase-dot { color: var(--accent-coral); box-shadow: 0 0 16px var(--glow-coral); }
+
+  .phase-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    overflow: hidden;
+    transition: border-color 0.3s, box-shadow 0.3s;
+  }
+
+  .phase-card:hover { border-color: var(--border-bright); }
+
+  .phase[data-phase="1"] .phase-card:hover { box-shadow: 0 0 40px var(--glow-purple); }
+  .phase[data-phase="2"] .phase-card:hover { box-shadow: 0 0 40px var(--glow-teal); }
+  .phase[data-phase="3"] .phase-card:hover { box-shadow: 0 0 40px var(--glow-amber); }
+  .phase[data-phase="4"] .phase-card:hover { box-shadow: 0 0 40px var(--glow-coral); }
+
+  .phase-header {
+    padding: 24px 28px;
+    cursor: pointer;
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+    user-select: none;
+  }
+
+  .phase-header-left { flex: 1; }
+
+  .phase-tag {
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .phase[data-phase="1"] .phase-tag { color: var(--accent-purple); }
+  .phase[data-phase="2"] .phase-tag { color: var(--accent-teal); }
+  .phase[data-phase="3"] .phase-tag { color: var(--accent-amber); }
+  .phase[data-phase="4"] .phase-tag { color: var(--accent-coral); }
+
+  .phase-tag-pill {
+    padding: 2px 8px;
+    border-radius: 20px;
+    font-size: 10px;
+    font-weight: 500;
+  }
+
+  .phase[data-phase="1"] .phase-tag-pill { background: rgba(124,92,252,0.15); color: var(--accent-purple); }
+  .phase[data-phase="2"] .phase-tag-pill { background: rgba(0,212,170,0.12); color: var(--accent-teal); }
+  .phase[data-phase="3"] .phase-tag-pill { background: rgba(240,165,0,0.12); color: var(--accent-amber); }
+  .phase[data-phase="4"] .phase-tag-pill { background: rgba(255,107,91,0.12); color: var(--accent-coral); }
+
+  .phase-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 6px;
+    line-height: 1.2;
+  }
+
+  .phase-subtitle {
+    font-size: 12px;
+    color: var(--text-muted);
+    line-height: 1.5;
+  }
+
+  .phase-toggle {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    margin-top: 4px;
+    transition: background 0.2s, transform 0.3s;
+    color: var(--text-muted);
+    font-size: 12px;
+  }
+
+  .phase-card.open .phase-toggle { transform: rotate(45deg); background: rgba(255,255,255,0.1); }
+
+  /* ── Phase body ── */
+  .phase-body {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.5s cubic-bezier(0.4,0,0.2,1);
+  }
+
+  .phase-body-inner {
+    padding: 0 28px 28px;
+    border-top: 1px solid var(--border);
+    padding-top: 24px;
+  }
+
+  /* ── Resources ── */
+  .resources-title {
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    margin-bottom: 12px;
+  }
+
+  .resource-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--border);
+    transition: opacity 0.2s;
+  }
+
+  .resource-item:last-child { border-bottom: none; }
+
+  .resource-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    flex-shrink: 0;
+  }
+
+  .icon-book { background: rgba(124,92,252,0.12); }
+  .icon-code { background: rgba(74,158,255,0.12); }
+  .icon-video { background: rgba(255,107,91,0.12); }
+  .icon-github { background: rgba(255,255,255,0.06); }
+  .icon-project { background: rgba(0,212,170,0.1); }
+  .icon-target { background: rgba(240,165,0,0.1); }
+
+  .resource-content { flex: 1; }
+
+  .resource-name {
+    font-size: 13px;
+    color: var(--text);
+    font-weight: 500;
+    margin-bottom: 2px;
+    font-family: 'Syne', sans-serif;
+  }
+
+  .resource-desc {
+    font-size: 11px;
+    color: var(--text-muted);
+    line-height: 1.5;
+  }
+
+  .resource-badge {
+    font-size: 10px;
+    padding: 2px 8px;
+    border-radius: 20px;
+    font-weight: 500;
+    flex-shrink: 0;
+    margin-top: 2px;
+    align-self: flex-start;
+  }
+
+  .badge-free { background: rgba(0,212,170,0.1); color: var(--accent-teal); }
+  .badge-paid { background: rgba(240,165,0,0.1); color: var(--accent-amber); }
+  .badge-project { background: rgba(124,92,252,0.1); color: var(--accent-purple); }
+
+  /* ── Milestone ── */
+  .milestone {
+    margin-top: 20px;
+    padding: 14px 16px;
+    background: rgba(255,255,255,0.03);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    font-size: 12px;
+    color: var(--text-muted);
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    line-height: 1.5;
+  }
+
+  .milestone-icon {
+    font-size: 16px;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+
+  .phase[data-phase="1"] .milestone-icon { color: var(--accent-purple); }
+  .phase[data-phase="2"] .milestone-icon { color: var(--accent-teal); }
+  .phase[data-phase="3"] .milestone-icon { color: var(--accent-amber); }
+  .phase[data-phase="4"] .milestone-icon { color: var(--accent-coral); }
+
+  /* ── Progress tracker ── */
+  .progress-section {
+    margin-bottom: 64px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 24px 28px;
+  }
+
+  .progress-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+  }
+
+  .progress-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text);
+  }
+
+  .progress-pct {
+    font-size: 12px;
+    color: var(--text-muted);
+  }
+
+  .progress-phases {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+  }
+
+  @media (max-width: 600px) {
+    .progress-phases { grid-template-columns: repeat(2, 1fr); }
+  }
+
+  .progress-phase {
+    text-align: center;
+  }
+
+  .progress-phase-label {
+    font-size: 10px;
+    color: var(--text-dim);
+    margin-bottom: 8px;
+    letter-spacing: 0.06em;
+  }
+
+  .progress-bar-outer {
+    height: 4px;
+    background: rgba(255,255,255,0.06);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+
+  .progress-bar-inner {
+    height: 100%;
+    border-radius: 2px;
+    transition: width 1s cubic-bezier(0.4,0,0.2,1);
+  }
+
+  .p1-bar { background: var(--accent-purple); }
+  .p2-bar { background: var(--accent-teal); }
+  .p3-bar { background: var(--accent-amber); }
+  .p4-bar { background: var(--accent-coral); }
+
+  .progress-bar-pct {
+    font-size: 11px;
+    color: var(--text-muted);
+    margin-top: 6px;
+  }
+
+  /* ── Checklist items ── */
+  .checklist {
+    list-style: none;
+    margin-top: 16px;
+  }
+
+  .check-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 6px 0;
+    font-size: 12px;
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: color 0.2s;
+  }
+
+  .check-item:hover { color: var(--text); }
+
+  .check-box {
+    width: 16px;
+    height: 16px;
+    border-radius: 4px;
+    border: 1px solid var(--border-bright);
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    font-size: 10px;
+  }
+
+  .check-item.done .check-box {
+    border-color: var(--accent-teal);
+    background: rgba(0,212,170,0.15);
+    color: var(--accent-teal);
+  }
+
+  .check-item.done span { text-decoration: line-through; opacity: 0.5; }
+
+  /* ── Target companies ── */
+  .companies-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 16px;
+  }
+
+  .company-tag {
+    padding: 6px 14px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 500;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid var(--border);
+    color: var(--text-muted);
+    font-family: 'Syne', sans-serif;
+    transition: all 0.2s;
+  }
+
+  .company-tag:hover {
+    border-color: var(--accent-coral);
+    color: var(--accent-coral);
+    background: rgba(255,107,91,0.06);
+  }
+
+  /* ── Footer ── */
+  .footer-note {
+    margin-top: 60px;
+    padding: 20px 0;
+    border-top: 1px solid var(--border);
+    font-size: 11px;
+    color: var(--text-dim);
+    text-align: center;
+    line-height: 1.7;
+  }
+
+  .footer-note a { color: var(--text-muted); text-decoration: none; }
+  .footer-note a:hover { color: var(--accent-teal); }
+
+  /* ── Animations ── */
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+  }
+
+  .blink { animation: pulse 2s ease-in-out infinite; }
+</style>
+</head>
+<body>
+
+<div class="container">
+
+  <!-- Header -->
+  <header class="header">
+    <div class="header-eyebrow">Parcours autodidacte · 10 mois</div>
+    <h1>Devenir <span>FPGA Engineer</span><br>en HFT</h1>
+    <p class="header-desc">
+      Feuille de route personnalisée basée sur ton profil : bac systèmes informatique &amp; électronique (UQAM), DEC génie physique, certificats données/IA, et expérience comme analyste de données Python.
+    </p>
+  </header>
+
+  <!-- Skills snapshot -->
+  <div class="skills-row">
+    <div class="skills-box">
+      <div class="skills-box-label">✓ Compétences acquises</div>
+      <div class="chip-row">
+        <span class="chip acquired">VHDL</span>
+        <span class="chip acquired">Python</span>
+        <span class="chip acquired">Pandas</span>
+        <span class="chip acquired">NumPy</span>
+        <span class="chip acquired">PyTorch</span>
+        <span class="chip acquired">SQL</span>
+        <span class="chip acquired">Électronique</span>
+        <span class="chip acquired">FPGA</span>
+        <span class="chip acquired">Data engineering</span>
+      </div>
+    </div>
+    <div class="skills-box">
+      <div class="skills-box-label">🎯 À acquérir</div>
+      <div class="chip-row">
+        <span class="chip target">SystemVerilog</span>
+        <span class="chip target">C++17</span>
+        <span class="chip target">TCP/UDP sockets</span>
+        <span class="chip target">PCIe</span>
+        <span class="chip target">Market microstructure</span>
+        <span class="chip target">ITCH protocol</span>
+        <span class="chip target">Order book logic</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Progress tracker -->
+  <div class="progress-section">
+    <div class="progress-header">
+      <div class="progress-title">Progression globale</div>
+      <div class="progress-pct" id="total-pct">0% complété</div>
+    </div>
+    <div class="progress-phases">
+      <div class="progress-phase">
+        <div class="progress-phase-label">Phase 1 · Mois 1–2</div>
+        <div class="progress-bar-outer">
+          <div class="progress-bar-inner p1-bar" id="bar1" style="width:0%"></div>
+        </div>
+        <div class="progress-bar-pct" id="pct1">0%</div>
+      </div>
+      <div class="progress-phase">
+        <div class="progress-phase-label">Phase 2 · Mois 3–4</div>
+        <div class="progress-bar-outer">
+          <div class="progress-bar-inner p2-bar" id="bar2" style="width:0%"></div>
+        </div>
+        <div class="progress-bar-pct" id="pct2">0%</div>
+      </div>
+      <div class="progress-phase">
+        <div class="progress-phase-label">Phase 3 · Mois 5–7</div>
+        <div class="progress-bar-outer">
+          <div class="progress-bar-inner p3-bar" id="bar3" style="width:0%"></div>
+        </div>
+        <div class="progress-bar-pct" id="pct3">0%</div>
+      </div>
+      <div class="progress-phase">
+        <div class="progress-phase-label">Phase 4 · Mois 8–10</div>
+        <div class="progress-bar-outer">
+          <div class="progress-bar-inner p4-bar" id="bar4" style="width:0%"></div>
+        </div>
+        <div class="progress-bar-pct" id="pct4">0%</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Timeline -->
+  <div class="timeline">
+
+    <!-- Phase 1 -->
+    <div class="phase" data-phase="1">
+      <div class="phase-dot">01</div>
+      <div class="phase-card">
+        <div class="phase-header" onclick="togglePhase(this)">
+          <div class="phase-header-left">
+            <div class="phase-tag">
+              <span class="phase-tag-pill">Mois 1–2</span>
+              Fondations
+            </div>
+            <div class="phase-title">Microstructure financière &amp; transition HDL</div>
+            <div class="phase-subtitle">Comprendre comment un exchange envoie ses données + passer de VHDL à SystemVerilog</div>
+          </div>
+          <div class="phase-toggle">+</div>
+        </div>
+        <div class="phase-body">
+          <div class="phase-body-inner">
+            <div class="resources-title">Ressources</div>
+
+            <div class="resource-item">
+              <div class="resource-icon icon-book">📘</div>
+              <div class="resource-content">
+                <div class="resource-name">Developing High-Frequency Trading Systems</div>
+                <div class="resource-desc">Rossier &amp; Ghosh (Packt) — La référence pour comprendre l'architecture HFT, le C++ d'exécution, et les contraintes de latence réelle.</div>
+              </div>
+              <span class="resource-badge badge-paid">Payant</span>
+            </div>
+
+            <div class="resource-item">
+              <div class="resource-icon icon-book">📗</div>
+              <div class="resource-content">
+                <div class="resource-name">FPGA Programming for Beginners</div>
+                <div class="resource-desc">Frank Bruno — Transition VHDL → SystemVerilog. La syntaxe C-like sera naturelle avec ton background C++.</div>
+              </div>
+              <span class="resource-badge badge-paid">Payant</span>
+            </div>
+
+            <div class="resource-item">
+              <div class="resource-icon icon-video">▶</div>
+              <div class="resource-content">
+                <div class="resource-name">MIT OpenCourseWare — Market Microstructure</div>
+                <div class="resource-desc">Lectures gratuites sur la structure des carnets d'ordres, les modèles d'exécution, et les mécanismes d'échange.</div>
+              </div>
+              <span class="resource-badge badge-free">Gratuit</span>
+            </div>
+
+            <div class="resource-item">
+              <div class="resource-icon icon-github">⬡</div>
+              <div class="resource-content">
+                <div class="resource-name">Essenceia/Nasdaq-HFT-FPGA</div>
+                <div class="resource-desc">Dépôt GitHub public d'un moteur d'exécution NASDAQ ultra-bas latence avec décodeur ITCH en RTL. Lire et annoter le code.</div>
+              </div>
+              <span class="resource-badge badge-free">Gratuit</span>
+            </div>
+
+            <div class="resource-item">
+              <div class="resource-icon icon-project">◈</div>
+              <div class="resource-content">
+                <div class="resource-name">Exercice : réécriture VHDL → SystemVerilog</div>
+                <div class="resource-desc">Prendre un de tes anciens modules VHDL (ex : FSM, compteur, registre à décalage) et le réécrire en SystemVerilog.</div>
+              </div>
+              <span class="resource-badge badge-project">Projet</span>
+            </div>
+
+            <ul class="checklist" data-phase="1">
+              <li class="check-item" onclick="toggleCheck(this)"><div class="check-box">✓</div><span>Acheter et commencer Developing HFT Systems</span></li>
+              <li class="check-item" onclick="toggleCheck(this)"><div class="check-box">✓</div><span>Lire les chapitres 1–4 de FPGA for Beginners</span></li>
+              <li class="check-item" onclick="toggleCheck(this)"><div class="check-box">✓</div><span>Regarder 3 lectures MIT market microstructure</span></li>
+              <li class="check-item" onclick="toggleCheck(this)"><div class="check-box">✓</div><span>Cloner et explorer Essenceia/Nasdaq-HFT-FPGA</span></li>
+              <li class="check-item" onclick="toggleCheck(this)"><div class="check-box">✓</div><span>Réécrire un module VHDL en SystemVerilog</span></li>
+            </ul>
+
+            <div class="milestone">
+              <span class="milestone-icon">◉</span>
+              <span><strong>Jalon :</strong> Tu comprends comment le protocole ITCH de NASDAQ encode les données d'ordre, et tu peux lire/écrire du SystemVerilog basique sans aide.</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Phase 2 -->
+    <div class="phase" data-phase="2">
+      <div class="phase-dot">02</div>
+      <div class="phase-card">
+        <div class="phase-header" onclick="togglePhase(this)">
+          <div class="phase-header-left">
+            <div class="phase-tag">
+              <span class="phase-tag-pill">Mois 3–4</span>
+              Systèmes
+            </div>
+            <div class="phase-title">C++ bas niveau &amp; réseau</div>
+            <div class="phase-subtitle">Maîtriser le C++ moderne orienté performance + sockets UDP/TCP pour les flux de marché</div>
+          </div>
+          <div class="phase-toggle">+</div>
+        </div>
+        <div class="phase-body">
+          <div class="phase-body-inner">
+            <div class="resources-title">Ressources</div>
+
+            <div class="resource-item">
+              <div class="resource-icon icon-book">📘</div>
+              <div class="resource-content">
+                <div class="resource-name">Effective Modern C++ — Scott Meyers</div>
+                <div class="resource-desc">Move semantics, lambdas, smart pointers, constexpr. Ce sont exactement les features utilisées dans le code de prod HFT en C++17/20.</div>
+              </div>
+              <span class="resource-badge badge-paid">Payant</span>
+            </div>
+
+            <div class="resource-item">
+              <div class="resource-icon icon-book">📗</div>
+              <div class="resource-content">
+                <div class="resource-name">The Linux Programming Interface — Kerrisk</div>
+                <div class="resource-desc">Sockets, threads POSIX, gestion mémoire, signaux. La bible du bas niveau Linux — ce que les equipes HFT attendent de toi.</div>
+              </div>
+              <span class="resource-badge badge-paid">Payant</span>
+            </div>
+
+            <div class="resource-item">
+              <div class="resource-icon icon-video">▶</div>
+              <div class="resource-content">
+                <div class="resource-name">Coursera — C++ for C Programmers (UC Santa Cruz)</div>
+                <div class="resource-desc">Accessible en audit gratuit. Parfait pour systématiser tes connaissances C++ avant de plonger dans la gestion mémoire avancée.</div>
+              </div>
+              <span class="resource-badge badge-free">Audit gratuit</span>
+            </div>
+
+            <div class="resource-item">
+              <div class="resource-icon icon-code">{ }</div>
+              <div class="resource-content">
+                <div class="resource-name">LeetCode — 2h/semaine, focus C++</div>
+                <div class="resource-desc">Medium/Hard. Patterns prioritaires : queues, hash maps, sliding window, binary search. Les entrevues HFT testent ces structures.</div>
+              </div>
+              <span class="resource-badge badge-free">Gratuit</span>
+            </div>
+
+            <div class="resource-item">
+              <div class="resource-icon icon-project">◈</div>
+              <div class="resource-content">
+                <div class="resource-name">Mini-projet : serveur UDP «exchange simulé»</div>
+                <div class="resource-desc">Écrire un serveur UDP en C++ qui lit un CSV de ticks et les streame en local à 10 000 messages/sec. Pas d'UI — juste des sockets bruts.</div>
+              </div>
+              <span class="resource-badge badge-project">Projet</span>
+            </div>
+
+            <ul class="checklist" data-phase="2">
+              <li class="check-item" onclick="toggleCheck(this)"><div class="check-box">✓</div><span>Lire Effective Modern C++ (chapitres move semantics, smart ptrs)</span></li>
+              <li class="check-item" onclick="toggleCheck(this)"><div class="check-box">✓</div><span>Compléter le cours Coursera C++ (audit)</span></li>
+              <li class="check-item" onclick="toggleCheck(this)"><div class="check-box">✓</div><span>Résoudre 20 LeetCode Medium en C++</span></li>
+              <li class="check-item" onclick="toggleCheck(this)"><div class="check-box">✓</div><span>Implémenter un serveur UDP fonctionnel en C++</span></li>
+              <li class="check-item" onclick="toggleCheck(this)"><div class="check-box">✓</div><span>Valider avec Wireshark que les paquets partent correctement</span></li>
+            </ul>
+
+            <div class="milestone">
+              <span class="milestone-icon">◉</span>
+              <span><strong>Jalon :</strong> Un serveur UDP C++ tourne en local, streame des ticks financiers CSV simulés, et tu peux expliquer chaque ligne du code lors d'un entretien.</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Phase 3 -->
+    <div class="phase" data-phase="3">
+      <div class="phase-dot">03</div>
+      <div class="phase-card">
+        <div class="phase-header" onclick="togglePhase(this)">
+          <div class="phase-header-left">
+            <div class="phase-tag">
+              <span class="phase-tag-pill">Mois 5–7</span>
+              Portfolio
+            </div>
+            <div class="phase-title">Projet HFT complet Python → C++ → FPGA</div>
+            <div class="phase-subtitle">Le projet qui réunit tout ton profil et convainc les recruteurs chez Optiver ou Jump Trading</div>
+          </div>
+          <div class="phase-toggle">+</div>
+        </div>
+        <div class="phase-body">
+          <div class="phase-body-inner">
+            <div class="resources-title">Architecture du projet</div>
+
+            <div class="resource-item">
+              <div class="resource-icon icon-book">🐍</div>
+              <div class="resource-content">
+                <div class="resource-name">Couche 1 — Data parser Python</div>
+                <div class="resource-desc">Pandas pour parser les données LOBSTER (order book NASDAQ, gratuit pour usage académique à lobsterdata.com). Générer un flux de ticks historique normalisé.</div>
+              </div>
+              <span class="resource-badge badge-project">Couche 1</span>
+            </div>
+
+            <div class="resource-item">
+              <div class="resource-icon icon-code">⚡</div>
+              <div class="resource-content">
+                <div class="resource-name">Couche 2 — Exchange simulé C++</div>
+                <div class="resource-desc">Application C++ qui lit ce flux et le streame via UDP socket sur localhost — simule un exchange en temps réel à haute fréquence.</div>
+              </div>
+              <span class="resource-badge badge-project">Couche 2</span>
+            </div>
+
+            <div class="resource-item">
+              <div class="resource-icon icon-target">🔷</div>
+              <div class="resource-content">
+                <div class="resource-name">Couche 3 — FPGA order book engine (VHDL/SV)</div>
+                <div class="resource-desc">Sur une Artix-7 (Arty S7) ou Basys 3 : écouter l'UDP, maintenir un order book minimal (best bid/ask), toggler une LED sur signal d'achat/vente.</div>
+              </div>
+              <span class="resource-badge badge-project">Couche 3</span>
+            </div>
+
+            <div class="resource-item">
+              <div class="resource-icon icon-github">⬡</div>
+              <div class="resource-content">
+                <div class="resource-name">Référence : FranklineMisango/FPGA_Algorithmic_Trading</div>
+                <div class="resource-desc">Architecture hybride C++ + FPGA pour order book live. Étudier la structure avant de coder la tienne.</div>
+              </div>
+              <span class="resource-badge badge-free">Gratuit</span>
+            </div>
+
+            <div class="resource-item">
+              <div class="resource-icon icon-project">📝</div>
+              <div class="resource-content">
+                <div class="resource-name">Documentation GitHub</div>
+                <div class="resource-desc">README avec diagramme d'architecture, vidéo démo de la LED, métriques de latence mesurées. C'est ce que le recruteur ouvre en premier.</div>
+              </div>
+              <span class="resource-badge badge-project">Livrable</span>
+            </div>
+
+            <ul class="checklist" data-phase="3">
+              <li class="check-item" onclick="toggleCheck(this)"><div class="check-box">✓</div><span>Télécharger et explorer les données LOBSTER</span></li>
+              <li class="check-item" onclick="toggleCheck(this)"><div class="check-box">✓</div><span>Compléter la couche Python (parser + générateur de flux)</span></li>
+              <li class="check-item" onclick="toggleCheck(this)"><div class="check-box">✓</div><span>Compléter la couche C++ (serveur UDP exchange)</span></li>
+              <li class="check-item" onclick="toggleCheck(this)"><div class="check-box">✓</div><span>Implémenter l'order book en VHDL/SystemVerilog sur FPGA</span></li>
+              <li class="check-item" onclick="toggleCheck(this)"><div class="check-box">✓</div><span>Filmer et publier une démo vidéo sur GitHub</span></li>
+            </ul>
+
+            <div class="milestone">
+              <span class="milestone-icon">◉</span>
+              <span><strong>Jalon :</strong> Dépôt GitHub public avec les 3 couches fonctionnelles. Ce projet prouve que tu peux travailler à chaque couche de la stack HFT — une rareté absolue sur le marché.</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Phase 4 -->
+    <div class="phase" data-phase="4">
+      <div class="phase-dot">04</div>
+      <div class="phase-card">
+        <div class="phase-header" onclick="togglePhase(this)">
+          <div class="phase-header-left">
+            <div class="phase-tag">
+              <span class="phase-tag-pill">Mois 8–10</span>
+              Entrevues
+            </div>
+            <div class="phase-title">Préparation au «meat grinder» HFT</div>
+            <div class="phase-subtitle">Entrevues techniques + brainteasers quantitatifs + candidatures ciblées aux prop shops</div>
+          </div>
+          <div class="phase-toggle">+</div>
+        </div>
+        <div class="phase-body">
+          <div class="phase-body-inner">
+            <div class="resources-title">Ressources</div>
+
+            <div class="resource-item">
+              <div class="resource-icon icon-book">🧠</div>
+              <div class="resource-content">
+                <div class="resource-name">Heard on the Street — Timothy Crack</div>
+                <div class="resource-desc">Le livre de référence pour les puzzles quantitatifs et probabilités posés en entrevue HFT. Lire et résoudre chaque problème à la main.</div>
+              </div>
+              <span class="resource-badge badge-paid">Payant</span>
+            </div>
+
+            <div class="resource-item">
+              <div class="resource-icon icon-code">{ }</div>
+              <div class="resource-content">
+                <div class="resource-name">LeetCode Hard — C++, focus latence</div>
+                <div class="resource-desc">Patterns avancés : monotonic stack, segment tree, two-pointer. L'objectif n'est pas seulement de résoudre, mais de discuter la complexité temps/espace.</div>
+              </div>
+              <span class="resource-badge badge-free">Gratuit</span>
+            </div>
+
+            <div class="resource-item">
+              <div class="resource-icon icon-video">▶</div>
+              <div class="resource-content">
+                <div class="resource-name">Optionnel : CQF (Certificate in Quantitative Finance)</div>
+                <div class="resource-desc">6 mois en ligne, reconnu internationalement. Utile si tu vises aussi le track Quant Developer en plus du FPGA. Investissement significatif (~£12k).</div>
+              </div>
+              <span class="resource-badge badge-paid">Optionnel</span>
+            </div>
+
+            <div class="resource-item">
+              <div class="resource-icon icon-project">🔧</div>
+              <div class="resource-content">
+                <div class="resource-name">Reformuler ton CV immédiatement</div>
+                <div class="resource-desc">Mets C++/VHDL/FPGA tout en haut. Renomme «Data Analyst» → «Quantitative Data Engineer». Les ATS des prop shops filtrent sur ces mots-clés.</div>
+              </div>
+              <span class="resource-badge badge-project">Action immédiate</span>
+            </div>
+
+            <div class="resources-title" style="margin-top:20px">Entreprises cibles — prop shops HFT</div>
+            <div class="companies-grid">
+              <span class="company-tag">Optiver</span>
+              <span class="company-tag">Jump Trading</span>
+              <span class="company-tag">Citadel Securities</span>
+              <span class="company-tag">IMC</span>
+              <span class="company-tag">Hudson River Trading</span>
+              <span class="company-tag">DRW</span>
+              <span class="company-tag">Tower Research Capital</span>
+              <span class="company-tag">Virtu Financial</span>
+            </div>
+
+            <ul class="checklist" data-phase="4">
+              <li class="check-item" onclick="toggleCheck(this)"><div class="check-box">✓</div><span>Mettre à jour le CV (C++/VHDL en haut)</span></li>
+              <li class="check-item" onclick="toggleCheck(this)"><div class="check-box">✓</div><span>Résoudre 50 problèmes Heard on the Street</span></li>
+              <li class="check-item" onclick="toggleCheck(this)"><div class="check-box">✓</div><span>Compléter 15 LeetCode Hard en C++</span></li>
+              <li class="check-item" onclick="toggleCheck(this)"><div class="check-box">✓</div><span>Postuler chez 5 prop shops (dont Optiver et IMC)</span></li>
+              <li class="check-item" onclick="toggleCheck(this)"><div class="check-box">✓</div><span>Passer au moins 2 entrevues techniques complètes</span></li>
+            </ul>
+
+            <div class="milestone">
+              <span class="milestone-icon">◉</span>
+              <span><strong>Jalon final :</strong> Offre d'un prop shop HFT comme FPGA Engineer ou Low-Latency Quant Developer. Salaire d'entrée typique : $150k–$300k+ CAD selon la firme.</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- end timeline -->
+
+  <div class="footer-note">
+    Données de marché gratuites : <a href="https://lobsterdata.com" target="_blank">lobsterdata.com</a> (LOBSTER) · 
+    GitHub de référence : <a href="https://github.com/Essenceia/Nasdaq-HFT-FPGA" target="_blank">Essenceia/Nasdaq-HFT-FPGA</a> · 
+    CQF : <a href="https://www.cqf.com" target="_blank">cqf.com</a>
+  </div>
+
+</div><!-- end container -->
+
+<script>
+  // ── Accordion ──
+  function togglePhase(header) {
+    const card = header.closest('.phase-card');
+    const body = card.querySelector('.phase-body');
+    const isOpen = card.classList.contains('open');
+
+    if (isOpen) {
+      body.style.maxHeight = '0';
+      card.classList.remove('open');
+    } else {
+      body.style.maxHeight = body.scrollHeight + 'px';
+      card.classList.add('open');
+    }
+  }
+
+  // ── Checklist & progress ──
+  function toggleCheck(item) {
+    item.classList.toggle('done');
+    updateProgress();
+    saveState();
+  }
+
+  function updateProgress() {
+    const phases = [1,2,3,4];
+    let totalDone = 0, totalAll = 0;
+
+    phases.forEach(p => {
+      const items = document.querySelectorAll(`.checklist[data-phase="${p}"] .check-item`);
+      const done = document.querySelectorAll(`.checklist[data-phase="${p}"] .check-item.done`);
+      const pct = items.length ? Math.round((done.length / items.length) * 100) : 0;
+
+      document.getElementById(`bar${p}`).style.width = pct + '%';
+      document.getElementById(`pct${p}`).textContent = pct + '%';
+
+      totalDone += done.length;
+      totalAll += items.length;
+    });
+
+    const totalPct = totalAll ? Math.round((totalDone / totalAll) * 100) : 0;
+    document.getElementById('total-pct').textContent = totalPct + '% complété';
+  }
+
+  // ── Persist state in localStorage ──
+  function saveState() {
+    const state = {};
+    document.querySelectorAll('.check-item').forEach((item, i) => {
+      state[i] = item.classList.contains('done');
+    });
+    try { localStorage.setItem('hft_checklist', JSON.stringify(state)); } catch(e) {}
+  }
+
+  function loadState() {
+    try {
+      const state = JSON.parse(localStorage.getItem('hft_checklist') || '{}');
+      document.querySelectorAll('.check-item').forEach((item, i) => {
+        if (state[i]) item.classList.add('done');
+      });
+    } catch(e) {}
+    updateProgress();
+  }
+
+  // ── Intersection Observer for fade-in ──
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        e.target.classList.add('visible');
+        observer.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.1 });
+
+  document.querySelectorAll('.phase').forEach(p => observer.observe(p));
+
+  // ── Resize open cards ──
+  function recalcOpenCards() {
+    document.querySelectorAll('.phase-card.open .phase-body').forEach(body => {
+      body.style.maxHeight = body.scrollHeight + 'px';
+    });
+  }
+  window.addEventListener('resize', recalcOpenCards);
+
+  // ── Init ──
+  loadState();
+
+  // Open first phase by default
+  const firstHeader = document.querySelector('.phase[data-phase="1"] .phase-header');
+  if (firstHeader) togglePhase(firstHeader);
+</script>
+</body>
+</html>

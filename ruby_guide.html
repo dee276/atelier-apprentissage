@@ -1,0 +1,1156 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ruby — Guide d'études</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,400;0,500;1,400&family=Instrument+Serif:ital@0;1&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --ruby: #CC342D;
+  --ruby-light: #F5DEDD;
+  --ruby-mid: #E8928E;
+  --ink: #1A1A1A;
+  --ink2: #3D3D3D;
+  --ink3: #7A7A7A;
+  --paper: #F9F6F1;
+  --paper2: #F2EDE6;
+  --paper3: #E8E1D8;
+  --white: #FFFFFF;
+  --kw: #8B3CF7;
+  --str: #2E7D52;
+  --cm: #9B9B9B;
+  --num: #C46000;
+  --met: #1565C0;
+  --mono: 'DM Mono', monospace;
+  --serif: 'Instrument Serif', serif;
+  --sans: 'DM Sans', sans-serif;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: var(--sans);
+  background: var(--paper);
+  color: var(--ink);
+  min-height: 100vh;
+}
+
+/* ── SIDEBAR ── */
+.layout { display: flex; min-height: 100vh; }
+
+nav {
+  width: 240px;
+  flex-shrink: 0;
+  background: var(--ink);
+  color: var(--paper);
+  display: flex;
+  flex-direction: column;
+  position: fixed;
+  top: 0; left: 0; bottom: 0;
+  overflow-y: auto;
+  z-index: 100;
+}
+
+.nav-logo {
+  padding: 28px 24px 20px;
+  border-bottom: 1px solid #333;
+}
+.nav-logo .gem { font-size: 26px; }
+.nav-logo h1 {
+  font-family: var(--serif);
+  font-size: 22px;
+  font-weight: 400;
+  font-style: italic;
+  color: #FFF;
+  margin-top: 6px;
+  line-height: 1.2;
+}
+.nav-logo p { font-size: 11px; color: #888; margin-top: 4px; letter-spacing: .06em; text-transform: uppercase; }
+
+.nav-links { padding: 16px 0; flex: 1; }
+
+.nav-section-label {
+  font-size: 10px;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: #555;
+  padding: 12px 24px 4px;
+}
+
+nav a {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 24px;
+  color: #AAA;
+  text-decoration: none;
+  font-size: 13px;
+  font-weight: 400;
+  border-left: 2px solid transparent;
+  transition: all .15s;
+}
+nav a:hover, nav a.active {
+  color: #FFF;
+  background: rgba(255,255,255,.05);
+  border-left-color: var(--ruby);
+}
+nav a .dot {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: #555;
+  flex-shrink: 0;
+  transition: background .15s;
+}
+nav a:hover .dot, nav a.active .dot { background: var(--ruby); }
+
+.nav-progress {
+  padding: 16px 24px;
+  border-top: 1px solid #333;
+  font-size: 12px;
+  color: #666;
+}
+.progress-bar {
+  height: 3px;
+  background: #333;
+  border-radius: 99px;
+  margin-top: 8px;
+  overflow: hidden;
+}
+.progress-fill {
+  height: 100%;
+  background: var(--ruby);
+  border-radius: 99px;
+  transition: width .4s ease;
+}
+
+/* ── MAIN ── */
+main {
+  margin-left: 240px;
+  flex: 1;
+  max-width: 860px;
+  padding: 48px 56px 80px;
+}
+
+/* ── HERO ── */
+.hero {
+  margin-bottom: 56px;
+  padding-bottom: 40px;
+  border-bottom: 1px solid var(--paper3);
+}
+.hero-tag {
+  display: inline-block;
+  background: var(--ruby-light);
+  color: var(--ruby);
+  font-size: 11px;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  padding: 4px 10px;
+  border-radius: 3px;
+  margin-bottom: 16px;
+  font-weight: 500;
+}
+.hero h1 {
+  font-family: var(--serif);
+  font-size: 52px;
+  font-weight: 400;
+  font-style: italic;
+  line-height: 1.1;
+  color: var(--ink);
+  margin-bottom: 12px;
+}
+.hero h1 em { color: var(--ruby); font-style: normal; }
+.hero p { font-size: 16px; color: var(--ink3); line-height: 1.7; max-width: 520px; }
+
+.stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1px;
+  background: var(--paper3);
+  border: 1px solid var(--paper3);
+  border-radius: 8px;
+  overflow: hidden;
+  margin-top: 32px;
+}
+.stat {
+  background: var(--white);
+  padding: 16px 20px;
+  text-align: center;
+}
+.stat .n { font-size: 28px; font-weight: 300; color: var(--ruby); font-family: var(--mono); }
+.stat .l { font-size: 11px; color: var(--ink3); margin-top: 2px; }
+
+/* ── SECTIONS ── */
+.chapter {
+  margin-bottom: 64px;
+  scroll-margin-top: 24px;
+}
+.chapter-header {
+  display: flex;
+  align-items: baseline;
+  gap: 16px;
+  margin-bottom: 28px;
+  padding-bottom: 12px;
+  border-bottom: 2px solid var(--ruby);
+}
+.chapter-num {
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--ruby);
+  letter-spacing: .05em;
+}
+.chapter-header h2 {
+  font-family: var(--serif);
+  font-size: 30px;
+  font-weight: 400;
+  font-style: italic;
+  color: var(--ink);
+}
+.chapter-header .badge {
+  margin-left: auto;
+  font-size: 11px;
+  padding: 3px 10px;
+  background: var(--ruby-light);
+  color: var(--ruby);
+  border-radius: 3px;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+/* subsection */
+.sub { margin-bottom: 28px; }
+.sub h3 {
+  font-size: 11px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  color: var(--ink3);
+  margin-bottom: 10px;
+}
+
+/* code */
+pre {
+  font-family: var(--mono);
+  font-size: 13px;
+  line-height: 1.7;
+  background: #1E1E1E;
+  color: #D4D4D4;
+  border-radius: 6px;
+  padding: 16px 20px;
+  overflow-x: auto;
+  margin-bottom: 12px;
+  border-left: 3px solid var(--ruby);
+}
+.kw { color: #C586C0; }
+.str { color: #CE9178; }
+.cm { color: #6A9955; font-style: italic; }
+.num { color: #B5CEA8; }
+.met { color: #DCDCAA; }
+.sym { color: #4EC9B0; }
+
+/* callout boxes */
+.warn, .info, .tip {
+  border-radius: 6px;
+  padding: 12px 16px;
+  font-size: 13.5px;
+  line-height: 1.6;
+  margin-bottom: 12px;
+  display: flex;
+  gap: 10px;
+}
+.warn { background: #FFF4E5; color: #7C4800; border-left: 3px solid #F59E0B; }
+.info { background: #EFF6FF; color: #1E40AF; border-left: 3px solid #3B82F6; }
+.tip  { background: #F0FDF4; color: #166534; border-left: 3px solid #22C55E; }
+.warn::before { content: '⚠'; flex-shrink: 0; }
+.info::before { content: 'ℹ'; flex-shrink: 0; }
+.tip::before  { content: '✓'; flex-shrink: 0; }
+
+/* grid */
+.grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 12px; }
+.card {
+  background: var(--white);
+  border: 1px solid var(--paper3);
+  border-radius: 6px;
+  padding: 14px 16px;
+}
+.card .lbl { font-size: 10px; text-transform: uppercase; letter-spacing: .08em; color: var(--ink3); margin-bottom: 8px; font-weight: 500; }
+.card pre { border-left: none; background: var(--paper2); color: var(--ink2); margin-bottom: 0; font-size: 12.5px; }
+.card .kw { color: var(--kw); }
+.card .str { color: var(--str); }
+.card .cm { color: var(--cm); }
+.card .num { color: var(--num); }
+.card .met { color: var(--met); }
+.card .sym { color: #0D7377; }
+
+/* pill row */
+.pills { display: flex; flex-wrap: wrap; gap: 8px; margin: 12px 0; }
+.pill {
+  font-size: 12px;
+  font-family: var(--mono);
+  padding: 4px 10px;
+  border-radius: 4px;
+  background: var(--paper2);
+  color: var(--ink2);
+  border: 1px solid var(--paper3);
+}
+.pill.ruby { background: var(--ruby-light); color: var(--ruby); border-color: var(--ruby-mid); }
+
+/* comparison table */
+table { width: 100%; border-collapse: collapse; font-size: 13.5px; margin-bottom: 12px; }
+th { text-align: left; font-size: 11px; text-transform: uppercase; letter-spacing: .07em; color: var(--ink3); padding: 8px 12px; border-bottom: 2px solid var(--paper3); font-weight: 500; }
+td { padding: 9px 12px; border-bottom: 1px solid var(--paper3); vertical-align: top; }
+tr:last-child td { border-bottom: none; }
+td:first-child { font-family: var(--mono); font-size: 13px; color: var(--ruby); white-space: nowrap; }
+td code { font-family: var(--mono); font-size: 12.5px; background: var(--paper2); padding: 1px 5px; border-radius: 3px; }
+
+/* quiz */
+.quiz-card {
+  background: var(--white);
+  border: 1px solid var(--paper3);
+  border-radius: 8px;
+  padding: 20px 24px;
+  margin-bottom: 16px;
+}
+.quiz-q { font-size: 14.5px; font-weight: 500; margin-bottom: 14px; line-height: 1.5; }
+.quiz-q code { font-family: var(--mono); font-size: 13px; background: var(--paper2); padding: 2px 6px; border-radius: 3px; }
+.quiz-options { display: flex; flex-direction: column; gap: 8px; }
+.quiz-opt {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  border: 1px solid var(--paper3);
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 13.5px;
+  font-family: var(--mono);
+  transition: all .15s;
+  background: var(--paper);
+  text-align: left;
+  width: 100%;
+}
+.quiz-opt:hover { border-color: var(--ruby-mid); background: var(--ruby-light); }
+.quiz-opt.correct { border-color: #22C55E; background: #F0FDF4; color: #166534; }
+.quiz-opt.wrong   { border-color: #EF4444; background: #FEF2F2; color: #991B1B; }
+.quiz-opt.disabled { cursor: default; }
+.quiz-opt .letter { width: 22px; height: 22px; border-radius: 50%; background: var(--paper3); font-size: 11px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-family: var(--sans); font-weight: 500; }
+.quiz-feedback { margin-top: 12px; font-size: 13px; display: none; padding: 10px 14px; border-radius: 6px; line-height: 1.5; }
+.quiz-feedback.show { display: block; }
+.quiz-feedback.ok { background: #F0FDF4; color: #166534; }
+.quiz-feedback.no { background: #FEF2F2; color: #991B1B; }
+
+/* section nav floater */
+.chapter-nav {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 28px;
+}
+.back-top {
+  font-size: 12px;
+  color: var(--ink3);
+  text-decoration: none;
+  border: 1px solid var(--paper3);
+  padding: 5px 12px;
+  border-radius: 4px;
+  transition: all .15s;
+}
+.back-top:hover { border-color: var(--ruby-mid); color: var(--ruby); }
+
+/* responsive */
+@media (max-width: 820px) {
+  nav { width: 0; overflow: hidden; }
+  main { margin-left: 0; padding: 24px 20px 60px; }
+  .grid2 { grid-template-columns: 1fr; }
+  .stats { grid-template-columns: 1fr 1fr; }
+  .hero h1 { font-size: 36px; }
+}
+</style>
+</head>
+<body>
+<div class="layout">
+
+<!-- ── SIDEBAR ── -->
+<nav id="nav">
+  <div class="nav-logo">
+    <div class="gem">💎</div>
+    <h1>Ruby<br>Notes</h1>
+    <p>Guide d'études complet</p>
+  </div>
+  <div class="nav-links">
+    <div class="nav-section-label">Les bases</div>
+    <a href="#math" onclick="setActive(this)"><span class="dot"></span>Maths &amp; types</a>
+    <a href="#strings" onclick="setActive(this)"><span class="dot"></span>Chaînes</a>
+    <a href="#symbols" onclick="setActive(this)"><span class="dot"></span>Symboles</a>
+    <div class="nav-section-label">Collections</div>
+    <a href="#arrays" onclick="setActive(this)"><span class="dot"></span>Tableaux</a>
+    <a href="#hashes" onclick="setActive(this)"><span class="dot"></span>Hashes</a>
+    <a href="#nested" onclick="setActive(this)"><span class="dot"></span>Imbriqués</a>
+    <div class="nav-section-label">Contrôle</div>
+    <a href="#loops" onclick="setActive(this)"><span class="dot"></span>Boucles</a>
+    <a href="#enum" onclick="setActive(this)"><span class="dot"></span>Énumérables</a>
+    <a href="#predicates" onclick="setActive(this)"><span class="dot"></span>Prédicats</a>
+    <div class="nav-section-label">Avancé</div>
+    <a href="#methods" onclick="setActive(this)"><span class="dot"></span>Méthodes</a>
+    <a href="#debug" onclick="setActive(this)"><span class="dot"></span>Débogage</a>
+    <a href="#traps" onclick="setActive(this)"><span class="dot"></span>Pièges</a>
+    <a href="#quiz" onclick="setActive(this)"><span class="dot"></span>Quiz</a>
+  </div>
+  <div class="nav-progress">
+    <span id="progress-label">Progression</span>
+    <div class="progress-bar"><div class="progress-fill" id="progress-fill" style="width:0%"></div></div>
+  </div>
+</nav>
+
+<!-- ── MAIN ── -->
+<main>
+
+<!-- HERO -->
+<div class="hero" id="top">
+  <div class="hero-tag">Odin Project · Ruby</div>
+  <h1>Les fondations<br>de <em>Ruby</em></h1>
+  <p>Guide de référence interactif couvrant les types, collections, itérateurs, méthodes et pièges courants.</p>
+  <div class="stats">
+    <div class="stat"><div class="n">12</div><div class="l">Chapitres</div></div>
+    <div class="stat"><div class="n">150+</div><div class="l">Méthodes</div></div>
+    <div class="stat"><div class="n">8</div><div class="l">Pièges</div></div>
+    <div class="stat"><div class="n">10</div><div class="l">Questions quiz</div></div>
+  </div>
+</div>
+
+<!-- ── 01. MATHS ── -->
+<section class="chapter" id="math">
+  <div class="chapter-header">
+    <span class="chapter-num">01</span>
+    <h2>Opérations mathématiques</h2>
+    <span class="badge">Numeric</span>
+  </div>
+  <div class="sub">
+    <h3>Opérateurs de base</h3>
+    <pre><span class="num">1</span> + <span class="num">2</span>   <span class="cm">#=> 3</span>
+<span class="num">10</span> - <span class="num">4</span>  <span class="cm">#=> 6</span>
+<span class="num">3</span> * <span class="num">4</span>   <span class="cm">#=> 12</span>
+<span class="num">10</span> / <span class="num">5</span>  <span class="cm">#=> 2   ← division entière si les deux sont Integer</span>
+<span class="num">2</span>**<span class="num">8</span>   <span class="cm">#=> 256 (exposant)</span>
+<span class="num">10</span> % <span class="num">3</span>  <span class="cm">#=> 1   (modulus / reste)</span></pre>
+  </div>
+  <div class="sub">
+    <h3>Méthodes numériques</h3>
+    <div class="grid2">
+      <div class="card">
+        <div class="lbl">Conversion de type</div>
+        <pre><span class="num">13</span>.<span class="met">to_f</span>   <span class="cm">#=> 13.0</span>
+<span class="num">13.0</span>.<span class="met">to_i</span> <span class="cm">#=> 13</span>
+<span class="num">5</span>.<span class="met">to_s</span>   <span class="cm">#=> "5"</span></pre>
+      </div>
+      <div class="card">
+        <div class="lbl">Parité &amp; comparaison</div>
+        <pre><span class="num">6</span>.<span class="met">even?</span>           <span class="cm">#=> true</span>
+<span class="num">7</span>.<span class="met">odd?</span>            <span class="cm">#=> true</span>
+<span class="num">5</span>.<span class="met">between?</span>(<span class="num">1</span>,<span class="num">10</span>) <span class="cm">#=> true</span></pre>
+      </div>
+    </div>
+    <div class="warn">Division entière : <code>10 / 4 #=> 2</code>. Ajouter <code>.to_f</code> sur au moins un opérande pour obtenir <code>2.5</code>.</div>
+  </div>
+  <div class="chapter-nav"><a href="#top" class="back-top">↑ haut de page</a></div>
+</section>
+
+<!-- ── 02. STRINGS ── -->
+<section class="chapter" id="strings">
+  <div class="chapter-header">
+    <span class="chapter-num">02</span>
+    <h2>Chaînes de caractères</h2>
+    <span class="badge">String</span>
+  </div>
+  <div class="sub">
+    <h3>Concaténation</h3>
+    <pre><span class="str">"Hello"</span> + <span class="str">" World"</span>           <span class="cm"># crée une nouvelle String</span>
+<span class="str">"Hello"</span> &lt;&lt; <span class="str">" World"</span>          <span class="cm"># mutate la String d'origine ⚠️</span>
+<span class="str">"Hello"</span>.<span class="met">concat</span>(<span class="str">" World"</span>)      <span class="cm"># identique à +</span></pre>
+  </div>
+  <div class="sub">
+    <h3>Substrings — extraction</h3>
+    <pre>s = <span class="str">"hello"</span>
+s[<span class="num">0</span>]      <span class="cm">#=> "h"</span>
+s[<span class="num">0</span>..<span class="num">1</span>]   <span class="cm">#=> "he"</span>
+s[<span class="num">0</span>, <span class="num">4</span>]  <span class="cm">#=> "hell"  (position, longueur)</span>
+s[-<span class="num">1</span>]     <span class="cm">#=> "o"    (dernier caractère)</span></pre>
+  </div>
+  <div class="sub">
+    <h3>Interpolation</h3>
+    <pre>name = <span class="str">"Dee"</span>
+puts <span class="str">"Hello, <span class="sym">#{name}</span>!"</span>   <span class="cm">#=> Hello, Dee!</span>
+<span class="cm"># Fonctionne uniquement avec guillemets doubles "..."</span>
+<span class="cm"># Toute expression Ruby est valide dans #{}</span></pre>
+  </div>
+  <div class="sub">
+    <h3>Méthodes utiles</h3>
+    <div class="pills">
+      <span class="pill">.upcase</span><span class="pill">.downcase</span><span class="pill">.capitalize</span><span class="pill">.reverse</span>
+      <span class="pill">.length / .size</span><span class="pill">.strip</span><span class="pill">.split("")</span><span class="pill">.include?("x")</span>
+      <span class="pill">.gsub("a","b")</span><span class="pill">.chars</span><span class="pill">.ord</span><span class="pill">.chr (sur Integer)</span>
+    </div>
+    <pre><span class="str">"hello"</span>.<span class="met">upcase</span>          <span class="cm">#=> "HELLO"</span>
+<span class="str">"WASSAP"</span>.<span class="met">downcase</span>        <span class="cm">#=> "wassap"</span>
+<span class="str">"hello world"</span>.<span class="met">split</span>(<span class="str">" "</span>) <span class="cm">#=> ["hello", "world"]</span>
+<span class="str">"A"</span>.<span class="met">ord</span>                  <span class="cm">#=> 65  (code ASCII)</span>
+<span class="num">65</span>.<span class="met">chr</span>                   <span class="cm">#=> "A" (ASCII vers caractère)</span></pre>
+  </div>
+  <div class="chapter-nav"><a href="#top" class="back-top">↑ haut de page</a></div>
+</section>
+
+<!-- ── 03. SYMBOLES ── -->
+<section class="chapter" id="symbols">
+  <div class="chapter-header">
+    <span class="chapter-num">03</span>
+    <h2>Symboles</h2>
+    <span class="badge">Symbol</span>
+  </div>
+  <pre><span class="sym">:my_symbol</span>                        <span class="cm"># syntaxe</span>
+<span class="sym">:test</span>.<span class="met">object_id</span> == <span class="sym">:test</span>.<span class="met">object_id</span> <span class="cm">#=> true  (unique en mémoire)</span>
+<span class="str">"test"</span>.<span class="met">object_id</span> == <span class="str">"test"</span>.<span class="met">object_id</span> <span class="cm">#=> false (nouveaux objets)</span>
+
+<span class="sym">:color</span>.<span class="met">to_s</span>   <span class="cm">#=> "color"</span>
+<span class="str">"color"</span>.<span class="met">to_sym</span> <span class="cm">#=> :color</span></pre>
+  <div class="info">Les symboles sont immuables et stockés une seule fois en mémoire. Préférer les symboles aux chaînes pour les clés de hash — c'est plus performant et idiomatique en Ruby.</div>
+  <div class="chapter-nav"><a href="#top" class="back-top">↑ haut de page</a></div>
+</section>
+
+<!-- ── 04. ARRAYS ── -->
+<section class="chapter" id="arrays">
+  <div class="chapter-header">
+    <span class="chapter-num">04</span>
+    <h2>Tableaux</h2>
+    <span class="badge">Array</span>
+  </div>
+  <div class="sub">
+    <h3>Création</h3>
+    <pre>arr = [<span class="num">1</span>, <span class="num">2</span>, <span class="num">3</span>, <span class="num">4</span>, <span class="num">5</span>]
+
+Array.<span class="met">new</span>(<span class="num">5</span>, <span class="kw">true</span>)          <span class="cm">#=> [true, true, true, true, true]</span>
+Array.<span class="met">new</span>(<span class="num">3</span>) { |i| i * <span class="num">2</span> } <span class="cm">#=> [0, 2, 4]  ← préférer le bloc pour les tableaux imbriqués</span></pre>
+  </div>
+  <div class="sub">
+    <h3>Accès</h3>
+    <pre>arr[<span class="num">0</span>]        <span class="cm">#=> 1</span>
+arr[-<span class="num">1</span>]       <span class="cm">#=> 5   (dernier)</span>
+arr[<span class="num">1</span>..<span class="num">3</span>]      <span class="cm">#=> [2, 3, 4]</span>
+arr.<span class="met">first</span>(<span class="num">2</span>)  <span class="cm">#=> [1, 2]</span>
+arr.<span class="met">last</span>(<span class="num">2</span>)   <span class="cm">#=> [4, 5]</span></pre>
+  </div>
+  <div class="sub">
+    <h3>Ajout / suppression</h3>
+    <pre>arr.<span class="met">push</span>(<span class="num">6</span>)   <span class="cm"># ou arr &lt;&lt; 6   — ajoute en fin</span>
+arr.<span class="met">pop</span>       <span class="cm"># retire le dernier</span>
+arr.<span class="met">pop</span>(<span class="num">3</span>)    <span class="cm"># retire les 3 derniers</span>
+arr.<span class="met">unshift</span>(<span class="num">0</span>) <span class="cm"># ajoute en tête</span>
+arr.<span class="met">shift</span>     <span class="cm"># retire le premier</span></pre>
+  </div>
+  <div class="sub">
+    <h3>Opérations ensemblistes</h3>
+    <pre>a = [<span class="num">1</span>,<span class="num">2</span>,<span class="num">3</span>]; b = [<span class="num">2</span>,<span class="num">3</span>,<span class="num">4</span>]
+a + b               <span class="cm">#=> [1,2,3,2,3,4]  concaténation</span>
+a - b               <span class="cm">#=> [1]            différence</span>
+a &amp; b               <span class="cm">#=> [2,3]          intersection</span>
+a | b               <span class="cm">#=> [1,2,3,4]      union</span>
+a.<span class="met">intersection</span>(b)   <span class="cm">#=> [2,3]          (identique à &amp;)</span></pre>
+  </div>
+  <div class="sub">
+    <h3>Méthodes utiles</h3>
+    <pre>arr.<span class="met">sort</span>           <span class="cm"># tri croissant (nouveau tableau)</span>
+arr.<span class="met">uniq</span>           <span class="cm"># élimine les doublons</span>
+arr.<span class="met">uniq</span>.<span class="met">sort</span>     <span class="cm"># chaînable</span>
+arr.<span class="met">flatten</span>        <span class="cm"># aplatit les sous-tableaux</span>
+arr.<span class="met">include?</span>(<span class="num">3</span>)   <span class="cm">#=> true / false</span>
+arr.<span class="met">min</span> / arr.<span class="met">max</span> <span class="cm"># valeur min/max</span>
+arr.<span class="met">length</span>        <span class="cm"># nombre d'éléments</span></pre>
+  </div>
+  <div class="chapter-nav"><a href="#top" class="back-top">↑ haut de page</a></div>
+</section>
+
+<!-- ── 05. HASHES ── -->
+<section class="chapter" id="hashes">
+  <div class="chapter-header">
+    <span class="chapter-num">05</span>
+    <h2>Hashes</h2>
+    <span class="badge">Hash</span>
+  </div>
+  <div class="sub">
+    <h3>Création — deux syntaxes</h3>
+    <pre><span class="cm"># Rocket (ancienne)</span>
+old = { <span class="sym">:color</span> => <span class="str">"red"</span>, <span class="sym">:number</span> => <span class="num">42</span> }
+
+<span class="cm"># Symbole-clé (moderne, préférée)</span>
+fav = { color: <span class="str">"red"</span>, number: <span class="num">42</span> }</pre>
+  </div>
+  <div class="sub">
+    <h3>Lecture</h3>
+    <pre>fav[<span class="sym">:color</span>]               <span class="cm">#=> "red"</span>
+fav[<span class="sym">:missing</span>]             <span class="cm">#=> nil  (pas d'exception)</span>
+fav.<span class="met">fetch</span>(<span class="sym">:number</span>)         <span class="cm">#=> 42</span>
+fav.<span class="met">fetch</span>(<span class="sym">:missing</span>, <span class="num">42</span>)   <span class="cm">#=> 42   (valeur par défaut)</span>
+fav.<span class="met">fetch</span>(<span class="sym">:missing</span>)        <span class="cm">#=> KeyError !</span></pre>
+  </div>
+  <div class="sub">
+    <h3>Modification &amp; introspection</h3>
+    <pre>fav[<span class="sym">:movie</span>] = <span class="str">"Inception"</span>   <span class="cm"># ajouter / modifier</span>
+fav.<span class="met">delete</span>(<span class="sym">:number</span>)         <span class="cm"># supprimer (retourne la valeur)</span>
+fav.<span class="met">merge</span>(other)            <span class="cm"># fusion non-destructive</span>
+fav.<span class="met">merge!</span>(other)           <span class="cm"># fusion destructive</span>
+
+fav.<span class="met">keys</span>    <span class="cm">#=> [:color, :movie]</span>
+fav.<span class="met">values</span>  <span class="cm">#=> ["red", "Inception"]</span>
+fav.<span class="met">key?</span>(<span class="sym">:color</span>)  <span class="cm">#=> true</span></pre>
+  </div>
+  <div class="chapter-nav"><a href="#top" class="back-top">↑ haut de page</a></div>
+</section>
+
+<!-- ── 06. NESTED ── -->
+<section class="chapter" id="nested">
+  <div class="chapter-header">
+    <span class="chapter-num">06</span>
+    <h2>Structures imbriquées</h2>
+    <span class="badge">Nested arrays &amp; hashes</span>
+  </div>
+  <div class="sub">
+    <h3>Tableaux 2D — création et accès</h3>
+    <pre><span class="cm"># Toujours utiliser le bloc pour créer des tableaux 2D mutables</span>
+grid = Array.<span class="met">new</span>(<span class="num">3</span>) { Array.<span class="met">new</span>(<span class="num">2</span>) }   <span class="cm"># ✓ objets indépendants</span>
+bad  = Array.<span class="met">new</span>(<span class="num">3</span>,  Array.<span class="met">new</span>(<span class="num">2</span>))   <span class="cm"># ✗ 3 lignes = même objet !</span>
+
+mailboxes[<span class="num">0</span>][<span class="num">0</span>]      <span class="cm">#=> "Adams"</span>
+mailboxes[-<span class="num">1</span>][-<span class="num">2</span>]    <span class="cm">#=> "Smith"  (négatifs OK)</span>
+mailboxes.<span class="met">dig</span>(<span class="num">1</span>, <span class="num">0</span>)  <span class="cm">#=> "Jones"  (sûr : nil si chemin absent)</span></pre>
+  </div>
+  <div class="sub">
+    <h3>Itération imbriquée</h3>
+    <pre><span class="cm"># Lignes seulement</span>
+mailboxes.<span class="met">each_with_index</span> <span class="kw">do</span> |row, i|
+  puts <span class="str">"Row:<span class="sym">#{i}</span> = <span class="sym">#{row}</span>"</span>
+<span class="kw">end</span>
+
+<span class="cm"># Lignes + colonnes</span>
+mailboxes.<span class="met">each_with_index</span> <span class="kw">do</span> |row, r|
+  row.<span class="met">each_with_index</span> <span class="kw">do</span> |name, c|
+    puts <span class="str">"[<span class="sym">#{r}</span>][<span class="sym">#{c}</span>] = <span class="sym">#{name}</span>"</span>
+  <span class="kw">end</span>
+<span class="kw">end</span>
+
+<span class="cm"># Valeurs uniquement → flatten d'abord</span>
+mailboxes.<span class="met">flatten</span>.<span class="met">each</span> { |name| puts name }</pre>
+  </div>
+  <div class="sub">
+    <h3>Hashes imbriqués</h3>
+    <pre>vehicles = {
+  alice: { year: <span class="num">2019</span>, make: <span class="str">"Toyota"</span> },
+  caleb: { year: <span class="num">2020</span>, make: <span class="str">"Honda"</span>  }
+}
+
+vehicles[<span class="sym">:alice</span>][<span class="sym">:year</span>]     <span class="cm">#=> 2019</span>
+vehicles.<span class="met">dig</span>(<span class="sym">:alice</span>, <span class="sym">:color</span>) <span class="cm">#=> nil (sûr)</span>
+vehicles[<span class="sym">:zzz</span>][<span class="sym">:year</span>]       <span class="cm">#=> NoMethodError! (nil[:year])</span>
+
+<span class="cm"># Filtrage</span>
+vehicles.<span class="met">select</span>    { |k, v| v[<span class="sym">:year</span>] >= <span class="num">2020</span> }         <span class="cm"># → hash</span>
+vehicles.<span class="met">filter_map</span> { |k, v| k <span class="kw">if</span> v[<span class="sym">:year</span>] >= <span class="num">2020</span> }  <span class="cm"># → [:caleb]</span></pre>
+  </div>
+  <div class="info"><code>.dig</code> est toujours plus sûr que l'enchaînement <code>[][]</code> pour les structures profondes — il retourne <code>nil</code> au lieu de lever une exception.</div>
+  <div class="chapter-nav"><a href="#top" class="back-top">↑ haut de page</a></div>
+</section>
+
+<!-- ── 07. LOOPS ── -->
+<section class="chapter" id="loops">
+  <div class="chapter-header">
+    <span class="chapter-num">07</span>
+    <h2>Boucles</h2>
+    <span class="badge">Loop · While · Until · Times</span>
+  </div>
+  <div class="grid2">
+    <div class="card">
+      <div class="lbl">loop / break</div>
+      <pre><span class="kw">loop do</span>
+  i += <span class="num">1</span>
+  <span class="kw">break if</span> i == <span class="num">10</span>
+<span class="kw">end</span></pre>
+    </div>
+    <div class="card">
+      <div class="lbl">while</div>
+      <pre><span class="kw">while</span> i &lt; <span class="num">10</span> <span class="kw">do</span>
+  i += <span class="num">1</span>
+<span class="kw">end</span></pre>
+    </div>
+    <div class="card">
+      <div class="lbl">until (inverse de while)</div>
+      <pre><span class="kw">until</span> i &gt;= <span class="num">10</span> <span class="kw">do</span>
+  i += <span class="num">1</span>
+<span class="kw">end</span></pre>
+    </div>
+    <div class="card">
+      <div class="lbl">for…in (plages)</div>
+      <pre><span class="kw">for</span> i <span class="kw">in</span> <span class="str">'a'</span>..<span class="str">'d'</span>
+  puts i
+<span class="kw">end</span></pre>
+    </div>
+  </div>
+  <div class="sub" style="margin-top:16px">
+    <h3>Itérateurs numériques (idiomatique Ruby)</h3>
+    <pre><span class="num">5</span>.<span class="met">times</span> { puts <span class="str">"hello"</span> }              <span class="cm"># répète 5 fois</span>
+<span class="num">10</span>.<span class="met">times</span> { |n| puts <span class="str">"iter <span class="sym">#{n}</span>"</span> }     <span class="cm"># index 0..9</span>
+
+<span class="num">5</span>.<span class="met">upto</span>(<span class="num">10</span>)   { |n| print <span class="str">"<span class="sym">#{n}</span> "</span> }   <span class="cm">#=> 5 6 7 8 9 10</span>
+<span class="num">10</span>.<span class="met">downto</span>(<span class="num">5</span>) { |n| print <span class="str">"<span class="sym">#{n}</span> "</span> }   <span class="cm">#=> 10 9 8 7 6 5</span>
+
+(<span class="num">1</span>..<span class="num">5</span>).<span class="met">each</span>  { |n| puts n }             <span class="cm"># plage inclusive  (1,2,3,4,5)</span>
+(<span class="num">1</span>...<span class="num">5</span>).<span class="met">each</span> { |n| puts n }             <span class="cm"># plage exclusive  (1,2,3,4)</span></pre>
+  </div>
+  <div class="tip">En Ruby idiomatique, préférer les itérateurs (<code>.each</code>, <code>.times</code>) au <code>for</code>. Le <code>for</code> ne crée pas de nouveau scope — les variables de boucle restent accessibles après.</div>
+  <div class="chapter-nav"><a href="#top" class="back-top">↑ haut de page</a></div>
+</section>
+
+<!-- ── 08. ENUM ── -->
+<section class="chapter" id="enum">
+  <div class="chapter-header">
+    <span class="chapter-num">08</span>
+    <h2>Énumérables</h2>
+    <span class="badge">Enumerable</span>
+  </div>
+  <table>
+    <tr><th>Méthode</th><th>Retourne</th><th>Usage</th></tr>
+    <tr><td>.each</td><td>tableau original</td><td>Effets de bord (puts, log…)</td></tr>
+    <tr><td>.each_with_index</td><td>tableau original</td><td>Itération avec position</td></tr>
+    <tr><td>.map / .collect</td><td>nouveau tableau</td><td>Transformation 1-pour-1</td></tr>
+    <tr><td>.select</td><td>éléments filtrés</td><td>Garde les <code>true</code></td></tr>
+    <tr><td>.reject</td><td>éléments filtrés</td><td>Garde les <code>false</code></td></tr>
+    <tr><td>.reduce / .inject</td><td>valeur unique</td><td>Accumulation</td></tr>
+    <tr><td>.filter_map</td><td>tableau (sans nil)</td><td>map + compact en une passe</td></tr>
+  </table>
+  <pre><span class="cm"># each — itération simple</span>
+[<span class="num">1</span>,<span class="num">2</span>,<span class="num">3</span>].<span class="met">each</span> { |n| puts n }           <span class="cm"># retourne [1,2,3]</span>
+
+<span class="cm"># map — transformation</span>
+[-<span class="num">3</span>, <span class="num">2</span>, -<span class="num">1</span>].<span class="met">map</span> { |n| n.<span class="met">abs</span> }        <span class="cm">#=> [3, 2, 1]</span>
+
+<span class="cm"># select / reject</span>
+[<span class="num">1</span>,<span class="num">2</span>,<span class="num">3</span>,<span class="num">4</span>].<span class="met">select</span> { |n| n.<span class="met">even?</span> }    <span class="cm">#=> [2, 4]</span>
+[<span class="num">1</span>,<span class="num">2</span>,<span class="num">3</span>,<span class="num">4</span>].<span class="met">reject</span> { |n| n.<span class="met">even?</span> }    <span class="cm">#=> [1, 3]</span>
+
+<span class="cm"># reduce — accumuler dans un hash</span>
+words = [<span class="str">"cat"</span>, <span class="str">"dog"</span>, <span class="str">"elephant"</span>]
+words.<span class="met">reduce</span>({}) <span class="kw">do</span> |acc, word|
+  acc[word] = word.<span class="met">length</span>
+  acc   <span class="cm"># ⚠️ TOUJOURS retourner l'accumulateur</span>
+<span class="kw">end</span>
+<span class="cm">#=> {"cat"=>3, "dog"=>3, "elephant"=>8}</span>
+
+<span class="cm"># reduce — somme (raccourci)</span>
+[<span class="num">1</span>,<span class="num">2</span>,<span class="num">3</span>].<span class="met">reduce</span>(:+)   <span class="cm">#=> 6</span></pre>
+  <div class="warn">Avec <code>reduce</code>, oublier de retourner <code>acc</code> à la fin du bloc retourne la dernière valeur assignée, pas l'accumulateur entier.</div>
+  <div class="chapter-nav"><a href="#top" class="back-top">↑ haut de page</a></div>
+</section>
+
+<!-- ── 09. PRÉDICATS ── -->
+<section class="chapter" id="predicates">
+  <div class="chapter-header">
+    <span class="chapter-num">09</span>
+    <h2>Prédicats de collection</h2>
+    <span class="badge">include? · any? · all? · none?</span>
+  </div>
+  <pre>numbers = [<span class="num">5</span>, <span class="num">6</span>, <span class="num">7</span>, <span class="num">8</span>]
+
+numbers.<span class="met">include?</span>(<span class="num">6</span>)                   <span class="cm">#=> true</span>
+numbers.<span class="met">include?</span>(<span class="num">3</span>)                   <span class="cm">#=> false</span>
+
+numbers.<span class="met">any?</span>  { |n| n > <span class="num">5</span> }          <span class="cm">#=> true  (au moins un)</span>
+numbers.<span class="met">any?</span>  { |n| n < <span class="num">5</span> }          <span class="cm">#=> false</span>
+
+numbers.<span class="met">all?</span>  { |n| n.<span class="met">is_a?</span>(Integer) } <span class="cm">#=> true  (tous)</span>
+numbers.<span class="met">all?</span>  { |n| n.<span class="met">is_a?</span>(String) }  <span class="cm">#=> false</span>
+
+numbers.<span class="met">none?</span> { |n| n.<span class="met">is_a?</span>(String) }  <span class="cm">#=> true  (aucun)</span>
+numbers.<span class="met">none?</span> { |n| n > <span class="num">10</span> }          <span class="cm">#=> true</span></pre>
+  <div class="info">Mémo logique : <code>any?</code> = OU · <code>all?</code> = ET · <code>none?</code> = NON-OU. Tous court-circuitent dès que le résultat est déterminé.</div>
+  <div class="warn"><code>number.integer?</code> n'est pas disponible directement. Utiliser <code>number.is_a?(Integer)</code> ou <code>number.is_a?(Numeric)</code>.</div>
+  <div class="chapter-nav"><a href="#top" class="back-top">↑ haut de page</a></div>
+</section>
+
+<!-- ── 10. MÉTHODES ── -->
+<section class="chapter" id="methods">
+  <div class="chapter-header">
+    <span class="chapter-num">10</span>
+    <h2>Méthodes</h2>
+    <span class="badge">def · return · case</span>
+  </div>
+  <div class="sub">
+    <h3>Retour implicite et paramètre par défaut</h3>
+    <pre><span class="kw">def</span> <span class="met">lucky_number</span>(number = <span class="num">7</span>)
+  <span class="str">"Today's lucky number is <span class="sym">#{number}</span>"</span>  <span class="cm"># retour implicite</span>
+<span class="kw">end</span>
+<span class="cm"># return explicite seulement pour l'early exit</span></pre>
+  </div>
+  <div class="sub">
+    <h3>Early exit / return anticipé</h3>
+    <pre><span class="kw">def</span> <span class="met">ascii_code</span>(character)
+  <span class="kw">return</span> <span class="str">'Input Error'</span> <span class="kw">if</span> character.<span class="met">size</span> != <span class="num">1</span>
+  character.<span class="met">ord</span>
+<span class="kw">end</span>
+<span class="cm"># ou avec ternaire : (character.size != 1) ? 'Input Error' : character.ord</span></pre>
+  </div>
+  <div class="sub">
+    <h3>case/when</h3>
+    <pre><span class="kw">def</span> <span class="met">pet_pun</span>(animal)
+  <span class="kw">case</span> animal
+  <span class="kw">when</span> <span class="str">'cat'</span> <span class="kw">then</span> puts <span class="str">'Cats are purr-fect!'</span>
+  <span class="kw">when</span> <span class="str">'dog'</span> <span class="kw">then</span> puts <span class="str">'Dogs are paw-some!'</span>
+  <span class="kw">else</span>           puts <span class="str">"I think <span class="sym">#{animal}</span>s have pet-tential!"</span>
+  <span class="kw">end</span>
+  <span class="cm"># puts retourne nil → la méthode retourne nil</span>
+<span class="kw">end</span></pre>
+  </div>
+  <div class="sub">
+    <h3>Convention ? et !</h3>
+    <pre><span class="kw">def</span> <span class="met">twenty_first_century?</span>(year)
+  year.<span class="met">between?</span>(<span class="num">2001</span>, <span class="num">2100</span>)  <span class="cm"># retour bool implicite</span>
+<span class="kw">end</span>
+
+<span class="cm"># méthode?  → retourne true/false</span>
+<span class="cm"># méthode!  → version destructive / lève exception</span></pre>
+  </div>
+  <div class="sub">
+    <h3>Blocs : {} vs do…end</h3>
+    <pre><span class="cm"># {} pour blocs d'une ligne</span>
+arr.<span class="met">map</span> { |n| n * <span class="num">2</span> }
+
+<span class="cm"># do...end pour blocs multi-lignes</span>
+arr.<span class="met">each</span> <span class="kw">do</span> |n|
+  result = n * <span class="num">2</span>
+  puts result
+<span class="kw">end</span></pre>
+  </div>
+  <div class="chapter-nav"><a href="#top" class="back-top">↑ haut de page</a></div>
+</section>
+
+<!-- ── 11. DEBUG ── -->
+<section class="chapter" id="debug">
+  <div class="chapter-header">
+    <span class="chapter-num">11</span>
+    <h2>Débogage</h2>
+    <span class="badge">p · puts · pry-byebug</span>
+  </div>
+  <div class="sub">
+    <h3>p vs puts</h3>
+    <pre>p <span class="str">"hello"</span>    <span class="cm">#=> "hello"  (guillemets visibles, retourne la valeur)</span>
+puts <span class="str">"hello"</span> <span class="cm">#=>  hello   (affichage propre, retourne nil)</span>
+p [<span class="num">1</span>,<span class="num">2</span>,<span class="num">3</span>]   <span class="cm">#=> [1, 2, 3] (toujours lisible)</span></pre>
+  </div>
+  <div class="sub">
+    <h3>Stack trace — lire de bas en haut</h3>
+    <pre><span class="cm"># La dernière ligne du trace = contexte d'appel (RSpec, framework…)</span>
+<span class="cm"># Remonter jusqu'à la première ligne dans VOTRE fichier</span>
+<span class="cm"># → c'est là que l'erreur se produit réellement</span></pre>
+  </div>
+  <div class="sub">
+    <h3>pry-byebug — breakpoints interactifs</h3>
+    <pre>require <span class="str">'pry-byebug'</span>
+
+<span class="kw">def</span> <span class="met">yell_greeting</span>(string)
+  name = string.<span class="met">upcase</span>
+  binding.<span class="met">pry</span>   <span class="cm"># ← pause ici, ouvre un REPL</span>
+  <span class="str">"WASSAP, <span class="sym">#{name}</span>!"</span>
+<span class="kw">end</span>
+<span class="cm"># Commandes : next · step · continue · exit</span></pre>
+  </div>
+  <div class="sub">
+    <h3>Erreurs classiques des exercices</h3>
+    <pre><span class="cm"># decrement_smallest_value — utilisait .max au lieu de .min</span>
+smallest = nested_array.<span class="met">flatten</span>.<span class="met">min</span>  <span class="cm"># ← correction</span>
+
+<span class="cm"># increment_greatest_value — utilisait .min au lieu de .max</span>
+greatest = nested_array.<span class="met">flatten</span>.<span class="met">max</span>  <span class="cm"># ← correction</span>
+
+<span class="cm"># isogram? — manquait .downcase avant .uniq</span>
+string_array = string.<span class="met">downcase</span>.<span class="met">split</span>(<span class="str">""</span>)  <span class="cm"># ← correction</span></pre>
+  </div>
+  <div class="chapter-nav"><a href="#top" class="back-top">↑ haut de page</a></div>
+</section>
+
+<!-- ── 12. PIÈGES ── -->
+<section class="chapter" id="traps">
+  <div class="chapter-header">
+    <span class="chapter-num">12</span>
+    <h2>Pièges courants</h2>
+    <span class="badge">À retenir absolument</span>
+  </div>
+
+  <div class="sub">
+    <h3>1 — Retour implicite (puts retourne nil)</h3>
+    <pre><span class="kw">def</span> <span class="met">calculer</span>(prix)
+  total = prix + <span class="num">5</span>
+  puts <span class="str">"terminé"</span>  <span class="cm"># ⚠️ retourne nil, pas total !</span>
+<span class="kw">end</span></pre>
+  </div>
+
+  <div class="sub">
+    <h3>2 — Opérateur pelle &lt;&lt; (mutation)</h3>
+    <pre>prenom = <span class="str">"Jean"</span>
+prenom + <span class="str">" Dupont"</span>  <span class="cm">#=> prenom inchangé ✓</span>
+prenom &lt;&lt; <span class="str">" Dupont"</span>  <span class="cm">#=> prenom = "Jean Dupont" ⚠️</span></pre>
+  </div>
+
+  <div class="sub">
+    <h3>3 — Division entière</h3>
+    <pre><span class="num">10</span> / <span class="num">4</span>        <span class="cm">#=> 2   (tronqué)</span>
+<span class="num">10</span>.<span class="met">to_f</span> / <span class="num">4</span>  <span class="cm">#=> 2.5 ✓</span></pre>
+  </div>
+
+  <div class="sub">
+    <h3>4 — Chaîne vs Symbole (objet_id)</h3>
+    <pre><span class="str">"test"</span>.<span class="met">object_id</span> == <span class="str">"test"</span>.<span class="met">object_id</span>  <span class="cm">#=> false (2 objets)</span>
+<span class="sym">:test</span>.<span class="met">object_id</span>  == <span class="sym">:test</span>.<span class="met">object_id</span>   <span class="cm">#=> true  (1 objet)</span></pre>
+  </div>
+
+  <div class="sub">
+    <h3>5 — Valeurs falsy en Ruby</h3>
+    <pre><span class="cm"># SEULEMENT nil et false sont falsy — tout le reste est truthy</span>
+<span class="kw">if</span> <span class="num">0</span>   <span class="cm"># vrai  (≠ JavaScript)</span>
+<span class="kw">if</span> <span class="str">""</span>  <span class="cm"># vrai  (≠ Python)</span>
+<span class="kw">if</span> []  <span class="cm"># vrai  (≠ Python)</span></pre>
+  </div>
+
+  <div class="sub">
+    <h3>6 — map vs each</h3>
+    <pre>arr = [<span class="num">1</span>, <span class="num">2</span>, <span class="num">3</span>]
+arr.<span class="met">each</span> { |n| n * <span class="num">2</span> }   <span class="cm">#=> [1, 2, 3]  ← retourne l'ORIGINAL</span>
+arr.<span class="met">map</span>  { |n| n * <span class="num">2</span> }   <span class="cm">#=> [2, 4, 6]  ← nouveau tableau</span></pre>
+  </div>
+
+  <div class="sub">
+    <h3>7 — Plages .. vs ...</h3>
+    <pre>(<span class="num">1</span>..<span class="num">5</span>).<span class="met">to_a</span>   <span class="cm">#=> [1, 2, 3, 4, 5]  (inclusive)</span>
+(<span class="num">1</span>...<span class="num">5</span>).<span class="met">to_a</span>  <span class="cm">#=> [1, 2, 3, 4]     (exclusive)</span></pre>
+  </div>
+
+  <div class="sub">
+    <h3>8 — Array.new partagé (tableaux 2D)</h3>
+    <pre>bad  = Array.<span class="met">new</span>(<span class="num">3</span>,  Array.<span class="met">new</span>(<span class="num">2</span>))  <span class="cm"># ⚠️ même objet × 3</span>
+good = Array.<span class="met">new</span>(<span class="num">3</span>) { Array.<span class="met">new</span>(<span class="num">2</span>) } <span class="cm"># ✓ objets distincts</span></pre>
+  </div>
+  <div class="chapter-nav"><a href="#top" class="back-top">↑ haut de page</a></div>
+</section>
+
+<!-- ── QUIZ ── -->
+<section class="chapter" id="quiz">
+  <div class="chapter-header">
+    <span class="chapter-num">Quiz</span>
+    <h2>Auto-évaluation</h2>
+    <span class="badge">10 questions</span>
+  </div>
+
+  <div id="quiz-score" style="display:none;background:var(--ruby-light);border:1px solid var(--ruby-mid);border-radius:8px;padding:16px 20px;margin-bottom:20px;font-size:15px;color:var(--ruby);">
+    Score final : <strong id="score-val"></strong> / 10
+  </div>
+
+  <!-- Q1 -->
+  <div class="quiz-card" data-answer="b">
+    <div class="quiz-q">1. Que retourne <code>10 / 4</code> en Ruby ?</div>
+    <div class="quiz-options">
+      <button class="quiz-opt" onclick="answer(this,'a')"><span class="letter">A</span> 2.5</button>
+      <button class="quiz-opt" onclick="answer(this,'b')"><span class="letter">B</span> 2</button>
+      <button class="quiz-opt" onclick="answer(this,'c')"><span class="letter">C</span> 3</button>
+      <button class="quiz-opt" onclick="answer(this,'d')"><span class="letter">D</span> nil</button>
+    </div>
+    <div class="quiz-feedback ok">✓ Division entière : Ruby tronque le résultat. Utiliser <code>10.to_f / 4</code> pour obtenir 2.5.</div>
+    <div class="quiz-feedback no">✗ Ruby effectue une division entière. <code>10 / 4 #=> 2</code>.</div>
+  </div>
+
+  <!-- Q2 -->
+  <div class="quiz-card" data-answer="c">
+    <div class="quiz-q">2. Quelle méthode retourne un <strong>nouveau tableau</strong> transformé ?</div>
+    <div class="quiz-options">
+      <button class="quiz-opt" onclick="answer(this,'a')"><span class="letter">A</span> .each</button>
+      <button class="quiz-opt" onclick="answer(this,'b')"><span class="letter">B</span> .each_with_index</button>
+      <button class="quiz-opt" onclick="answer(this,'c')"><span class="letter">C</span> .map</button>
+      <button class="quiz-opt" onclick="answer(this,'d')"><span class="letter">D</span> .reduce</button>
+    </div>
+    <div class="quiz-feedback ok">✓ <code>.map</code> (ou <code>.collect</code>) retourne un nouveau tableau. <code>.each</code> retourne le tableau d'origine.</div>
+    <div class="quiz-feedback no">✗ <code>.map</code> retourne un nouveau tableau. <code>.each</code> retourne l'original.</div>
+  </div>
+
+  <!-- Q3 -->
+  <div class="quiz-card" data-answer="a">
+    <div class="quiz-q">3. Que vaut <code>:test.object_id == :test.object_id</code> ?</div>
+    <div class="quiz-options">
+      <button class="quiz-opt" onclick="answer(this,'a')"><span class="letter">A</span> true</button>
+      <button class="quiz-opt" onclick="answer(this,'b')"><span class="letter">B</span> false</button>
+      <button class="quiz-opt" onclick="answer(this,'c')"><span class="letter">C</span> nil</button>
+      <button class="quiz-opt" onclick="answer(this,'d')"><span class="letter">D</span> Erreur</button>
+    </div>
+    <div class="quiz-feedback ok">✓ Les symboles sont uniques en mémoire — le même symbole a toujours le même object_id.</div>
+    <div class="quiz-feedback no">✗ Les symboles sont immuables et stockés une seule fois : même object_id, donc <code>true</code>.</div>
+  </div>
+
+  <!-- Q4 -->
+  <div class="quiz-card" data-answer="d">
+    <div class="quiz-q">4. Que retourne <code>puts "hello"</code> ?</div>
+    <div class="quiz-options">
+      <button class="quiz-opt" onclick="answer(this,'a')"><span class="letter">A</span> "hello"</button>
+      <button class="quiz-opt" onclick="answer(this,'b')"><span class="letter">B</span> :hello</button>
+      <button class="quiz-opt" onclick="answer(this,'c')"><span class="letter">C</span> 5</button>
+      <button class="quiz-opt" onclick="answer(this,'d')"><span class="letter">D</span> nil</button>
+    </div>
+    <div class="quiz-feedback ok">✓ <code>puts</code> affiche la valeur mais retourne toujours <code>nil</code> — piège classique avec le retour implicite.</div>
+    <div class="quiz-feedback no">✗ <code>puts</code> retourne toujours <code>nil</code>, quelle que soit la valeur affichée.</div>
+  </div>
+
+  <!-- Q5 -->
+  <div class="quiz-card" data-answer="b">
+    <div class="quiz-q">5. Comment accéder en sécurité à un hash imbriqué sans risque de <code>NoMethodError</code> ?</div>
+    <div class="quiz-options">
+      <button class="quiz-opt" onclick="answer(this,'a')"><span class="letter">A</span> hash[:a][:b][:c]</button>
+      <button class="quiz-opt" onclick="answer(this,'b')"><span class="letter">B</span> hash.dig(:a, :b, :c)</button>
+      <button class="quiz-opt" onclick="answer(this,'c')"><span class="letter">C</span> hash.fetch(:a).fetch(:b)</button>
+      <button class="quiz-opt" onclick="answer(this,'d')"><span class="letter">D</span> hash.get(:a, :b, :c)</button>
+    </div>
+    <div class="quiz-feedback ok">✓ <code>.dig</code> retourne <code>nil</code> si un chemin est absent, au lieu de lever une exception.</div>
+    <div class="quiz-feedback no">✗ <code>.dig</code> est la méthode sûre : <code>hash[:a][:b]</code> lève <code>NoMethodError</code> si <code>:a</code> retourne <code>nil</code>.</div>
+  </div>
+
+  <!-- Q6 -->
+  <div class="quiz-card" data-answer="c">
+    <div class="quiz-q">6. Quelle valeur est <strong>truthy</strong> en Ruby ?</div>
+    <div class="quiz-options">
+      <button class="quiz-opt" onclick="answer(this,'a')"><span class="letter">A</span> nil</button>
+      <button class="quiz-opt" onclick="answer(this,'b')"><span class="letter">B</span> false</button>
+      <button class="quiz-opt" onclick="answer(this,'c')"><span class="letter">C</span> 0</button>
+      <button class="quiz-opt" onclick="answer(this,'d')"><span class="letter">D</span> nil et false</button>
+    </div>
+    <div class="quiz-feedback ok">✓ En Ruby, <strong>seuls</strong> <code>nil</code> et <code>false</code> sont falsy. Le <code>0</code>, <code>""</code>, et <code>[]</code> sont truthy !</div>
+    <div class="quiz-feedback no">✗ En Ruby, seuls <code>nil</code> et <code>false</code> sont falsy — <code>0</code>, <code>""</code>, et <code>[]</code> sont truthy (≠ JS/Python).</div>
+  </div>
+
+  <!-- Q7 -->
+  <div class="quiz-card" data-answer="a">
+    <div class="quiz-q">7. Que retourne <code>(1...5).to_a</code> ?</div>
+    <div class="quiz-options">
+      <button class="quiz-opt" onclick="answer(this,'a')"><span class="letter">A</span> [1, 2, 3, 4]</button>
+      <button class="quiz-opt" onclick="answer(this,'b')"><span class="letter">B</span> [1, 2, 3, 4, 5]</button>
+      <button class="quiz-opt" onclick="answer(this,'c')"><span class="letter">C</span> [2, 3, 4]</button>
+      <button class="quiz-opt" onclick="answer(this,'d')"><span class="letter">D</span> [1, 2, 3, 4, 5, 6]</button>
+    </div>
+    <div class="quiz-feedback ok">✓ <code>...</code> est une plage exclusive : elle exclut la borne supérieure.</div>
+    <div class="quiz-feedback no">✗ <code>...</code> exclut la borne supérieure. <code>(1..5)</code> inclurait 5.</div>
+  </div>
+
+  <!-- Q8 -->
+  <div class="quiz-card" data-answer="b">
+    <div class="quiz-q">8. Avec <code>reduce</code>, que doit obligatoirement retourner le bloc à chaque itération ?</div>
+    <div class="quiz-options">
+      <button class="quiz-opt" onclick="answer(this,'a')"><span class="letter">A</span> La valeur courante</button>
+      <button class="quiz-opt" onclick="answer(this,'b')"><span class="letter">B</span> L'accumulateur</button>
+      <button class="quiz-opt" onclick="answer(this,'c')"><span class="letter">C</span> nil</button>
+      <button class="quiz-opt" onclick="answer(this,'d')"><span class="letter">D</span> true</button>
+    </div>
+    <div class="quiz-feedback ok">✓ Le bloc doit retourner l'accumulateur (<code>acc</code>) sinon la prochaine itération reçoit la dernière valeur assignée.</div>
+    <div class="quiz-feedback no">✗ Le bloc doit retourner l'accumulateur à chaque tour — sinon <code>reduce</code> perd le résultat accumulé.</div>
+  </div>
+
+  <!-- Q9 -->
+  <div class="quiz-card" data-answer="c">
+    <div class="quiz-q">9. Quelle est la différence entre <code>Array.new(3, Array.new(2))</code> et <code>Array.new(3) { Array.new(2) }</code> ?</div>
+    <div class="quiz-options">
+      <button class="quiz-opt" onclick="answer(this,'a')"><span class="letter">A</span> Aucune différence</button>
+      <button class="quiz-opt" onclick="answer(this,'b')"><span class="letter">B</span> La version sans bloc est plus rapide</button>
+      <button class="quiz-opt" onclick="answer(this,'c')"><span class="letter">C</span> Sans bloc : les 3 lignes partagent le même objet</button>
+      <button class="quiz-opt" onclick="answer(this,'d')"><span class="letter">D</span> Avec bloc : une seule ligne est créée</button>
+    </div>
+    <div class="quiz-feedback ok">✓ Sans bloc, les 3 lignes pointent vers le même tableau — modifier l'une modifie toutes les autres.</div>
+    <div class="quiz-feedback no">✗ Sans bloc, Ruby réutilise le même objet pour les 3 éléments. Le bloc crée des objets indépendants.</div>
+  </div>
+
+  <!-- Q10 -->
+  <div class="quiz-card" data-answer="d">
+    <div class="quiz-q">10. Quelle méthode combine <code>.map</code> et <code>.compact</code> en une seule passe ?</div>
+    <div class="quiz-options">
+      <button class="quiz-opt" onclick="answer(this,'a')"><span class="letter">A</span> .select_map</button>
+      <button class="quiz-opt" onclick="answer(this,'b')"><span class="letter">B</span> .collect_compact</button>
+      <button class="quiz-opt" onclick="answer(this,'c')"><span class="letter">C</span> .map!</button>
+      <button class="quiz-opt" onclick="answer(this,'d')"><span class="letter">D</span> .filter_map</button>
+    </div>
+    <div class="quiz-feedback ok">✓ <code>.filter_map</code> (Ruby 2.7+) itère, transforme, et élimine les <code>nil</code> en une seule passe efficace.</div>
+    <div class="quiz-feedback no">✗ <code>.filter_map</code> (Ruby 2.7+) combine map + compact en une seule itération.</div>
+  </div>
+
+</section>
+
+</main>
+</div>
+
+<script>
+let score = 0;
+let answered = 0;
+const total = 10;
+
+function answer(btn, chosen) {
+  const card = btn.closest('.quiz-card');
+  if (card.dataset.done) return;
+  card.dataset.done = '1';
+  const correct = card.dataset.answer;
+  const opts = card.querySelectorAll('.quiz-opt');
+  opts.forEach(o => { o.classList.add('disabled'); o.onclick = null; });
+  const feedbacks = card.querySelectorAll('.quiz-feedback');
+  if (chosen === correct) {
+    btn.classList.add('correct');
+    feedbacks[0].classList.add('show');
+    score++;
+  } else {
+    btn.classList.add('wrong');
+    feedbacks[1].classList.add('show');
+    opts.forEach(o => {
+      if (o.getAttribute('onclick') === null && o.querySelector('.letter').textContent === correct.toUpperCase()) {
+        o.classList.add('correct');
+      }
+    });
+    // highlight correct
+    opts.forEach(o => {
+      const letters = ['a','b','c','d'];
+      const idx = letters.indexOf(correct);
+      if (o === opts[idx]) o.classList.add('correct');
+    });
+  }
+  answered++;
+  updateProgress();
+  if (answered === total) {
+    const sc = document.getElementById('quiz-score');
+    document.getElementById('score-val').textContent = score;
+    sc.style.display = 'block';
+    sc.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
+}
+
+function updateProgress() {
+  const pct = Math.round((answered / total) * 100);
+  document.getElementById('progress-fill').style.width = pct + '%';
+  document.getElementById('progress-label').textContent = 'Quiz : ' + answered + '/' + total;
+}
+
+function setActive(el) {
+  document.querySelectorAll('nav a').forEach(a => a.classList.remove('active'));
+  el.classList.add('active');
+}
+
+// Intersection observer for active nav link
+const sections = document.querySelectorAll('section.chapter');
+const links = document.querySelectorAll('nav a');
+const observer = new IntersectionObserver(entries => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      const id = entry.target.id;
+      links.forEach(l => {
+        l.classList.toggle('active', l.getAttribute('href') === '#' + id);
+      });
+    }
+  });
+}, { rootMargin: '-20% 0px -70% 0px' });
+sections.forEach(s => observer.observe(s));
+</script>
+</body>
+</html>

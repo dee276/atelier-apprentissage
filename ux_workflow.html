@@ -1,0 +1,1157 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>UX Design Workflow + IA</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&family=Syne:wght@400;500;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0d0d0f;
+  --surface: #141418;
+  --surface2: #1a1a20;
+  --surface3: #212128;
+  --border: rgba(255,255,255,0.07);
+  --border2: rgba(255,255,255,0.12);
+  --text: #e8e6e0;
+  --text2: #8a887f;
+  --text3: #555450;
+
+  --p1-color: #a78bfa;
+  --p1-bg: rgba(167,139,250,0.1);
+  --p1-border: rgba(167,139,250,0.25);
+
+  --p2-color: #34d399;
+  --p2-bg: rgba(52,211,153,0.1);
+  --p2-border: rgba(52,211,153,0.25);
+
+  --amber: #f59e0b;
+  --amber-bg: rgba(245,158,11,0.1);
+  --amber-border: rgba(245,158,11,0.2);
+
+  --new-color: #86efac;
+  --new-bg: rgba(134,239,172,0.1);
+
+  --font-display: 'Syne', sans-serif;
+  --font-body: 'DM Sans', sans-serif;
+  --font-mono: 'DM Mono', monospace;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: var(--font-body);
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  line-height: 1.6;
+}
+
+.noise {
+  position: fixed; inset: 0; pointer-events: none; z-index: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+  opacity: 0.4;
+}
+
+.layout { display: flex; min-height: 100vh; position: relative; z-index: 1; }
+
+.sidebar {
+  width: 260px; flex-shrink: 0;
+  background: var(--surface);
+  border-right: 1px solid var(--border);
+  display: flex; flex-direction: column;
+  position: sticky; top: 0; height: 100vh;
+  overflow-y: auto;
+}
+
+.sidebar-header {
+  padding: 28px 24px 20px;
+  border-bottom: 1px solid var(--border);
+}
+
+.logo {
+  font-family: var(--font-display);
+  font-size: 13px; font-weight: 700;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--text2);
+  margin-bottom: 4px;
+}
+
+.sidebar-title {
+  font-family: var(--font-display);
+  font-size: 18px; font-weight: 800;
+  color: var(--text);
+  line-height: 1.2;
+}
+
+.sidebar-nav { padding: 16px 12px; flex: 1; }
+
+.nav-part-label {
+  font-family: var(--font-mono);
+  font-size: 10px; letter-spacing: 0.12em;
+  text-transform: uppercase; color: var(--text3);
+  padding: 0 12px; margin: 12px 0 6px;
+}
+
+.nav-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 8px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.15s;
+  margin-bottom: 2px;
+  border: 1px solid transparent;
+}
+
+.nav-item:hover { background: var(--surface2); }
+
+.nav-item.active {
+  background: var(--surface3);
+  border-color: var(--border2);
+}
+
+.nav-item.active.p1 { border-color: var(--p1-border); background: var(--p1-bg); }
+.nav-item.active.p2 { border-color: var(--p2-border); background: var(--p2-bg); }
+
+.nav-num {
+  width: 22px; height: 22px; border-radius: 6px;
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--font-mono); font-size: 11px; font-weight: 500;
+  flex-shrink: 0;
+}
+
+.p1 .nav-num { background: var(--p1-bg); color: var(--p1-color); }
+.p2 .nav-num { background: var(--p2-bg); color: var(--p2-color); }
+
+.nav-text { font-size: 13px; font-weight: 400; color: var(--text2); }
+.nav-item.active .nav-text { color: var(--text); font-weight: 500; }
+
+.nav-count {
+  margin-left: auto;
+  font-family: var(--font-mono);
+  font-size: 10px; color: var(--text3);
+}
+
+.sidebar-footer {
+  padding: 16px 24px;
+  border-top: 1px solid var(--border);
+  font-size: 11px; color: var(--text3);
+  font-family: var(--font-mono);
+}
+
+.main { flex: 1; overflow-x: hidden; }
+
+.main-header {
+  padding: 40px 48px 32px;
+  border-bottom: 1px solid var(--border);
+  position: sticky; top: 0;
+  background: rgba(13,13,15,0.92);
+  backdrop-filter: blur(12px);
+  z-index: 10;
+  display: flex; align-items: center; gap: 16px;
+}
+
+.phase-badge {
+  font-family: var(--font-mono);
+  font-size: 11px; font-weight: 500;
+  padding: 4px 10px; border-radius: 20px;
+}
+
+.badge-p1 { background: var(--p1-bg); color: var(--p1-color); border: 1px solid var(--p1-border); }
+.badge-p2 { background: var(--p2-bg); color: var(--p2-color); border: 1px solid var(--p2-border); }
+.badge-amber { background: var(--amber-bg); color: var(--amber); border: 1px solid var(--amber-border); }
+.badge-new { background: var(--new-bg); color: var(--new-color); font-size: 9px; padding: 2px 6px; border-radius: 4px; font-family: var(--font-mono); font-weight: 500; }
+
+.header-titles { flex: 1; }
+.header-phase-num {
+  font-family: var(--font-mono); font-size: 11px;
+  color: var(--text3); margin-bottom: 4px;
+}
+.header-phase-name {
+  font-family: var(--font-display);
+  font-size: 22px; font-weight: 700; color: var(--text);
+  line-height: 1.2;
+}
+.header-phase-desc {
+  font-size: 13px; color: var(--text2); margin-top: 3px;
+}
+
+.header-deliverables {
+  display: flex; flex-wrap: wrap; gap: 6px;
+}
+
+.deliverable-tag {
+  font-family: var(--font-mono); font-size: 10px;
+  padding: 3px 8px; border-radius: 4px;
+  border: 1px solid var(--border2);
+  color: var(--text2);
+  background: var(--surface2);
+}
+
+.content { padding: 32px 48px 48px; }
+
+.tasks-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 16px;
+  margin-bottom: 32px;
+}
+
+.task-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 20px;
+  transition: all 0.2s;
+  position: relative;
+  overflow: hidden;
+}
+
+.task-card::before {
+  content: '';
+  position: absolute; top: 0; left: 0; right: 0;
+  height: 2px;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+.task-card.p1::before { background: linear-gradient(90deg, var(--p1-color), transparent); }
+.task-card.p2::before { background: linear-gradient(90deg, var(--p2-color), transparent); }
+
+.task-card:hover { border-color: var(--border2); transform: translateY(-1px); }
+.task-card:hover::before { opacity: 1; }
+
+.task-header {
+  display: flex; align-items: flex-start; gap: 10px;
+  margin-bottom: 10px;
+}
+
+.task-icon {
+  width: 34px; height: 34px; border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 16px; flex-shrink: 0; margin-top: 1px;
+}
+
+.p1 .task-icon { background: var(--p1-bg); }
+.p2 .task-icon { background: var(--p2-bg); }
+
+.task-title-row { flex: 1; }
+.task-name {
+  font-family: var(--font-display);
+  font-size: 15px; font-weight: 600;
+  color: var(--text); line-height: 1.2;
+  display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+}
+
+.task-desc {
+  font-size: 12px; color: var(--text2);
+  line-height: 1.5; margin-top: 3px;
+}
+
+.prompt-section { margin-top: 14px; }
+
+.prompt-label {
+  font-family: var(--font-mono);
+  font-size: 9px; letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text3); margin-bottom: 6px;
+  display: flex; align-items: center; gap: 6px;
+}
+
+.prompt-label::after {
+  content: ''; flex: 1;
+  height: 1px; background: var(--border);
+}
+
+.prompt-box {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 10px 12px;
+  font-family: var(--font-mono);
+  font-size: 11px; line-height: 1.6;
+  color: var(--text2);
+  cursor: pointer;
+  transition: all 0.15s;
+  position: relative;
+}
+
+.prompt-box:hover {
+  border-color: var(--border2);
+  background: var(--surface3);
+  color: var(--text);
+}
+
+.prompt-box .copy-icon {
+  position: absolute; top: 8px; right: 8px;
+  font-size: 12px; color: var(--text3);
+  opacity: 0; transition: opacity 0.15s;
+}
+
+.prompt-box:hover .copy-icon { opacity: 1; }
+
+.prompt-box.copied {
+  border-color: var(--p2-color);
+  color: var(--p2-color);
+}
+
+.prompt-variable {
+  color: var(--amber);
+  font-style: italic;
+}
+
+.section-connector {
+  display: flex; align-items: center; gap: 12px;
+  margin: 8px 0 32px;
+  color: var(--text3);
+  font-family: var(--font-mono);
+  font-size: 10px; letter-spacing: 0.08em;
+}
+
+.section-connector::before, .section-connector::after {
+  content: ''; flex: 1;
+  height: 1px; background: var(--border);
+}
+
+.deliverables-section {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 16px 20px;
+  margin-bottom: 16px;
+}
+
+.deliverables-label {
+  font-family: var(--font-mono);
+  font-size: 10px; letter-spacing: 0.1em;
+  text-transform: uppercase; color: var(--text3);
+  margin-bottom: 10px;
+}
+
+.deliverables-tags {
+  display: flex; flex-wrap: wrap; gap: 8px;
+}
+
+.del-tag {
+  font-family: var(--font-mono);
+  font-size: 11px; padding: 4px 10px;
+  border-radius: 6px; border: 1px solid var(--border2);
+  color: var(--text2);
+}
+
+.info-box {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--amber);
+  border-radius: 0 10px 10px 0;
+  padding: 14px 16px;
+  font-size: 12px; color: var(--text2);
+  line-height: 1.6;
+  margin-bottom: 24px;
+}
+
+.info-box strong { color: var(--text); font-weight: 500; }
+
+.part-separator {
+  margin: 12px 0 28px;
+  display: flex; align-items: center; gap: 12px;
+}
+
+.part-separator-label {
+  font-family: var(--font-display);
+  font-size: 11px; font-weight: 700;
+  letter-spacing: 0.1em; text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.part-separator::before, .part-separator::after {
+  content: ''; flex: 1;
+  height: 1px;
+}
+
+.part-sep-1::before, .part-sep-1::after { background: linear-gradient(90deg, transparent, var(--p1-border)); }
+.part-sep-1 .part-separator-label { color: var(--p1-color); }
+
+.part-sep-2::before { background: linear-gradient(90deg, var(--p2-border), transparent); }
+.part-sep-2::after { background: linear-gradient(90deg, transparent, var(--p2-border)); }
+.part-sep-2 .part-separator-label { color: var(--p2-color); }
+
+.toast {
+  position: fixed; bottom: 24px; right: 24px;
+  background: var(--surface3);
+  border: 1px solid var(--border2);
+  border-radius: 10px;
+  padding: 10px 16px;
+  font-family: var(--font-mono); font-size: 12px; color: var(--text);
+  transform: translateY(16px); opacity: 0;
+  transition: all 0.2s;
+  pointer-events: none; z-index: 100;
+}
+.toast.show { transform: translateY(0); opacity: 1; }
+
+.phase-section { display: none; animation: fadeIn 0.25s ease; }
+.phase-section.active { display: block; }
+
+@keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+
+@media (max-width: 900px) {
+  .sidebar { display: none; }
+  .main-header { padding: 24px; }
+  .content { padding: 24px; }
+}
+
+.all-view .phase-section { display: block; }
+</style>
+</head>
+<body>
+
+<div class="noise"></div>
+
+<div class="layout">
+
+<aside class="sidebar">
+  <div class="sidebar-header">
+    <div class="logo">Workflow</div>
+    <div class="sidebar-title">UX Design<br>+ Agents IA</div>
+  </div>
+  <nav class="sidebar-nav">
+    <div class="nav-part-label">Partie 1 — Recherche</div>
+    <div class="nav-item p1 active" onclick="showPhase('p1-1', this)" data-phase="p1-1">
+      <div class="nav-num">1</div>
+      <div class="nav-text">Découverte & empathie</div>
+      <div class="nav-count">4</div>
+    </div>
+    <div class="nav-item p1" onclick="showPhase('p1-2', this)" data-phase="p1-2">
+      <div class="nav-num">2</div>
+      <div class="nav-text">Définition & cadrage</div>
+      <div class="nav-count">4</div>
+    </div>
+    <div class="nav-item p1" onclick="showPhase('p1-3', this)" data-phase="p1-3">
+      <div class="nav-num">3</div>
+      <div class="nav-text">Parcours & narration</div>
+      <div class="nav-count">4</div>
+    </div>
+    <div class="nav-item p1" onclick="showPhase('p1-4', this)" data-phase="p1-4">
+      <div class="nav-num">4</div>
+      <div class="nav-text">Architecture & flux</div>
+      <div class="nav-count">4</div>
+    </div>
+    <div class="nav-part-label">Partie 2 — Design</div>
+    <div class="nav-item p2" onclick="showPhase('p2-5', this)" data-phase="p2-5">
+      <div class="nav-num">5</div>
+      <div class="nav-text">Fondations visuelles</div>
+      <div class="nav-count">4</div>
+    </div>
+    <div class="nav-item p2" onclick="showPhase('p2-6', this)" data-phase="p2-6">
+      <div class="nav-num">6</div>
+      <div class="nav-text">Design system</div>
+      <div class="nav-count">4</div>
+    </div>
+    <div class="nav-item p2" onclick="showPhase('p2-7', this)" data-phase="p2-7">
+      <div class="nav-num">7</div>
+      <div class="nav-text">Wireframes Lo-Fi → Hi-Fi</div>
+      <div class="nav-count">4</div>
+    </div>
+    <div class="nav-item p2" onclick="showPhase('p2-8', this)" data-phase="p2-8">
+      <div class="nav-num">8</div>
+      <div class="nav-text">Prototype, test & handoff</div>
+      <div class="nav-count">4</div>
+    </div>
+  </nav>
+  <div class="sidebar-footer">32 tâches · 32 prompts IA</div>
+</aside>
+
+<main class="main">
+
+  <div class="main-header" id="main-header">
+    <div class="header-titles">
+      <div class="header-phase-num" id="header-phase-num">Phase 01 / Partie 1</div>
+      <div class="header-phase-name" id="header-phase-name">Découverte & empathie</div>
+      <div class="header-phase-desc" id="header-phase-desc">Comprendre les utilisateurs réels avant de conceptualiser</div>
+    </div>
+    <div style="display:flex;flex-direction:column;align-items:flex-end;gap:8px">
+      <span class="phase-badge badge-p1" id="header-badge">Recherche</span>
+      <div class="header-deliverables" id="header-deliverables">
+        <span class="deliverable-tag">Empathy maps</span>
+        <span class="deliverable-tag">Pain point matrix</span>
+        <span class="deliverable-tag">Personas</span>
+        <span class="deliverable-tag">JTBD statements</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="content">
+
+    <div class="info-box">
+      <strong>Comment utiliser :</strong> Clique sur un prompt pour le <strong>copier</strong> dans le presse-papier. Remplace les <span style="color:var(--amber);font-family:var(--font-mono)">[crochets]</span> par ton contexte projet. Les badges <span class="badge-new badge">+</span> indiquent les ajouts recommandés au-delà du workflow UX standard.
+    </div>
+
+    <!-- PHASE 1 -->
+    <div class="phase-section active" id="phase-p1-1">
+      <div class="tasks-grid">
+        <div class="task-card p1">
+          <div class="task-header">
+            <div class="task-icon p1">🗺️</div>
+            <div class="task-title-row">
+              <div class="task-name">Empathy map</div>
+              <div class="task-desc">Pense, ressent, dit, fait — 4 quadrants par segment utilisateur</div>
+            </div>
+          </div>
+          <div class="prompt-section">
+            <div class="prompt-label">Prompt IA</div>
+            <div class="prompt-box" onclick="copyPrompt(this, `Génère une empathy map complète pour [persona] qui essaie de [tâche]. Utilise les 4 quadrants : pense, ressent, dit, fait. Ajoute des citations fictives réalistes et 3 insights clés à la fin.`)">
+              Génère une empathy map pour <span class="prompt-variable">[persona]</span> qui essaie de <span class="prompt-variable">[tâche]</span>. Inclus 4 quadrants avec citations fictives réalistes.
+              <span class="copy-icon">⎘</span>
+            </div>
+          </div>
+        </div>
+        <div class="task-card p1">
+          <div class="task-header">
+            <div class="task-icon p1">⚡</div>
+            <div class="task-title-row">
+              <div class="task-name">Pain points <span class="badge-new badge">+</span></div>
+              <div class="task-desc">Frustrations fonctionnelles, émotionnelles & sociales — priorisées</div>
+            </div>
+          </div>
+          <div class="prompt-section">
+            <div class="prompt-label">Prompt IA</div>
+            <div class="prompt-box" onclick="copyPrompt(this, `Liste les pain points de [persona] autour de [domaine]. Catégorise-les : fonctionnel, émotionnel, social. Priorise par fréquence et sévérité (matrice 2x2). Ajoute une ligne sur la cause racine de chacun.`)">
+              Liste et priorise les pain points de <span class="prompt-variable">[persona]</span> autour de <span class="prompt-variable">[domaine]</span>. Catégorise et crée une matrice de sévérité.
+              <span class="copy-icon">⎘</span>
+            </div>
+          </div>
+        </div>
+        <div class="task-card p1">
+          <div class="task-header">
+            <div class="task-icon p1">👤</div>
+            <div class="task-title-row">
+              <div class="task-name">Persona</div>
+              <div class="task-desc">Profil archétypal basé sur la recherche terrain</div>
+            </div>
+          </div>
+          <div class="prompt-section">
+            <div class="prompt-label">Prompt IA</div>
+            <div class="prompt-box" onclick="copyPrompt(this, `Crée un persona UX complet pour [produit]. Inclus : prénom, âge, profession, démographie, objectifs principaux (3), frustrations (3), comportements digitaux, outils utilisés, citation clé, contexte d\'usage et photo description.`)">
+              Crée un persona UX complet pour <span class="prompt-variable">[produit]</span> : démographie, objectifs, frustrations, comportements digitaux, citation clé.
+              <span class="copy-icon">⎘</span>
+            </div>
+          </div>
+        </div>
+        <div class="task-card p1">
+          <div class="task-header">
+            <div class="task-icon p1">🎯</div>
+            <div class="task-title-row">
+              <div class="task-name">Jobs-to-be-Done <span class="badge-new badge">+</span></div>
+              <div class="task-desc">Ce que l'utilisateur cherche vraiment à accomplir (JTBD)</div>
+            </div>
+          </div>
+          <div class="prompt-section">
+            <div class="prompt-label">Prompt IA</div>
+            <div class="prompt-box" onclick="copyPrompt(this, `Formule les Jobs-to-be-Done pour [persona] utilisant [produit]. Format : Quand [situation], je veux [motivation] pour que [résultat attendu]. Identifie 3 jobs fonctionnels, 2 émotionnels et 1 social.`)">
+              Formule les JTBD pour <span class="prompt-variable">[persona]</span> : jobs fonctionnels, émotionnels et sociaux au format Quand/Je veux/Pour que.
+              <span class="copy-icon">⎘</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PHASE 2 -->
+    <div class="phase-section" id="phase-p1-2">
+      <div class="tasks-grid">
+        <div class="task-card p1">
+          <div class="task-header">
+            <div class="task-icon p1">💡</div>
+            <div class="task-title-row">
+              <div class="task-name">Problem statement</div>
+              <div class="task-desc">HMW (How Might We) + énoncé du problème centré utilisateur</div>
+            </div>
+          </div>
+          <div class="prompt-section">
+            <div class="prompt-label">Prompt IA</div>
+            <div class="prompt-box" onclick="copyPrompt(this, `À partir de ces pain points : [liste des pain points], formule 3 problem statements en format HMW (How Might We). Puis rédige 1 énoncé de problème principal : [persona] a besoin de [besoin] parce que [insight].`)">
+              Formule 3 HMW statements à partir de <span class="prompt-variable">[pain points]</span>. Puis rédige 1 problem statement principal centré utilisateur.
+              <span class="copy-icon">⎘</span>
+            </div>
+          </div>
+        </div>
+        <div class="task-card p1">
+          <div class="task-header">
+            <div class="task-icon p1">🔬</div>
+            <div class="task-title-row">
+              <div class="task-name">Hypothesis statement</div>
+              <div class="task-desc">Si [on fait X] → [utilisateur atteint Y] → [on mesure Z]</div>
+            </div>
+          </div>
+          <div class="prompt-section">
+            <div class="prompt-label">Prompt IA</div>
+            <div class="prompt-box" onclick="copyPrompt(this, `Rédige 3 hypothesis statements UX pour [problème]. Format : Nous croyons que [solution] aidera [persona] à [objectif]. Nous saurons que c\'est vrai quand [métrique mesurable]. Classe-les par risque (faible, moyen, élevé).`)">
+              Rédige 3 hypothèses pour <span class="prompt-variable">[problème]</span> au format "Nous croyons que / Nous saurons que". Classe par niveau de risque.
+              <span class="copy-icon">⎘</span>
+            </div>
+          </div>
+        </div>
+        <div class="task-card p1">
+          <div class="task-header">
+            <div class="task-icon p1">💎</div>
+            <div class="task-title-row">
+              <div class="task-name">Value proposition</div>
+              <div class="task-desc">Canvas de valeur : gains, pains, créateurs de valeur</div>
+            </div>
+          </div>
+          <div class="prompt-section">
+            <div class="prompt-label">Prompt IA</div>
+            <div class="prompt-box" onclick="copyPrompt(this, `Remplis un Value Proposition Canvas pour [produit] ciblant [persona]. Côté client : jobs, pains, gains. Côté offre : products & services, pain relievers, gain creators. Identifie les 3 points de fit les plus forts.`)">
+              Remplis un Value Proposition Canvas pour <span class="prompt-variable">[produit]</span> + <span class="prompt-variable">[persona]</span>. Identifie les points de fit les plus forts.
+              <span class="copy-icon">⎘</span>
+            </div>
+          </div>
+        </div>
+        <div class="task-card p1">
+          <div class="task-header">
+            <div class="task-icon p1">⚙️</div>
+            <div class="task-title-row">
+              <div class="task-name">Cas d'utilisation <span class="badge-new badge">+</span></div>
+              <div class="task-desc">Scénarios fonctionnels acteur-système (hérité génie logiciel)</div>
+            </div>
+          </div>
+          <div class="prompt-section">
+            <div class="prompt-label">Prompt IA</div>
+            <div class="prompt-box" onclick="copyPrompt(this, `Génère les cas d\'utilisation principaux pour [système/produit]. Pour chaque cas : nom, acteur principal, préconditions, flux principal (étapes numérotées), flux alternatifs (2 max), flux d\'exception, postconditions. Génères-en 5 principaux.`)">
+              Génère 5 cas d'utilisation pour <span class="prompt-variable">[système]</span> : acteur, préconditions, flux principal et alternatifs, postconditions.
+              <span class="copy-icon">⎘</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PHASE 3 -->
+    <div class="phase-section" id="phase-p1-3">
+      <div class="tasks-grid">
+        <div class="task-card p1">
+          <div class="task-header">
+            <div class="task-icon p1">📋</div>
+            <div class="task-title-row">
+              <div class="task-name">User stories</div>
+              <div class="task-desc">En tant que [rôle], je veux [action] pour [bénéfice]</div>
+            </div>
+          </div>
+          <div class="prompt-section">
+            <div class="prompt-label">Prompt IA</div>
+            <div class="prompt-box" onclick="copyPrompt(this, `Génère 10 user stories pour [produit] du point de vue de [persona]. Format standard pour toutes. Ajoute le format Gherkin (Given/When/Then) pour les 3 plus critiques. Inclus les critères d\'acceptation pour chacune.`)">
+              Génère 10 user stories pour <span class="prompt-variable">[produit]</span> + <span class="prompt-variable">[persona]</span>. Format Gherkin pour les 3 critiques. Ajoute critères d'acceptation.
+              <span class="copy-icon">⎘</span>
+            </div>
+          </div>
+        </div>
+        <div class="task-card p1">
+          <div class="task-header">
+            <div class="task-icon p1">🗺️</div>
+            <div class="task-title-row">
+              <div class="task-name">User journey map</div>
+              <div class="task-desc">Phases, actions, pensées, émotions, opportunités</div>
+            </div>
+          </div>
+          <div class="prompt-section">
+            <div class="prompt-label">Prompt IA</div>
+            <div class="prompt-box" onclick="copyPrompt(this, `Crée une user journey map pour [persona] accomplissant [tâche principale] avec [produit]. Pour chaque phase : nom de la phase, actions utilisateur, pensées internes, état émotionnel (score 1-5), points de friction, opportunités d\'amélioration.`)">
+              Crée une journey map pour <span class="prompt-variable">[persona]</span> + <span class="prompt-variable">[tâche]</span> : phases, actions, émotions, frictions, opportunités.
+              <span class="copy-icon">⎘</span>
+            </div>
+          </div>
+        </div>
+        <div class="task-card p1">
+          <div class="task-header">
+            <div class="task-icon p1">🎬</div>
+            <div class="task-title-row">
+              <div class="task-name">Storyboard</div>
+              <div class="task-desc">Séquence visuelle narratif du contexte d'usage réel</div>
+            </div>
+          </div>
+          <div class="prompt-section">
+            <div class="prompt-label">Prompt IA</div>
+            <div class="prompt-box" onclick="copyPrompt(this, `Rédige un storyboard textuel en 6 scènes pour [persona] découvrant et utilisant [produit]. Pour chaque scène : titre, contexte/lieu, action, dialogue ou pensée du personnage, émotion ressentie, élément visuel clé à illustrer.`)">
+              Rédige un storyboard 6 scènes pour <span class="prompt-variable">[persona]</span> utilisant <span class="prompt-variable">[produit]</span> : contexte, action, dialogue, émotion.
+              <span class="copy-icon">⎘</span>
+            </div>
+          </div>
+        </div>
+        <div class="task-card p1">
+          <div class="task-header">
+            <div class="task-icon p1">🔷</div>
+            <div class="task-title-row">
+              <div class="task-name">Service blueprint <span class="badge-new badge">+</span></div>
+              <div class="task-desc">Frontstage, backstage, infrastructure — vue système complète</div>
+            </div>
+          </div>
+          <div class="prompt-section">
+            <div class="prompt-label">Prompt IA</div>
+            <div class="prompt-box" onclick="copyPrompt(this, `Crée un service blueprint pour [service/produit]. Organisé en 5 lignes : actions utilisateur, actions frontstage (visibles), ligne de visibilité, actions backstage (invisibles), processus de support et systèmes. Couvre les phases [liste des phases du parcours].`)">
+              Crée un service blueprint pour <span class="prompt-variable">[service]</span> : frontstage, backstage, ligne de visibilité, systèmes support.
+              <span class="copy-icon">⎘</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PHASE 4 -->
+    <div class="phase-section" id="phase-p1-4">
+      <div class="tasks-grid">
+        <div class="task-card p1">
+          <div class="task-header">
+            <div class="task-icon p1">🔀</div>
+            <div class="task-title-row">
+              <div class="task-name">User flow</div>
+              <div class="task-desc">Chemins de navigation entre écrans et états</div>
+            </div>
+          </div>
+          <div class="prompt-section">
+            <div class="prompt-label">Prompt IA</div>
+            <div class="prompt-box" onclick="copyPrompt(this, `Décris le user flow complet pour [tâche principale] dans [produit]. Pour chaque étape : nom de l\'écran/état, action de l\'utilisateur, décisions possibles (oui/non/erreur) et transitions vers l\'étape suivante. Format textuel structuré comme un arbre.`)">
+              Décris le user flow pour <span class="prompt-variable">[tâche]</span> dans <span class="prompt-variable">[produit]</span> : écrans, décisions, transitions, états d'erreur.
+              <span class="copy-icon">⎘</span>
+            </div>
+          </div>
+        </div>
+        <div class="task-card p1">
+          <div class="task-header">
+            <div class="task-icon p1">🏗️</div>
+            <div class="task-title-row">
+              <div class="task-name">Architecture IA <span class="badge-new badge">+</span></div>
+              <div class="task-desc">Sitemap, card sorting, taxonomie du contenu</div>
+            </div>
+          </div>
+          <div class="prompt-section">
+            <div class="prompt-label">Prompt IA</div>
+            <div class="prompt-box" onclick="copyPrompt(this, `Propose une architecture d\'information pour [produit] avec les sections principales. Pour chaque section : nom, contenu inclus, sous-sections, justification selon les modèles mentaux des utilisateurs. Génère aussi un sitemap hiérarchique en format texte indenté.`)">
+              Propose une architecture d'information + sitemap pour <span class="prompt-variable">[produit]</span>. Justifie chaque regroupement selon les modèles mentaux.
+              <span class="copy-icon">⎘</span>
+            </div>
+          </div>
+        </div>
+        <div class="task-card p1">
+          <div class="task-header">
+            <div class="task-icon p1">🕸️</div>
+            <div class="task-title-row">
+              <div class="task-name">Modèle de domaine <span class="badge-new badge">+</span></div>
+              <div class="task-desc">Entités métier, attributs, relations (hérité génie logiciel)</div>
+            </div>
+          </div>
+          <div class="prompt-section">
+            <div class="prompt-label">Prompt IA</div>
+            <div class="prompt-box" onclick="copyPrompt(this, `Crée un modèle de domaine pour [produit]. Liste les entités principales avec leurs attributs clés. Définis les relations entre entités (1-à-1, 1-à-N, N-à-N) et leur cardinalité. Présente en format tableau puis en description narrative.`)">
+              Crée le modèle de domaine pour <span class="prompt-variable">[produit]</span> : entités, attributs, relations et cardinalités.
+              <span class="copy-icon">⎘</span>
+            </div>
+          </div>
+        </div>
+        <div class="task-card p1">
+          <div class="task-header">
+            <div class="task-icon p1">↔️</div>
+            <div class="task-title-row">
+              <div class="task-name">Diagramme interaction <span class="badge-new badge">+</span></div>
+              <div class="task-desc">Séquences UI ↔ système ↔ API (hérité génie logiciel)</div>
+            </div>
+          </div>
+          <div class="prompt-section">
+            <div class="prompt-label">Prompt IA</div>
+            <div class="prompt-box" onclick="copyPrompt(this, `Décris le diagramme d\'interaction pour [fonctionnalité] de [produit]. Acteurs : utilisateur, interface, backend, base de données (et API tierces si applicable). Décris chaque message échangé avec : émetteur, récepteur, type de requête, données transmises et réponse attendue.`)">
+              Décris le diagramme d'interaction pour <span class="prompt-variable">[feature]</span> : utilisateur → UI → backend → BDD, messages et réponses.
+              <span class="copy-icon">⎘</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PHASE 5 -->
+    <div class="phase-section" id="phase-p2-5">
+      <div class="tasks-grid">
+        <div class="task-card p2">
+          <div class="task-header">
+            <div class="task-icon p2">🎨</div>
+            <div class="task-title-row">
+              <div class="task-name">Moodboard</div>
+              <div class="task-desc">Direction artistique, références visuelles, ton & ambiance</div>
+            </div>
+          </div>
+          <div class="prompt-section">
+            <div class="prompt-label">Prompt IA</div>
+            <div class="prompt-box" onclick="copyPrompt(this, `Décris un moodboard pour [produit] ciblant [persona]. Inclus : ton général (5 adjectifs), palette de couleurs dominantes avec justification émotionnelle, style typographique (serif/sans/mono et pourquoi), 5 références visuelles existantes (marques ou œuvres), 3 références à éviter et mots-clés d\'ambiance.`)">
+              Décris le moodboard pour <span class="prompt-variable">[produit]</span> + <span class="prompt-variable">[persona]</span> : ton, palette, typo, références visuelles à inclure et éviter.
+              <span class="copy-icon">⎘</span>
+            </div>
+          </div>
+        </div>
+        <div class="task-card p2">
+          <div class="task-header">
+            <div class="task-icon p2">🎨</div>
+            <div class="task-title-row">
+              <div class="task-name">Color system</div>
+              <div class="task-desc">Primaires, secondaires, sémantiques, neutrals, dark mode</div>
+            </div>
+          </div>
+          <div class="prompt-section">
+            <div class="prompt-label">Prompt IA</div>
+            <div class="prompt-box" onclick="copyPrompt(this, `Génère un color system complet pour [produit]. Inclus : 1 couleur primaire + 9 teintes (50 à 900), 1 secondaire + teintes, couleurs sémantiques (success, warning, error, info) avec teintes, neutrals (10 steps), et règles d\'usage. Donne les valeurs hex. Indique les ratios de contraste WCAG pour les combinaisons text/fond.`)">
+              Génère un color system complet pour <span class="prompt-variable">[produit]</span> : primaire, secondaire, sémantiques, neutrals + ratios WCAG.
+              <span class="copy-icon">⎘</span>
+            </div>
+          </div>
+        </div>
+        <div class="task-card p2">
+          <div class="task-header">
+            <div class="task-icon p2">📝</div>
+            <div class="task-title-row">
+              <div class="task-name">Type system</div>
+              <div class="task-desc">Font pairing, échelle typographique, line-height, tracking</div>
+            </div>
+          </div>
+          <div class="prompt-section">
+            <div class="prompt-label">Prompt IA</div>
+            <div class="prompt-box" onclick="copyPrompt(this, `Propose un type system pour [produit]. Inclus : font pairing (display + body + mono optionnel) avec justification, échelle complète (Display XL, H1→H6, Body L/M/S, Caption, Label), pour chaque niveau : taille px, line-height, font-weight, letter-spacing et cas d\'usage.`)">
+              Propose un type system pour <span class="prompt-variable">[produit]</span> : font pairing, échelle Display→Caption, line-heights, weights et cas d'usage.
+              <span class="copy-icon">⎘</span>
+            </div>
+          </div>
+        </div>
+        <div class="task-card p2">
+          <div class="task-header">
+            <div class="task-icon p2">⚌</div>
+            <div class="task-title-row">
+              <div class="task-name">Grid & spacing <span class="badge-new badge">+</span></div>
+              <div class="task-desc">Colonnes, gouttières, base-8 spacing, breakpoints</div>
+            </div>
+          </div>
+          <div class="prompt-section">
+            <div class="prompt-label">Prompt IA</div>
+            <div class="prompt-box" onclick="copyPrompt(this, `Définis le système de grille et d\'espacement pour [produit]. Mobile : colonnes, gouttières, marges. Tablet et Desktop : idem. Échelle de spacing en base 8px (de 2px à 96px). Breakpoints recommandés. Règles d\'usage pour padding intérieur des composants.`)">
+              Définis grille + espacement pour <span class="prompt-variable">[produit]</span> : colonnes mobile/tablet/desktop, base-8 spacing scale, breakpoints.
+              <span class="copy-icon">⎘</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PHASE 6 -->
+    <div class="phase-section" id="phase-p2-6">
+      <div class="tasks-grid">
+        <div class="task-card p2">
+          <div class="task-header">
+            <div class="task-icon p2">⚛️</div>
+            <div class="task-title-row">
+              <div class="task-name">Atomes</div>
+              <div class="task-desc">Boutons, inputs, icônes, badges, avatars, chips</div>
+            </div>
+          </div>
+          <div class="prompt-section">
+            <div class="prompt-label">Prompt IA</div>
+            <div class="prompt-box" onclick="copyPrompt(this, `Liste tous les composants atomiques nécessaires pour [produit]. Pour chaque composant : nom, états requis (default, hover, focus, active, disabled, error, loading), variantes (taille, style, type) et props Figma suggérés. Organise par catégorie : actions, inputs, affichage, feedback.`)">
+              Liste tous les atomes pour <span class="prompt-variable">[produit]</span> avec leurs états, variantes et props Figma. Organisés par catégorie.
+              <span class="copy-icon">⎘</span>
+            </div>
+          </div>
+        </div>
+        <div class="task-card p2">
+          <div class="task-header">
+            <div class="task-icon p2">🧩</div>
+            <div class="task-title-row">
+              <div class="task-name">Molécules & organismes</div>
+              <div class="task-desc">Cards, navbars, forms, modals, tables, headers</div>
+            </div>
+          </div>
+          <div class="prompt-section">
+            <div class="prompt-label">Prompt IA</div>
+            <div class="prompt-box" onclick="copyPrompt(this, `Définis les composants molécules et organismes pour [produit]. Pour chaque composant : nom, atomes qui le composent, variantes, comportement responsive, états possibles. Groupes par fonction : navigation, contenu, formulaires, data display, feedback, layout.`)">
+              Définis molécules et organismes pour <span class="prompt-variable">[produit]</span> : composition, variantes, responsive, états. Groupés par fonction.
+              <span class="copy-icon">⎘</span>
+            </div>
+          </div>
+        </div>
+        <div class="task-card p2">
+          <div class="task-header">
+            <div class="task-icon p2">🏷️</div>
+            <div class="task-title-row">
+              <div class="task-name">Design tokens <span class="badge-new badge">+</span></div>
+              <div class="task-desc">Variables Figma exportables : couleurs, espacements, radius, ombres</div>
+            </div>
+          </div>
+          <div class="prompt-section">
+            <div class="prompt-label">Prompt IA</div>
+            <div class="prompt-box" onclick="copyPrompt(this, `Génère les design tokens JSON pour [produit] au format Style Dictionary. Catégories : color (semantic + primitives), spacing (scale 4-96px), typography (size, weight, lineHeight), border-radius, box-shadow, z-index, transition (duration + easing). Inclus les tokens dark mode.`)">
+              Génère les design tokens JSON pour <span class="prompt-variable">[produit]</span> au format Style Dictionary : couleurs, spacing, typo, radius, shadows, dark mode.
+              <span class="copy-icon">⎘</span>
+            </div>
+          </div>
+        </div>
+        <div class="task-card p2">
+          <div class="task-header">
+            <div class="task-icon p2">♿</div>
+            <div class="task-title-row">
+              <div class="task-name">Accessibilité <span class="badge-new badge">+</span></div>
+              <div class="task-desc">WCAG AA, contrastes, focus visible, ARIA guidelines</div>
+            </div>
+          </div>
+          <div class="prompt-section">
+            <div class="prompt-label">Prompt IA</div>
+            <div class="prompt-box" onclick="copyPrompt(this, `Audite l\'accessibilité du design system de [produit]. Vérifie et donne des recommandations pour : ratios de contraste WCAG AA (text/fond, composants interactifs), états focus visibles, hiérarchie sémantique des headings, labels aria requis pour chaque composant, navigation clavier et ordre de tabulation.`)">
+              Audite l'accessibilité du design system de <span class="prompt-variable">[produit]</span> : contrastes WCAG, focus, aria labels, navigation clavier.
+              <span class="copy-icon">⎘</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PHASE 7 -->
+    <div class="phase-section" id="phase-p2-7">
+      <div class="tasks-grid">
+        <div class="task-card p2">
+          <div class="task-header">
+            <div class="task-icon p2">✏️</div>
+            <div class="task-title-row">
+              <div class="task-name">Lo-Fi wireframes</div>
+              <div class="task-desc">Grilles, blocs, hiérarchie — sans couleur ni style</div>
+            </div>
+          </div>
+          <div class="prompt-section">
+            <div class="prompt-label">Prompt IA</div>
+            <div class="prompt-box" onclick="copyPrompt(this, `Décris la structure Lo-Fi de [écran/page] pour [produit]. Liste dans l\'ordre de priorité visuelle : les blocs de contenu, la navigation présente, les actions primaires et secondaires, les patterns UI à utiliser (liste, grille, formulaire, etc.) et les règles de layout (proportion approximative des zones).`)">
+              Décris la structure Lo-Fi de <span class="prompt-variable">[écran]</span> : blocs de contenu priorisés, navigation, actions, patterns UI.
+              <span class="copy-icon">⎘</span>
+            </div>
+          </div>
+        </div>
+        <div class="task-card p2">
+          <div class="task-header">
+            <div class="task-icon p2">📱</div>
+            <div class="task-title-row">
+              <div class="task-name">Hi-Fi mockups</div>
+              <div class="task-desc">Design final appliqué — couleurs, typo, composants réels</div>
+            </div>
+          </div>
+          <div class="prompt-section">
+            <div class="prompt-label">Prompt IA</div>
+            <div class="prompt-box" onclick="copyPrompt(this, `Décris le passage Lo-Fi → Hi-Fi pour [écran] de [produit]. Précise : quels composants du design system appliquer à chaque bloc, comment établir la hiérarchie visuelle (taille, couleur, espace), quels micro-interactions sont prioritaires, et comment adapter pour mobile.`)">
+              Décris le passage Lo-Fi→Hi-Fi pour <span class="prompt-variable">[écran]</span> : composants, hiérarchie visuelle, micro-interactions, adaptation mobile.
+              <span class="copy-icon">⎘</span>
+            </div>
+          </div>
+        </div>
+        <div class="task-card p2">
+          <div class="task-header">
+            <div class="task-icon p2">✨</div>
+            <div class="task-title-row">
+              <div class="task-name">Micro-interactions <span class="badge-new badge">+</span></div>
+              <div class="task-desc">Animations, états de chargement, transitions, feedback</div>
+            </div>
+          </div>
+          <div class="prompt-section">
+            <div class="prompt-label">Prompt IA</div>
+            <div class="prompt-box" onclick="copyPrompt(this, `Propose les micro-interactions pour [écran/composant] de [produit]. Pour chaque interaction : déclencheur (trigger), type d\'animation recommandée, durée (ms), easing curve, propriétés CSS animées, but fonctionnel (feedback, guidage, délice) et impact émotionnel attendu.`)">
+              Propose les micro-interactions pour <span class="prompt-variable">[composant]</span> : trigger, animation, durée, easing, but fonctionnel et impact émotionnel.
+              <span class="copy-icon">⎘</span>
+            </div>
+          </div>
+        </div>
+        <div class="task-card p2">
+          <div class="task-header">
+            <div class="task-icon p2">✍️</div>
+            <div class="task-title-row">
+              <div class="task-name">UX writing <span class="badge-new badge">+</span></div>
+              <div class="task-desc">Titres, labels, CTAs, erreurs, onboarding copy</div>
+            </div>
+          </div>
+          <div class="prompt-section">
+            <div class="prompt-label">Prompt IA</div>
+            <div class="prompt-box" onclick="copyPrompt(this, `Rédige l\'UX writing complet pour [écran/flux] de [produit]. Ton : [chaleureux/professionnel/ludique]. Inclus : headline principal, sous-titre, labels de tous les champs, texte des CTAs primaires et secondaires, messages d\'erreur (5 cas), états vides et messages de succès. Langue : [FR/EN].`)">
+              Rédige l'UX writing pour <span class="prompt-variable">[écran]</span> : headline, labels, CTAs, erreurs, états vides, messages succès.
+              <span class="copy-icon">⎘</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PHASE 8 -->
+    <div class="phase-section" id="phase-p2-8">
+      <div class="tasks-grid">
+        <div class="task-card p2">
+          <div class="task-header">
+            <div class="task-icon p2">🔗</div>
+            <div class="task-title-row">
+              <div class="task-name">Prototype Figma</div>
+              <div class="task-desc">Connexions, transitions, overlays, scroll behavior</div>
+            </div>
+          </div>
+          <div class="prompt-section">
+            <div class="prompt-label">Prompt IA</div>
+            <div class="prompt-box" onclick="copyPrompt(this, `Définis le plan de prototypage Figma pour [flux principal] de [produit]. Pour chaque connexion : frame source, trigger (click/hover/drag), type de transition Figma recommandé, durée, easing, overlay ou non. Identifie les 3 flux critiques à tester en priorité et les edge cases à ne pas oublier.`)">
+              Définis le plan de prototypage Figma pour <span class="prompt-variable">[flux]</span> : connexions, triggers, transitions, overlays, edge cases.
+              <span class="copy-icon">⎘</span>
+            </div>
+          </div>
+        </div>
+        <div class="task-card p2">
+          <div class="task-header">
+            <div class="task-icon p2">🧪</div>
+            <div class="task-title-row">
+              <div class="task-name">Usability testing <span class="badge-new badge">+</span></div>
+              <div class="task-desc">Script de test, tâches, métriques SUS, taux de complétion</div>
+            </div>
+          </div>
+          <div class="prompt-section">
+            <div class="prompt-label">Prompt IA</div>
+            <div class="prompt-box" onclick="copyPrompt(this, `Rédige un script de test utilisateur complet pour [produit]. Inclus : message d\'accueil, consignes think-aloud, 4 scénarios de tâches réalistes avec critères de succès, 5 questions de suivi par tâche, questionnaire SUS complet (10 items) et questions de clôture. Durée cible : 45 minutes.`)">
+              Rédige le script de test utilisateur pour <span class="prompt-variable">[produit]</span> : 4 scénarios, think-aloud, questionnaire SUS, questions de clôture.
+              <span class="copy-icon">⎘</span>
+            </div>
+          </div>
+        </div>
+        <div class="task-card p2">
+          <div class="task-header">
+            <div class="task-icon p2">🔁</div>
+            <div class="task-title-row">
+              <div class="task-name">Itération</div>
+              <div class="task-desc">Synthèse des insights → priorisation → correctifs ciblés</div>
+            </div>
+          </div>
+          <div class="prompt-section">
+            <div class="prompt-label">Prompt IA</div>
+            <div class="prompt-box" onclick="copyPrompt(this, `Analyse ces résultats de test utilisateur : [colle tes observations/notes]. Synthétise les patterns communs. Classe les problèmes par sévérité (critique / majeur / mineur) selon fréquence et impact. Pour les 3 problèmes critiques : propose 2 solutions concrètes avec avantages et inconvénients.`)">
+              Analyse <span class="prompt-variable">[résultats de test]</span> : patterns, priorisation par sévérité, 2 solutions concrètes pour les 3 problèmes critiques.
+              <span class="copy-icon">⎘</span>
+            </div>
+          </div>
+        </div>
+        <div class="task-card p2">
+          <div class="task-header">
+            <div class="task-icon p2">💻</div>
+            <div class="task-title-row">
+              <div class="task-name">Dev handoff <span class="badge-new badge">+</span></div>
+              <div class="task-desc">Annotations, specs, assets exportés, Figma Dev Mode</div>
+            </div>
+          </div>
+          <div class="prompt-section">
+            <div class="prompt-label">Prompt IA</div>
+            <div class="prompt-box" onclick="copyPrompt(this, `Génère la checklist de handoff développeur pour [produit]. Inclus : assets à exporter (formats SVG/PNG/WebP et résolutions), annotations critiques à ajouter dans Figma, specs de comportement à documenter (responsive, états, animations), edge cases à signaler et questions à clarifier avant implémentation.`)">
+              Génère la checklist de handoff dev pour <span class="prompt-variable">[produit]</span> : assets, annotations Figma, specs comportement, edge cases.
+              <span class="copy-icon">⎘</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</main>
+</div>
+
+<div class="toast" id="toast">Prompt copié ✓</div>
+
+<script>
+const phases = {
+  'p1-1': {
+    num: 'Phase 01 / Partie 1',
+    name: 'Découverte & empathie',
+    desc: 'Comprendre les utilisateurs réels avant de conceptualiser',
+    badge: 'badge-p1', badgeText: 'Recherche',
+    deliverables: ['Empathy maps', 'Pain point matrix', 'Personas', 'JTBD statements']
+  },
+  'p1-2': {
+    num: 'Phase 02 / Partie 1',
+    name: 'Définition & cadrage',
+    desc: 'Transformer les insights en problèmes actionnables',
+    badge: 'badge-p1', badgeText: 'Stratégie',
+    deliverables: ['HMW statements', 'Hypothèses', 'Value canvas', 'Use cases']
+  },
+  'p1-3': {
+    num: 'Phase 03 / Partie 1',
+    name: 'Parcours & narration',
+    desc: 'Visualiser l\'expérience bout en bout',
+    badge: 'badge-p1', badgeText: 'Scénarisation',
+    deliverables: ['User stories + Gherkin', 'Journey maps', 'Storyboards', 'Service blueprint']
+  },
+  'p1-4': {
+    num: 'Phase 04 / Partie 1',
+    name: 'Architecture & flux',
+    desc: 'Structurer avant de dessiner',
+    badge: 'badge-amber', badgeText: 'Architecture',
+    deliverables: ['User flows', 'Sitemap', 'Modèle domaine', 'Interaction diagrams']
+  },
+  'p2-5': {
+    num: 'Phase 05 / Partie 2',
+    name: 'Fondations visuelles',
+    desc: 'Établir le langage visuel avant tout wireframe',
+    badge: 'badge-p2', badgeText: 'Figma Setup',
+    deliverables: ['Moodboard page', 'Color styles', 'Text styles', 'Grids définis']
+  },
+  'p2-6': {
+    num: 'Phase 06 / Partie 2',
+    name: 'Design system & composants',
+    desc: 'Atomic design — du plus petit au plus complexe',
+    badge: 'badge-p2', badgeText: 'Composants',
+    deliverables: ['Component library', 'Design tokens', 'Sticker sheet', 'A11y annotations']
+  },
+  'p2-7': {
+    num: 'Phase 07 / Partie 2',
+    name: 'Wireframes Lo-Fi → Hi-Fi',
+    desc: 'De l\'esquisse au pixel perfect',
+    badge: 'badge-p2', badgeText: 'Figma Screens',
+    deliverables: ['Lo-Fi frames', 'Hi-Fi screens', 'Motion specs', 'Copy deck']
+  },
+  'p2-8': {
+    num: 'Phase 08 / Partie 2',
+    name: 'Prototype, test & handoff',
+    desc: 'Valider, itérer, livrer aux développeurs',
+    badge: 'badge-p2', badgeText: 'Validation',
+    deliverables: ['Prototype cliquable', 'Rapport de test', 'Design itéré', 'Specs dev']
+  }
+};
+
+function showPhase(id, navEl) {
+  document.querySelectorAll('.phase-section').forEach(s => s.classList.remove('active'));
+  document.getElementById('phase-' + id).classList.add('active');
+
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  navEl.classList.add('active');
+
+  const p = phases[id];
+  document.getElementById('header-phase-num').textContent = p.num;
+  document.getElementById('header-phase-name').textContent = p.name;
+  document.getElementById('header-phase-desc').textContent = p.desc;
+
+  const badge = document.getElementById('header-badge');
+  badge.className = 'phase-badge ' + p.badge;
+  badge.textContent = p.badgeText;
+
+  const delContainer = document.getElementById('header-deliverables');
+  delContainer.innerHTML = p.deliverables.map(d => `<span class="deliverable-tag">${d}</span>`).join('');
+}
+
+function copyPrompt(el, text) {
+  navigator.clipboard.writeText(text).then(() => {
+    el.classList.add('copied');
+    setTimeout(() => el.classList.remove('copied'), 1500);
+    const toast = document.getElementById('toast');
+    toast.classList.add('show');
+    setTimeout(() => toast.classList.remove('show'), 2000);
+  }).catch(() => {
+    const ta = document.createElement('textarea');
+    ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
+    document.body.appendChild(ta); ta.select();
+    document.execCommand('copy');
+    document.body.removeChild(ta);
+    const toast = document.getElementById('toast');
+    toast.classList.add('show');
+    setTimeout(() => toast.classList.remove('show'), 2000);
+  });
+}
+</script>
+</body>
+</html>

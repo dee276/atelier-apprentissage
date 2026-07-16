@@ -1,0 +1,617 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Go → DevOps / SRE / Architecte — Parcours 52 semaines</title>
+<style>
+:root{
+  --bg:#0b1220;
+  --bg-panel:#11192b;
+  --bg-panel-2:#0e1524;
+  --line:#233150;
+  --text:#dbe4f5;
+  --text-dim:#8b9ac2;
+  --accent:#00ADD8;      /* gopher blue */
+  --accent-2:#ffb454;    /* amber, statut/warning */
+  --ok:#3ddc97;
+  --danger:#ff6b6b;
+  --mono: "JetBrains Mono", "Fira Code", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  --sans: "Inter", "Segoe UI", system-ui, -apple-system, sans-serif;
+  --radius: 10px;
+}
+[data-theme="light"]{
+  --bg:#f4f6fb;
+  --bg-panel:#ffffff;
+  --bg-panel-2:#eef1f9;
+  --line:#d7deef;
+  --text:#141b2e;
+  --text-dim:#5b6786;
+  --accent:#0090b0;
+  --accent-2:#c9820a;
+  --ok:#0e9e6a;
+  --danger:#d94848;
+}
+*{box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{
+  margin:0;
+  background:var(--bg);
+  color:var(--text);
+  font-family:var(--sans);
+  line-height:1.55;
+  transition:background .25s ease,color .25s ease;
+}
+::selection{background:var(--accent);color:#04141a;}
+
+/* ---------- top bar ---------- */
+.topbar{
+  position:sticky;top:0;z-index:50;
+  display:flex;align-items:center;gap:14px;
+  padding:10px 20px;
+  background:color-mix(in srgb, var(--bg) 88%, transparent);
+  backdrop-filter:blur(10px);
+  border-bottom:1px solid var(--line);
+}
+.topbar .dot{width:9px;height:9px;border-radius:50%;background:var(--ok);box-shadow:0 0 8px var(--ok);flex:none;}
+.topbar .brand{font-family:var(--mono);font-size:13px;color:var(--text-dim);letter-spacing:.03em;}
+.topbar .spacer{flex:1;}
+.topbar .progress-wrap{
+  display:flex;align-items:center;gap:8px;font-family:var(--mono);font-size:12px;color:var(--text-dim);
+}
+.topbar .bar{width:130px;height:6px;border-radius:4px;background:var(--bg-panel-2);border:1px solid var(--line);overflow:hidden;}
+.topbar .bar > span{display:block;height:100%;background:linear-gradient(90deg,var(--accent),var(--ok));width:0%;transition:width .4s ease;}
+.theme-btn{
+  border:1px solid var(--line);background:var(--bg-panel);color:var(--text);
+  border-radius:8px;padding:6px 10px;font-family:var(--mono);font-size:12px;cursor:pointer;
+}
+.theme-btn:hover{border-color:var(--accent);color:var(--accent);}
+
+/* ---------- hero ---------- */
+.hero{
+  max-width:920px;margin:0 auto;padding:64px 24px 30px;
+}
+.hero .eyebrow{
+  font-family:var(--mono);font-size:12px;color:var(--accent);letter-spacing:.12em;text-transform:uppercase;
+  display:flex;align-items:center;gap:10px;margin-bottom:18px;
+}
+.hero .eyebrow::before{content:"";width:22px;height:1px;background:var(--accent);}
+h1{
+  font-family:var(--sans);font-weight:800;font-size:clamp(30px,4.6vw,46px);
+  margin:0 0 14px;letter-spacing:-0.02em;line-height:1.08;
+}
+h1 span{color:var(--accent);}
+.hero p.lead{color:var(--text-dim);font-size:17px;max-width:640px;margin:0 0 26px;}
+.hero-meta{
+  display:flex;flex-wrap:wrap;gap:10px;
+}
+.pill{
+  font-family:var(--mono);font-size:12px;padding:6px 12px;border-radius:100px;
+  border:1px solid var(--line);background:var(--bg-panel);color:var(--text-dim);
+}
+.pill b{color:var(--text);}
+
+/* ---------- readme note ---------- */
+.readme{
+  max-width:920px;margin:0 auto 10px;padding:0 24px;
+}
+.readme details{
+  background:var(--bg-panel);border:1px solid var(--line);border-radius:var(--radius);padding:16px 18px;
+}
+.readme summary{cursor:pointer;font-family:var(--mono);font-size:13px;color:var(--accent);}
+.readme .body{margin-top:12px;color:var(--text-dim);font-size:14.5px;}
+.readme .body p{margin:0 0 10px;}
+
+/* ---------- timeline nav ---------- */
+.timeline-nav{
+  max-width:920px;margin:34px auto 0;padding:0 24px;
+  display:flex;gap:6px;overflow-x:auto;padding-bottom:6px;
+}
+.timeline-nav a{
+  flex:none;font-family:var(--mono);font-size:12px;text-decoration:none;color:var(--text-dim);
+  border:1px solid var(--line);padding:7px 12px;border-radius:8px;white-space:nowrap;
+}
+.timeline-nav a:hover{color:var(--accent);border-color:var(--accent);}
+
+/* ---------- phases ---------- */
+.phases{max-width:920px;margin:36px auto 100px;padding:0 24px;}
+.phase{
+  position:relative;
+  border:1px solid var(--line);
+  background:var(--bg-panel);
+  border-radius:14px;
+  margin-bottom:26px;
+  overflow:hidden;
+}
+.phase-head{
+  padding:22px 26px 18px;
+  border-bottom:1px solid var(--line);
+  display:flex;justify-content:space-between;align-items:flex-start;gap:16px;
+  background:var(--bg-panel-2);
+}
+.phase-head .num{
+  font-family:var(--mono);font-size:11px;color:var(--accent);letter-spacing:.1em;text-transform:uppercase;margin-bottom:6px;
+}
+.phase-head h2{margin:0 0 6px;font-size:21px;letter-spacing:-0.01em;}
+.phase-head .weeks{font-family:var(--mono);font-size:12px;color:var(--text-dim);}
+.phase-head .goal{color:var(--text-dim);font-size:14px;margin-top:8px;max-width:560px;}
+.phase-progress{text-align:right;flex:none;font-family:var(--mono);font-size:11px;color:var(--text-dim);min-width:70px;}
+.phase-progress .ring{
+  width:44px;height:44px;border-radius:50%;
+  background:conic-gradient(var(--accent) calc(var(--pct,0)*1%), var(--line) 0);
+  display:flex;align-items:center;justify-content:center;margin:0 0 6px auto;
+}
+.phase-progress .ring::after{
+  content:"";width:33px;height:33px;border-radius:50%;background:var(--bg-panel-2);
+}
+.phase-body{padding:22px 26px 26px;display:grid;gap:22px;}
+.block-title{
+  font-family:var(--mono);font-size:11px;color:var(--accent-2);letter-spacing:.1em;text-transform:uppercase;
+  margin:0 0 10px;display:flex;align-items:center;gap:8px;
+}
+.res-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+@media(max-width:640px){.res-grid{grid-template-columns:1fr;}}
+.res-card{
+  border:1px solid var(--line);border-radius:8px;padding:10px 12px;background:var(--bg);
+  font-size:13.5px;
+}
+.res-card .type{font-family:var(--mono);font-size:10.5px;color:var(--text-dim);text-transform:uppercase;letter-spacing:.06em;}
+.res-card a{color:var(--text);text-decoration:none;font-weight:600;}
+.res-card a:hover{color:var(--accent);text-decoration:underline;}
+.res-card .who{color:var(--text-dim);font-size:12.5px;margin-top:2px;}
+
+.checklist{list-style:none;margin:0;padding:0;display:grid;gap:8px;}
+.checklist li{
+  display:flex;align-items:flex-start;gap:10px;
+  border:1px solid var(--line);border-radius:8px;padding:10px 12px;background:var(--bg);
+  font-size:14px;cursor:pointer;
+}
+.checklist li:hover{border-color:var(--accent);}
+.checklist input{margin-top:3px;accent-color:var(--accent);width:15px;height:15px;flex:none;cursor:pointer;}
+.checklist label{cursor:pointer;flex:1;}
+.checklist li.done{opacity:.55;}
+.checklist li.done label{text-decoration:line-through;}
+.tag{
+  display:inline-block;font-family:var(--mono);font-size:10px;padding:1px 7px;border-radius:100px;
+  border:1px solid var(--line);color:var(--text-dim);margin-left:8px;vertical-align:middle;
+}
+
+.project-box{
+  border:1px dashed var(--accent);border-radius:10px;padding:14px 16px;background:color-mix(in srgb, var(--accent) 6%, transparent);
+}
+.project-box .block-title{color:var(--accent);}
+.project-box p{margin:0;font-size:14px;color:var(--text);}
+.project-box p.detail{color:var(--text-dim);margin-top:6px;font-size:13.5px;}
+
+footer{
+  max-width:920px;margin:0 auto 60px;padding:0 24px;color:var(--text-dim);font-size:13px;
+  border-top:1px solid var(--line);padding-top:24px;
+}
+footer a{color:var(--accent);}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <span class="dot"></span>
+  <span class="brand">dee@parcours ~ go-devops-sre.roadmap</span>
+  <div class="spacer"></div>
+  <div class="progress-wrap">
+    <span id="progress-label">0 / 0 étapes</span>
+    <div class="bar"><span id="progress-bar-fill"></span></div>
+  </div>
+  <button class="theme-btn" id="theme-toggle">☾ / ☀</button>
+</div>
+
+<section class="hero">
+  <div class="eyebrow">Parcours autodidacte — 52 semaines</div>
+  <h1>De zéro Go à <span>DevOps, SRE</span> &amp; Architecte de solution</h1>
+  <p class="lead">Un parcours séquentiel d'un an, construit autour du langage Go comme fil conducteur : chaque phase combine un livre de référence, des vidéos YouTube ciblées, et un projet pratique qui produit un artefact de portfolio réel.</p>
+  <div class="hero-meta">
+    <span class="pill">Durée : <b>~12 mois</b></span>
+    <span class="pill">Rythme : <b>8–10h / semaine</b></span>
+    <span class="pill">7 phases</span>
+    <span class="pill">Cible : <b>DevOps / SRE / Solution Architect</b></span>
+  </div>
+</section>
+
+<div class="readme">
+  <details>
+    <summary>Comment utiliser ce guide</summary>
+    <div class="body">
+      <p>Coche les cases au fur et à mesure — ta progression est sauvegardée automatiquement dans ce navigateur (localStorage), rien n'est envoyé nulle part.</p>
+      <p>Chaque phase a un objectif unique : ne saute pas la phase 0 même si le Go te semble simple au début, c'est la base de tout le reste. Les projets marqués <span class="tag">portfolio</span> sont ceux à publier sur GitHub — ce sont eux qui parlent aux recruteurs.</p>
+      <p>Si une semaine déborde sur la suivante, ce n'est pas grave : la progression réelle prime sur le calendrier affiché.</p>
+    </div>
+  </details>
+</div>
+
+<nav class="timeline-nav">
+  <a href="#phase0">0 · Fondations Go</a>
+  <a href="#phase1">1 · Go intermédiaire</a>
+  <a href="#phase2">2 · Linux, Git, Docker</a>
+  <a href="#phase3">3 · CI/CD &amp; Kubernetes</a>
+  <a href="#phase4">4 · IaC, Cloud &amp; SRE</a>
+  <a href="#phase5">5 · Architecture logicielle</a>
+  <a href="#phase6">6 · Projet majeur &amp; portfolio</a>
+</nav>
+
+<main class="phases">
+
+<!-- PHASE 0 -->
+<article class="phase" id="phase0">
+  <div class="phase-head">
+    <div>
+      <div class="num">Phase 0</div>
+      <h2>Fondations Go</h2>
+      <div class="weeks">Semaines 1 – 4</div>
+      <div class="goal">Syntaxe, types, structs, interfaces, gestion d'erreurs, modules — écrire du Go correct avant d'écrire du Go idiomatique.</div>
+    </div>
+    <div class="phase-progress"><div class="ring" data-ring="phase0"></div><span data-pct-label="phase0">0%</span></div>
+  </div>
+  <div class="phase-body">
+    <div>
+      <p class="block-title">📚 Livres</p>
+      <div class="res-grid">
+        <div class="res-card"><div class="type">Livre — gratuit en ligne</div><a href="https://quii.gitbook.io/learn-go-with-tests" target="_blank">Learn Go with Tests</a><div class="who">Chris James — apprentissage par TDD, référence gratuite la plus recommandée par la communauté Go</div></div>
+        <div class="res-card"><div class="type">Livre</div><a href="https://www.oreilly.com/library/view/learning-go-2nd/9781098139285/" target="_blank">Learning Go, 2nd Edition</a><div class="who">Jon Bodner — référence complète du langage, à garder comme livre de chevet toute l'année</div></div>
+      </div>
+    </div>
+    <div>
+      <p class="block-title">▶ Vidéos</p>
+      <div class="res-grid">
+        <div class="res-card"><div class="type">YouTube — série</div><a href="https://www.youtube.com/results?search_query=TechWorld+with+Nana+Go+programming+course" target="_blank">Go Programming — cours complet</a><div class="who">TechWorld with Nana — parcours structuré pensé pour un public DevOps</div></div>
+        <div class="res-card"><div class="type">YouTube — chaîne officielle</div><a href="https://www.youtube.com/@golang" target="_blank">The Go Programming Language (officiel)</a><div class="who">talks GopherCon — utile en fond une fois les bases posées</div></div>
+      </div>
+    </div>
+    <div>
+      <p class="block-title">✅ Exercices</p>
+      <ul class="checklist">
+        <li><input type="checkbox" id="p0-1"><label for="p0-1">Installer Go, configurer un module (go.mod), écrire "Hello World" + tests</label></li>
+        <li><input type="checkbox" id="p0-2"><label for="p0-2">Parcourir les 15 premiers exercices de Learn Go with Tests (jusqu'à Structs/Interfaces)</label></li>
+        <li><input type="checkbox" id="p0-3"><label for="p0-3">Implémenter une pile (stack) et une file (queue) génériques avec tests unitaires</label></li>
+        <li><input type="checkbox" id="p0-4"><label for="p0-4">Résoudre 15 exercices sur Exercism.org (piste Go)</label></li>
+      </ul>
+    </div>
+    <div class="project-box">
+      <p class="block-title">🎯 Projet</p>
+      <p>CLI de gestion de tâches en ligne de commande (ajout, liste, suppression, sauvegarde JSON)</p>
+      <p class="detail">Objectif : structurer un vrai module Go, manipuler les fichiers, écrire des tests. Pas de dépendance externe — juste la stdlib.</p>
+    </div>
+  </div>
+</article>
+
+<!-- PHASE 1 -->
+<article class="phase" id="phase1">
+  <div class="phase-head">
+    <div>
+      <div class="num">Phase 1</div>
+      <h2>Go intermédiaire &amp; concurrence</h2>
+      <div class="weeks">Semaines 5 – 10</div>
+      <div class="goal">Goroutines, channels, context, net/http, tests avancés — les briques qui rendent Go pertinent pour du DevOps/backend.</div>
+    </div>
+    <div class="phase-progress"><div class="ring" data-ring="phase1"></div><span data-pct-label="phase1">0%</span></div>
+  </div>
+  <div class="phase-body">
+    <div>
+      <p class="block-title">📚 Livres</p>
+      <div class="res-grid">
+        <div class="res-card"><div class="type">Livre</div><a href="https://www.manning.com/books/100-go-mistakes-and-how-to-avoid-them" target="_blank">100 Go Mistakes and How to Avoid Them</a><div class="who">Teiva Harsanyi — passer de "ça compile" à "c'est idiomatique"</div></div>
+        <div class="res-card"><div class="type">Livre</div><a href="https://www.oreilly.com/library/view/concurrency-in-go/9781491941294/" target="_blank">Concurrency in Go</a><div class="who">Katherine Cox-Buday — référence sur goroutines/channels, exigeant mais incontournable</div></div>
+        <div class="res-card"><div class="type">Livre — web</div><a href="https://lets-go.alexedwards.net/" target="_blank">Let's Go</a><div class="who">Alex Edwards — construire une vraie application web en Go, net/http bien expliqué</div></div>
+      </div>
+    </div>
+    <div>
+      <p class="block-title">▶ Vidéos</p>
+      <div class="res-grid">
+        <div class="res-card"><div class="type">YouTube</div><a href="https://www.youtube.com/results?search_query=Go+concurrency+goroutines+channels+tutorial" target="_blank">Go Concurrency Patterns</a><div class="who">chercher les talks GopherCon "Rob Pike — Concurrency is not Parallelism" et "Go Concurrency Patterns"</div></div>
+        <div class="res-card"><div class="type">YouTube</div><a href="https://www.youtube.com/results?search_query=building+REST+API+Go+net+http+tutorial" target="_blank">Build a REST API in Go</a><div class="who">Anthony GG ou Tiago — API REST avec net/http et une base de données</div></div>
+      </div>
+    </div>
+    <div>
+      <p class="block-title">✅ Exercices</p>
+      <ul class="checklist">
+        <li><input type="checkbox" id="p1-1"><label for="p1-1">Worker pool avec goroutines + channels + gestion d'annulation via context</label></li>
+        <li><input type="checkbox" id="p1-2"><label for="p1-2">Race conditions volontaires puis corrigées avec le détecteur de course (go test -race)</label></li>
+        <li><input type="checkbox" id="p1-3"><label for="p1-3">API REST CRUD simple avec net/http + une base SQLite/Postgres</label></li>
+      </ul>
+    </div>
+    <div class="project-box">
+      <p class="block-title">🎯 Projet <span class="tag">portfolio</span></p>
+      <p>Health checker HTTP concurrent : pingue une liste d'URLs en parallèle, timeout configurable, rapport de statut</p>
+      <p class="detail">Premier projet à publier sur GitHub avec un README correct — c'est ta première brique DevOps réelle.</p>
+    </div>
+  </div>
+</article>
+
+<!-- PHASE 2 -->
+<article class="phase" id="phase2">
+  <div class="phase-head">
+    <div>
+      <div class="num">Phase 2</div>
+      <h2>Linux, Git &amp; conteneurs</h2>
+      <div class="weeks">Semaines 11 – 16</div>
+      <div class="goal">Le socle système sur lequel repose tout DevOps : ligne de commande, réseau de base, Docker en profondeur.</div>
+    </div>
+    <div class="phase-progress"><div class="ring" data-ring="phase2"></div><span data-pct-label="phase2">0%</span></div>
+  </div>
+  <div class="phase-body">
+    <div>
+      <p class="block-title">📚 Livres</p>
+      <div class="res-grid">
+        <div class="res-card"><div class="type">Livre — gratuit en ligne</div><a href="https://linuxcommand.org/tlcl.php" target="_blank">The Linux Command Line</a><div class="who">William Shotts — déjà couvert par toi, en révision rapide ici</div></div>
+        <div class="res-card"><div class="type">Livre</div><a href="https://www.manning.com/books/docker-in-action-second-edition" target="_blank">Docker in Action</a><div class="who">Jeff Nickoloff — comprendre ce qui se passe réellement sous un conteneur</div></div>
+      </div>
+    </div>
+    <div>
+      <p class="block-title">▶ Vidéos</p>
+      <div class="res-grid">
+        <div class="res-card"><div class="type">YouTube</div><a href="https://www.youtube.com/@NetworkChuck" target="_blank">NetworkChuck — Linux &amp; réseau</a><div class="who">bases système et réseau, format accessible</div></div>
+        <div class="res-card"><div class="type">YouTube</div><a href="https://www.youtube.com/@BretFisher" target="_blank">Bret Fisher — Docker Mastery</a><div class="who">référence Docker/Kubernetes, lives Q&amp;A réguliers</div></div>
+        <div class="res-card"><div class="type">YouTube</div><a href="https://www.youtube.com/@TechWorldwithNana" target="_blank">TechWorld with Nana — Docker &amp; Git</a><div class="who">parcours DevOps structuré, référence pour ce niveau en 2026</div></div>
+      </div>
+    </div>
+    <div>
+      <p class="block-title">✅ Exercices</p>
+      <ul class="checklist">
+        <li><input type="checkbox" id="p2-1"><label for="p2-1">Dockeriser l'API REST de la phase 1 (multi-stage build, image minimale)</label></li>
+        <li><input type="checkbox" id="p2-2"><label for="p2-2">Écrire un docker-compose avec app Go + Postgres + réseau dédié</label></li>
+        <li><input type="checkbox" id="p2-3"><label for="p2-3">Pratiquer 20 commandes Git avancées (rebase interactif, cherry-pick, bisect)</label></li>
+      </ul>
+    </div>
+    <div class="project-box">
+      <p class="block-title">🎯 Projet <span class="tag">portfolio</span></p>
+      <p>Scanner de ports + parser de logs en Go, packagés en image Docker &lt; 15 Mo</p>
+      <p class="detail">Objectif technique : maîtriser net package, regex, et la construction d'images Docker "distroless" ou scratch.</p>
+    </div>
+  </div>
+</article>
+
+<!-- PHASE 3 -->
+<article class="phase" id="phase3">
+  <div class="phase-head">
+    <div>
+      <div class="num">Phase 3</div>
+      <h2>CI/CD &amp; Kubernetes</h2>
+      <div class="weeks">Semaines 17 – 26</div>
+      <div class="goal">Automatiser le build/test/déploiement, puis orchestrer des conteneurs à l'échelle — le cœur du métier DevOps.</div>
+    </div>
+    <div class="phase-progress"><div class="ring" data-ring="phase3"></div><span data-pct-label="phase3">0%</span></div>
+  </div>
+  <div class="phase-body">
+    <div>
+      <p class="block-title">📚 Livres</p>
+      <div class="res-grid">
+        <div class="res-card"><div class="type">Livre</div><a href="https://www.oreilly.com/library/view/kubernetes-up-and/9781098110192/" target="_blank">Kubernetes: Up and Running, 3rd ed.</a><div class="who">Kelsey Hightower, Brendan Burns, Joe Beda — LA référence K8s</div></div>
+        <div class="res-card"><div class="type">Livre</div><a href="https://itrevolution.com/product/the-devops-handbook-second-edition/" target="_blank">The DevOps Handbook</a><div class="who">Kim, Humble, Debois, Willis — comprendre le "pourquoi" derrière les outils</div></div>
+      </div>
+    </div>
+    <div>
+      <p class="block-title">▶ Vidéos</p>
+      <div class="res-grid">
+        <div class="res-card"><div class="type">YouTube — cours + labs</div><a href="https://www.youtube.com/@KodeKloud" target="_blank">KodeKloud — Kubernetes for the Absolute Beginners</a><div class="who">le meilleur duo cours + labs pratiques pour viser la certification CKA</div></div>
+        <div class="res-card"><div class="type">YouTube</div><a href="https://www.youtube.com/@TechWorldwithNana" target="_blank">TechWorld with Nana — CI/CD &amp; GitOps</a><div class="who">GitHub Actions, GitLab CI, concepts GitOps expliqués clairement</div></div>
+        <div class="res-card"><div class="type">YouTube</div><a href="https://www.youtube.com/results?search_query=DevOps+Directive+kubernetes+roadmap" target="_blank">DevOps Directive — roadmap &amp; infra réelle</a><div class="who">contenu à jour, walkthroughs sur infra de production</div></div>
+      </div>
+    </div>
+    <div>
+      <p class="block-title">✅ Exercices</p>
+      <ul class="checklist">
+        <li><input type="checkbox" id="p3-1"><label for="p3-1">Pipeline GitHub Actions : lint → test → build image → push registry</label></li>
+        <li><input type="checkbox" id="p3-2"><label for="p3-2">Déployer un cluster local (kind ou minikube), déployer l'app Go dessus</label></li>
+        <li><input type="checkbox" id="p3-3"><label for="p3-3">Écrire des manifests K8s (Deployment, Service, ConfigMap, Secret, Ingress)</label></li>
+        <li><input type="checkbox" id="p3-4"><label for="p3-4">Utiliser client-go pour lister/scaler des pods depuis un programme Go</label></li>
+      </ul>
+    </div>
+    <div class="project-box">
+      <p class="block-title">🎯 Projet <span class="tag">portfolio</span></p>
+      <p>Mini CI runner en Go : exécute des jobs définis en YAML, capture logs, gère échec/succès, notifie par webhook</p>
+      <p class="detail">C'est le projet le plus parlant pour un poste DevOps junior : il prouve que tu comprends ce qu'un pipeline CI fait réellement, pas juste comment cliquer sur GitHub Actions.</p>
+    </div>
+  </div>
+</article>
+
+<!-- PHASE 4 -->
+<article class="phase" id="phase4">
+  <div class="phase-head">
+    <div>
+      <div class="num">Phase 4</div>
+      <h2>Infrastructure as Code, Cloud &amp; SRE</h2>
+      <div class="weeks">Semaines 27 – 36</div>
+      <div class="goal">Provisionner l'infra en code, comprendre la fiabilité à l'échelle Google : SLO, monitoring, incident response.</div>
+    </div>
+    <div class="phase-progress"><div class="ring" data-ring="phase4"></div><span data-pct-label="phase4">0%</span></div>
+  </div>
+  <div class="phase-body">
+    <div>
+      <p class="block-title">📚 Livres</p>
+      <div class="res-grid">
+        <div class="res-card"><div class="type">Livre</div><a href="https://www.terraformupandrunning.com/" target="_blank">Terraform: Up &amp; Running, 3rd ed.</a><div class="who">Yevgeniy Brikman — référence IaC, va au-delà des tutoriels de base</div></div>
+        <div class="res-card"><div class="type">Livre — gratuit en ligne</div><a href="https://sre.google/sre-book/table-of-contents/" target="_blank">Site Reliability Engineering</a><div class="who">Google — le livre fondateur du SRE, disponible gratuitement en ligne</div></div>
+        <div class="res-card"><div class="type">Livre — gratuit en ligne</div><a href="https://sre.google/workbook/table-of-contents/" target="_blank">The Site Reliability Workbook</a><div class="who">Google — application pratique du livre précédent, SLO/error budgets concrets</div></div>
+        <div class="res-card"><div class="type">Livre</div><a href="https://dataintensive.net/" target="_blank">Designing Data-Intensive Applications</a><div class="who">Martin Kleppmann — à démarrer ici, se termine en phase 5</div></div>
+      </div>
+    </div>
+    <div>
+      <p class="block-title">▶ Vidéos</p>
+      <div class="res-grid">
+        <div class="res-card"><div class="type">YouTube</div><a href="https://www.youtube.com/results?search_query=Terraform+course+HashiCorp+tutorial" target="_blank">Terraform — cours complet</a><div class="who">chercher "Terraform Course" de freeCodeCamp ou TechWorld with Nana</div></div>
+        <div class="res-card"><div class="type">YouTube</div><a href="https://www.youtube.com/results?search_query=Prometheus+Grafana+monitoring+tutorial" target="_blank">Prometheus &amp; Grafana — observabilité</a><div class="who">mise en place d'un stack de monitoring de bout en bout</div></div>
+        <div class="res-card"><div class="type">YouTube</div><a href="https://www.youtube.com/results?search_query=Anton+Putra+kubernetes+performance" target="_blank">Anton Putra — benchmarks &amp; perf infra</a><div class="who">contenu rigoureux niveau intermédiaire/avancé</div></div>
+      </div>
+    </div>
+    <div>
+      <p class="block-title">✅ Exercices</p>
+      <ul class="checklist">
+        <li><input type="checkbox" id="p4-1"><label for="p4-1">Provisionner une infra cloud simple (VM + réseau) avec Terraform sur AWS/GCP free tier</label></li>
+        <li><input type="checkbox" id="p4-2"><label for="p4-2">Exposer des métriques Prometheus depuis un service Go, dashboard Grafana</label></li>
+        <li><input type="checkbox" id="p4-3"><label for="p4-3">Définir un SLO (ex: 99.5% de disponibilité) et calculer un error budget réel sur ton app</label></li>
+        <li><input type="checkbox" id="p4-4"><label for="p4-4">Simuler un incident et écrire un post-mortem sans blâme (blameless postmortem)</label></li>
+      </ul>
+    </div>
+    <div class="project-box">
+      <p class="block-title">🎯 Projet <span class="tag">portfolio</span></p>
+      <p>Agent de monitoring en Go : collecte CPU/RAM/disk, expose en format Prometheus, alerting basique</p>
+      <p class="detail">Combine Go, systèmes, et observabilité — un projet que beaucoup de candidats DevOps ne savent pas construire eux-mêmes.</p>
+    </div>
+  </div>
+</article>
+
+<!-- PHASE 5 -->
+<article class="phase" id="phase5">
+  <div class="phase-head">
+    <div>
+      <div class="num">Phase 5</div>
+      <h2>Architecture logicielle &amp; systèmes distribués</h2>
+      <div class="weeks">Semaines 37 – 44</div>
+      <div class="goal">Penser en patterns, trade-offs et diagrammes — le passage de "développeur" à "architecte".</div>
+    </div>
+    <div class="phase-progress"><div class="ring" data-ring="phase5"></div><span data-pct-label="phase5">0%</span></div>
+  </div>
+  <div class="phase-body">
+    <div>
+      <p class="block-title">📚 Livres</p>
+      <div class="res-grid">
+        <div class="res-card"><div class="type">Livre</div><a href="https://www.oreilly.com/library/view/fundamentals-of-software/9781492043447/" target="_blank">Fundamentals of Software Architecture</a><div class="who">Mark Richards, Neal Ford — cadre mental complet pour parler "architecte"</div></div>
+        <div class="res-card"><div class="type">Livre</div><a href="https://www.oreilly.com/library/view/software-architecture-the/9781492086888/" target="_blank">Software Architecture: The Hard Parts</a><div class="who">Ford, Richards, Sadalage, Dehghani — trade-offs en microservices/systèmes distribués</div></div>
+        <div class="res-card"><div class="type">Livre</div><a href="https://dataintensive.net/" target="_blank">Designing Data-Intensive Applications (suite)</a><div class="who">Kleppmann — finir la partie sur les systèmes distribués, réplication, consensus</div></div>
+      </div>
+    </div>
+    <div>
+      <p class="block-title">▶ Vidéos</p>
+      <div class="res-grid">
+        <div class="res-card"><div class="type">YouTube</div><a href="https://www.youtube.com/@ByteByteGo" target="_blank">ByteByteGo</a><div class="who">system design en formats courts et visuels, excellent complément aux livres</div></div>
+        <div class="res-card"><div class="type">YouTube</div><a href="https://www.youtube.com/results?search_query=service+mesh+explained+consul+etcd" target="_blank">Service mesh &amp; découverte de service</a><div class="who">chercher des explications sur Consul/etcd et les patterns circuit breaker</div></div>
+      </div>
+    </div>
+    <div>
+      <p class="block-title">✅ Exercices</p>
+      <ul class="checklist">
+        <li><input type="checkbox" id="p5-1"><label for="p5-1">Documenter une décision d'architecture (ADR) pour un choix technique réel</label></li>
+        <li><input type="checkbox" id="p5-2"><label for="p5-2">Concevoir (diagramme + justification écrite) l'architecture d'un système à forte charge</label></li>
+        <li><input type="checkbox" id="p5-3"><label for="p5-3">Implémenter un circuit breaker et un rate limiter en Go from scratch</label></li>
+      </ul>
+    </div>
+    <div class="project-box">
+      <p class="block-title">🎯 Projet <span class="tag">portfolio</span></p>
+      <p>API Gateway en Go : rate limiting, auth JWT, routing dynamique vers plusieurs microservices</p>
+      <p class="detail">Ce projet démontre concrètement des compétences d'architecte, pas juste de développeur — beaucoup plus rare sur un portfolio junior.</p>
+    </div>
+  </div>
+</article>
+
+<!-- PHASE 6 -->
+<article class="phase" id="phase6">
+  <div class="phase-head">
+    <div>
+      <div class="num">Phase 6</div>
+      <h2>Projet majeur &amp; préparation au marché</h2>
+      <div class="weeks">Semaines 45 – 52</div>
+      <div class="goal">Un projet phare qui rassemble tout le parcours, plus certification(s) et préparation aux entretiens.</div>
+    </div>
+    <div class="phase-progress"><div class="ring" data-ring="phase6"></div><span data-pct-label="phase6">0%</span></div>
+  </div>
+  <div class="phase-body">
+    <div>
+      <p class="block-title">📚 Ressources complémentaires</p>
+      <div class="res-grid">
+        <div class="res-card"><div class="type">Certification</div><a href="https://training.linuxfoundation.org/certification/certified-kubernetes-administrator-cka/" target="_blank">CKA — Certified Kubernetes Administrator</a><div class="who">certification la plus reconnue pour un profil DevOps/SRE junior-mid</div></div>
+        <div class="res-card"><div class="type">Livre</div><a href="https://www.oreilly.com/library/view/system-design-interview/9798664653403/" target="_blank">System Design Interview (Vol. 1 &amp; 2)</a><div class="who">Alex Xu — préparation ciblée aux entretiens techniques d'architecture</div></div>
+      </div>
+    </div>
+    <div>
+      <p class="block-title">▶ Vidéos</p>
+      <div class="res-grid">
+        <div class="res-card"><div class="type">YouTube</div><a href="https://www.youtube.com/@KodeKloud" target="_blank">KodeKloud — préparation CKA</a><div class="who">labs d'examen blanc, format identique à l'examen réel</div></div>
+        <div class="res-card"><div class="type">YouTube</div><a href="https://www.youtube.com/results?search_query=kubernetes+operator+tutorial+CRD+controller" target="_blank">Kubernetes Operators — CRD &amp; controllers</a><div class="who">pour construire le projet majeur ci-dessous</div></div>
+      </div>
+    </div>
+    <div>
+      <p class="block-title">✅ Exercices</p>
+      <ul class="checklist">
+        <li><input type="checkbox" id="p6-1"><label for="p6-1">Passer un examen blanc CKA (killer.sh ou labs KodeKloud)</label></li>
+        <li><input type="checkbox" id="p6-2"><label for="p6-2">Nettoyer et documenter (README complet) les 6 projets précédents sur GitHub</label></li>
+        <li><input type="checkbox" id="p6-3"><label for="p6-3">Préparer 5 réponses structurées (STAR) sur des décisions techniques prises pendant le parcours</label></li>
+      </ul>
+    </div>
+    <div class="project-box">
+      <p class="block-title">🎯 Projet final <span class="tag">portfolio</span></p>
+      <p>Au choix — Operator Kubernetes custom (CRD + controller) OU mini-Terraform (parser DSL, graphe de dépendances, plan/apply/destroy)</p>
+      <p class="detail">Le projet le plus fort du portfolio : il prouve la compréhension profonde de l'orchestration ou de l'IaC, pas juste leur usage. À accompagner d'un article de blog technique expliquant les choix de conception.</p>
+    </div>
+  </div>
+</article>
+
+</main>
+
+<footer>
+  Parcours généré pour un apprentissage autodidacte — les liens YouTube pointent parfois vers une recherche plutôt qu'une vidéo unique, les chaînes évoluant vite ; vérifie la fraîcheur du contenu (privilégie les vidéos de moins de 12–18 mois pour Kubernetes/CI-CD, qui datent vite). Progression stockée localement dans ce navigateur.
+</footer>
+
+<script>
+(function(){
+  const THEME_KEY = "godevops-theme";
+  const savedTheme = localStorage.getItem(THEME_KEY);
+  if(savedTheme) document.documentElement.setAttribute("data-theme", savedTheme);
+
+  document.getElementById("theme-toggle").addEventListener("click", function(){
+    const cur = document.documentElement.getAttribute("data-theme") === "light" ? "light" : "dark";
+    const next = cur === "light" ? "dark" : "light";
+    if(next === "light"){
+      document.documentElement.setAttribute("data-theme","light");
+    } else {
+      document.documentElement.removeAttribute("data-theme");
+    }
+    localStorage.setItem(THEME_KEY, next);
+  });
+
+  const STORE_KEY = "godevops-progress";
+  let state = {};
+  try{ state = JSON.parse(localStorage.getItem(STORE_KEY) || "{}"); }catch(e){ state = {}; }
+
+  const checkboxes = Array.from(document.querySelectorAll('.checklist input[type="checkbox"]'));
+
+  function phaseOf(id){
+    return id.split("-")[0]; // p0, p1, ...
+  }
+  const phaseMap = {p0:"phase0",p1:"phase1",p2:"phase2",p3:"phase3",p4:"phase4",p5:"phase5",p6:"phase6"};
+
+  function updateAll(){
+    let totalChecked = 0;
+    const totals = {};
+    const checked = {};
+    checkboxes.forEach(cb => {
+      const ph = phaseMap[phaseOf(cb.id)];
+      totals[ph] = (totals[ph]||0) + 1;
+      if(cb.checked){
+        checked[ph] = (checked[ph]||0) + 1;
+        totalChecked++;
+      }
+      cb.closest("li").classList.toggle("done", cb.checked);
+    });
+    Object.keys(totals).forEach(ph => {
+      const pct = Math.round(100 * (checked[ph]||0) / totals[ph]);
+      const ring = document.querySelector('[data-ring="'+ph+'"]');
+      const label = document.querySelector('[data-pct-label="'+ph+'"]');
+      if(ring) ring.style.setProperty("--pct", pct);
+      if(label) label.textContent = pct + "%";
+    });
+    document.getElementById("progress-label").textContent = totalChecked + " / " + checkboxes.length + " étapes";
+    document.getElementById("progress-bar-fill").style.width = (checkboxes.length ? (100*totalChecked/checkboxes.length) : 0) + "%";
+  }
+
+  checkboxes.forEach(cb => {
+    cb.checked = !!state[cb.id];
+    cb.addEventListener("change", () => {
+      state[cb.id] = cb.checked;
+      localStorage.setItem(STORE_KEY, JSON.stringify(state));
+      updateAll();
+    });
+  });
+
+  updateAll();
+})();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,1632 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rails Dev Workflow</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;600;700&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0a0f;
+    --surface: #111118;
+    --surface2: #16161f;
+    --border: #1e1e2e;
+    --red: #cc3333;
+    --red-bright: #ff4444;
+    --red-dim: #8b1a1a;
+    --amber: #d4823a;
+    --green: #3a8b5c;
+    --blue: #3a6b8b;
+    --purple: #6b3a8b;
+    --text: #e8e8f0;
+    --text-muted: #6a6a82;
+    --text-dim: #3a3a52;
+    --accent: #cc3333;
+  }
+
+  :root.light {
+    --bg: #f5f4f0;
+    --surface: #ffffff;
+    --surface2: #eeecea;
+    --border: #d8d4cc;
+    --red: #b52a2a;
+    --red-bright: #cc3333;
+    --red-dim: #e8c4c4;
+    --amber: #b86a20;
+    --green: #2a6e44;
+    --blue: #2a5070;
+    --purple: #562a70;
+    --text: #1a1a24;
+    --text-muted: #6a6070;
+    --text-dim: #aaa4a0;
+    --accent: #b52a2a;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Syne', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* Grid background */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(var(--border) 1px, transparent 1px),
+      linear-gradient(90deg, var(--border) 1px, transparent 1px);
+    background-size: 40px 40px;
+    opacity: 0.3;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .container {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 0 24px 80px;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* HEADER */
+  header {
+    padding: 60px 0 48px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 48px;
+  }
+
+  .header-tag {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--red);
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    margin-bottom: 16px;
+  }
+
+  h1 {
+    font-size: clamp(36px, 5vw, 64px);
+    font-weight: 800;
+    line-height: 1;
+    letter-spacing: -2px;
+    color: var(--text);
+  }
+
+  h1 span {
+    color: var(--red);
+  }
+
+  .header-sub {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    color: var(--text-muted);
+    margin-top: 16px;
+    letter-spacing: 0.5px;
+  }
+
+  .header-meta {
+    display: flex;
+    gap: 24px;
+    margin-top: 28px;
+    flex-wrap: wrap;
+  }
+
+  .badge {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    padding: 4px 10px;
+    border: 1px solid;
+    letter-spacing: 1px;
+  }
+
+  .badge-red { border-color: var(--red-dim); color: var(--red); background: rgba(204,51,51,0.07); }
+  .badge-amber { border-color: #6b4a1a; color: var(--amber); background: rgba(212,130,58,0.07); }
+  .badge-green { border-color: #1a4b30; color: var(--green); background: rgba(58,139,92,0.07); }
+
+  :root.light .badge-amber { border-color: #d4b090; }
+  :root.light .badge-green { border-color: #90c4a8; }
+
+  /* THEME TOGGLE */
+  .theme-toggle {
+    position: fixed;
+    top: 16px;
+    right: 20px;
+    z-index: 200;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: var(--text-muted);
+    letter-spacing: 1px;
+    cursor: pointer;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    padding: 6px 12px;
+    transition: border-color 0.2s, color 0.2s;
+    user-select: none;
+  }
+
+  .theme-toggle:hover {
+    border-color: var(--red);
+    color: var(--red);
+  }
+
+  .theme-toggle-icon {
+    font-size: 13px;
+    transition: transform 0.4s ease;
+  }
+
+  .theme-toggle:hover .theme-toggle-icon {
+    transform: rotate(20deg);
+  }
+
+  /* PROGRESS BAR */
+  .progress-bar {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: var(--bg);
+    border-bottom: 1px solid var(--border);
+    padding: 12px 0;
+    margin: 0 -24px 48px;
+    padding-left: 24px;
+    padding-right: 24px;
+  }
+
+  .progress-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: var(--text-muted);
+    letter-spacing: 2px;
+    margin-bottom: 6px;
+    display: flex;
+    justify-content: space-between;
+  }
+
+  .progress-track {
+    height: 2px;
+    background: var(--border);
+    position: relative;
+  }
+
+  .progress-fill {
+    height: 100%;
+    background: var(--red);
+    width: 0%;
+    transition: width 0.3s ease;
+    box-shadow: 0 0 8px var(--red);
+  }
+
+  /* PHASE HEADERS */
+  .phase {
+    margin-bottom: 12px;
+  }
+
+  .phase-header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 20px 24px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    cursor: pointer;
+    user-select: none;
+    transition: border-color 0.2s, background 0.2s;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .phase-header::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 3px;
+    background: var(--phase-color, var(--red));
+  }
+
+  .phase-header:hover {
+    border-color: var(--phase-color, var(--red));
+    background: var(--surface2);
+  }
+
+  .phase-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: var(--text-muted);
+    letter-spacing: 2px;
+    min-width: 40px;
+  }
+
+  .phase-title {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--text);
+    flex: 1;
+    letter-spacing: 0.3px;
+  }
+
+  .phase-count {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--text-muted);
+  }
+
+  .phase-chevron {
+    font-size: 12px;
+    color: var(--text-dim);
+    transition: transform 0.3s;
+  }
+
+  .phase.open .phase-chevron { transform: rotate(180deg); }
+
+  .phase-body {
+    display: none;
+    border: 1px solid var(--border);
+    border-top: none;
+    background: var(--surface);
+  }
+
+  .phase.open .phase-body { display: block; }
+
+  /* STEPS */
+  .step {
+    display: grid;
+    grid-template-columns: 56px 1fr;
+    border-bottom: 1px solid var(--border);
+    transition: background 0.15s;
+  }
+
+  .step:last-child { border-bottom: none; }
+
+  .step:hover { background: var(--surface2); }
+
+  .step-gutter {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px 0;
+    border-right: 1px solid var(--border);
+    gap: 8px;
+  }
+
+  .step-checkbox {
+    width: 18px;
+    height: 18px;
+    border: 1px solid var(--text-dim);
+    background: transparent;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    flex-shrink: 0;
+  }
+
+  .step-checkbox:hover { border-color: var(--phase-color, var(--red)); }
+  .step-checkbox.checked {
+    background: var(--phase-color, var(--red));
+    border-color: var(--phase-color, var(--red));
+  }
+
+  .step-checkbox.checked::after {
+    content: '✓';
+    color: white;
+    font-size: 11px;
+    font-weight: 700;
+  }
+
+  .step-number {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    color: var(--text-dim);
+    letter-spacing: 1px;
+  }
+
+  .step-content {
+    padding: 20px 24px;
+  }
+
+  .step-title {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 6px;
+    letter-spacing: 0.2px;
+  }
+
+  .step-desc {
+    font-size: 13px;
+    color: var(--text-muted);
+    line-height: 1.6;
+    margin-bottom: 10px;
+  }
+
+  .step-code {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    padding: 10px 14px;
+    color: #a8b8c8;
+    line-height: 1.7;
+    overflow-x: auto;
+    position: relative;
+  }
+
+  .step-code .cmd { color: #e8c87a; }
+  .step-code .flag { color: #8bb8e8; }
+  .step-code .comment { color: var(--text-dim); }
+  .step-code .str { color: #88c888; }
+  .step-code .kw { color: #cc88cc; }
+
+  .step-tags {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    margin-top: 10px;
+  }
+
+  .tag {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    padding: 2px 8px;
+    border: 1px solid var(--border);
+    color: var(--text-dim);
+    letter-spacing: 0.5px;
+  }
+
+  .tag-critical {
+    border-color: var(--red-dim);
+    color: var(--red);
+    background: rgba(204,51,51,0.05);
+  }
+
+  .tag-tip {
+    border-color: #1a4b30;
+    color: var(--green);
+    background: rgba(58,139,92,0.05);
+  }
+
+  /* TIPS PANEL */
+  .tip-block {
+    background: rgba(58,139,92,0.05);
+    border-left: 2px solid var(--green);
+    padding: 10px 14px;
+    margin-top: 10px;
+    font-size: 12px;
+    color: #5a9b72;
+    line-height: 1.6;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  .warn-block {
+    background: rgba(212,130,58,0.05);
+    border-left: 2px solid var(--amber);
+    padding: 10px 14px;
+    margin-top: 10px;
+    font-size: 12px;
+    color: #b87040;
+    line-height: 1.6;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  /* SUMMARY */
+  .summary {
+    margin-top: 56px;
+    padding: 32px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+  }
+
+  .summary-title {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: var(--red);
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    margin-bottom: 20px;
+  }
+
+  .summary-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 16px;
+  }
+
+  .stat-box {
+    padding: 16px;
+    border: 1px solid var(--border);
+    background: var(--bg);
+  }
+
+  .stat-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 32px;
+    font-weight: 700;
+    color: var(--text);
+    line-height: 1;
+  }
+
+  .stat-num span { color: var(--red); }
+
+  .stat-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: var(--text-muted);
+    letter-spacing: 1px;
+    margin-top: 6px;
+  }
+
+  /* COLLAPSE ALL */
+  .controls {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 24px;
+    align-items: center;
+  }
+
+  .ctrl-btn {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    padding: 6px 14px;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--text-muted);
+    cursor: pointer;
+    letter-spacing: 1px;
+    transition: all 0.2s;
+  }
+
+  .ctrl-btn:hover {
+    border-color: var(--red);
+    color: var(--red);
+  }
+
+  .ctrl-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--text-dim);
+    letter-spacing: 1px;
+    margin-left: auto;
+  }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar { width: 4px; height: 4px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: var(--border); }
+
+  /* Light mode overrides */
+  :root.light .step-code { color: #2a3a4a; background: #f0eeea; }
+  :root.light .step-code .cmd { color: #8b4a00; }
+  :root.light .step-code .flag { color: #2a5080; }
+  :root.light .step-code .comment { color: #aaa4a0; }
+  :root.light .step-code .str { color: #2a6e44; }
+  :root.light .step-code .kw { color: #6a2a8b; }
+  :root.light .tip-block { background: rgba(42,110,68,0.07); color: #2a6e44; border-color: #2a6e44; }
+  :root.light .warn-block { background: rgba(184,106,32,0.07); color: #8b5010; border-color: #b86a20; }
+  :root.light body::before { opacity: 0.15; }
+
+  @media (max-width: 600px) {
+    .step { grid-template-columns: 44px 1fr; }
+    h1 { letter-spacing: -1px; }
+    .theme-toggle { top: 10px; right: 10px; }
+  }
+</style>
+</head>
+<body>
+
+<button class="theme-toggle" onclick="toggleTheme()" id="theme-btn">
+  <span class="theme-toggle-icon" id="theme-icon">☀</span>
+  <span id="theme-label">LIGHT</span>
+</button>
+
+<div class="container">
+
+  <header>
+    <div class="header-tag">// workflow guide</div>
+    <h1>Ruby on <span>Rails</span><br>Dev Workflow</h1>
+    <div class="header-sub">$ ordre d'exécution · meilleures pratiques · pitfalls</div>
+    <div class="header-meta">
+      <span class="badge badge-red">Rails 7+</span>
+      <span class="badge badge-amber">Ruby 3.x</span>
+      <span class="badge badge-green">Convention over Config</span>
+    </div>
+  </header>
+
+  <div class="progress-bar">
+    <div class="progress-label">
+      <span>PROGRESSION</span>
+      <span id="progress-text">0 / 0 étapes complétées</span>
+    </div>
+    <div class="progress-track">
+      <div class="progress-fill" id="progress-fill"></div>
+    </div>
+  </div>
+
+  <div class="controls">
+    <button class="ctrl-btn" onclick="expandAll()">TOUT OUVRIR</button>
+    <button class="ctrl-btn" onclick="collapseAll()">TOUT FERMER</button>
+    <button class="ctrl-btn" onclick="resetChecks()">RESET</button>
+    <span class="ctrl-label" id="phase-progress"></span>
+  </div>
+
+  <div id="phases"></div>
+
+  <div class="summary">
+    <div class="summary-title">// résumé du workflow</div>
+    <div class="summary-grid">
+      <div class="stat-box">
+        <div class="stat-num" id="stat-total">0</div>
+        <div class="stat-label">ÉTAPES TOTALES</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-num" id="stat-done">0</div>
+        <div class="stat-label">COMPLÉTÉES</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-num">12</div>
+        <div class="stat-label">PHASES</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-num"><span>CoC</span></div>
+        <div class="stat-label">CONVENTION OVER CONFIG</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+const PHASES = [
+  {
+    title: "Conception & Planification",
+    color: "#cc3333",
+    steps: [
+      {
+        title: "Définir le domaine métier",
+        desc: "Identifier les entités principales, leurs attributs, et les relations entre elles. Faire un diagramme rapide (même sur papier). C'est la base de tout — une erreur ici coûte cher.",
+        code: `<span class="comment"># Exemple de réflexion domaine</span>
+<span class="comment"># User → has_many :posts</span>
+<span class="comment"># Post → belongs_to :user, has_many :comments</span>
+<span class="comment"># Comment → belongs_to :post, belongs_to :user</span>`,
+        tags: ["critical"],
+        tip: "→ Outil recommandé : dbdiagram.io ou un simple ERD sur papier avant de toucher au code."
+      },
+      {
+        title: "Schéma de base de données (ERD)",
+        desc: "Définir les tables, colonnes (avec types), clés étrangères, index nécessaires. Valider les cardinalités (1:1, 1:N, N:M). Identifier les tables de jointure pour les relations N:M.",
+        code: `<span class="comment"># Tables à planifier :</span>
+users       <span class="str">id, email, name, created_at</span>
+posts       <span class="str">id, user_id, title, body, published_at</span>
+tags        <span class="str">id, name</span>
+posts_tags  <span class="str">post_id, tag_id  ← table de jointure N:M</span>`,
+        tags: ["critical"],
+        warn: "⚠ Ne pas improviser le schéma en cours de route — les migrations correctrices s'accumulent et deviennent une dette."
+      },
+      {
+        title: "Définir les user stories / routes nécessaires",
+        desc: "Lister les actions que les utilisateurs doivent pouvoir faire. Cela détermine directement les routes REST et les controllers nécessaires.",
+        code: `<span class="comment"># User stories → verbes REST</span>
+Voir tous les posts    → GET  /posts          (index)
+Voir un post           → GET  /posts/:id      (show)
+Créer un post          → POST /posts          (create)
+Formulaire création    → GET  /posts/new      (new)
+Modifier un post       → PATCH /posts/:id     (update)
+Supprimer un post      → DELETE /posts/:id    (destroy)`,
+        tags: ["tip"],
+        tip: "→ Si une action ne rentre pas dans les 7 actions REST, questionner si elle mérite son propre controller."
+      }
+    ]
+  },
+  {
+    title: "Setup du Projet",
+    color: "#d4823a",
+    steps: [
+      {
+        title: "Créer le projet Rails",
+        desc: "Choisir la base de données dès le départ. PostgreSQL est recommandé pour la production. Éviter SQLite en dehors du prototypage.",
+        code: `<span class="cmd">rails new</span> <span class="str">my_app</span> <span class="flag">--database=postgresql</span>
+<span class="cmd">rails new</span> <span class="str">my_app</span> <span class="flag">--database=postgresql --css=tailwind</span>
+<span class="cmd">rails new</span> <span class="str">my_api</span> <span class="flag">--api --database=postgresql</span>  <span class="comment"># mode API</span>
+
+<span class="cmd">cd</span> my_app
+<span class="cmd">git init</span> <span class="flag">&& git add . && git commit -m</span> <span class="str">"init"</span>`,
+        tags: ["critical"],
+        tip: "→ Committer le projet vide immédiatement. Chaque étape majeure mérite un commit propre."
+      },
+      {
+        title: "Configurer la base de données",
+        desc: "Éditer config/database.yml. Créer les bases dev et test. Vérifier la connexion avant de continuer.",
+        code: `<span class="comment"># config/database.yml</span>
+<span class="kw">default</span>: &default
+  adapter: postgresql
+  username: <%= ENV[<span class="str">'DB_USER'</span>] %>
+  password: <%= ENV[<span class="str">'DB_PASSWORD'</span>] %>
+
+<span class="cmd">rails db:create</span>       <span class="comment"># crée les BDs dev + test</span>`,
+        tags: ["critical"],
+        warn: "⚠ Ne jamais hardcoder les credentials. Utiliser dotenv-rails ou Rails credentials (rails credentials:edit)."
+      },
+      {
+        title: "Installer les gems essentielles",
+        desc: "Ajouter les dépendances de base avant de commencer à coder. Mieux vaut les avoir dès le départ que les ajouter en cours de route.",
+        code: `<span class="comment"># Gemfile — gems recommandées</span>
+gem <span class="str">'devise'</span>              <span class="comment"># auth</span>
+gem <span class="str">'pundit'</span>              <span class="comment"># autorisation</span>
+gem <span class="str">'pagy'</span>                <span class="comment"># pagination</span>
+gem <span class="str">'ransack'</span>             <span class="comment"># search/filter</span>
+
+group :development, :test <span class="kw">do</span>
+  gem <span class="str">'rspec-rails'</span>
+  gem <span class="str">'factory_bot_rails'</span>
+  gem <span class="str">'faker'</span>
+  gem <span class="str">'rubocop-rails'</span>
+<span class="kw">end</span>
+
+<span class="cmd">bundle install</span>`,
+        tags: ["tip"]
+      },
+      {
+        title: "Configurer RSpec",
+        desc: "Remplacer MiniTest par RSpec dès le début si c'est votre choix. Impossible à changer proprement après coup.",
+        code: `<span class="cmd">rails generate rspec:install</span>
+
+<span class="comment"># .rspec</span>
+--format documentation
+--color
+
+<span class="comment"># Vérifier</span>
+<span class="cmd">rspec</span>  <span class="comment"># doit retourner 0 examples</span>`,
+        tags: ["tip"],
+        tip: "→ RSpec > MiniTest pour les projets sérieux. Plus expressif, meilleure communauté de matchers."
+      }
+    ]
+  },
+  {
+    title: "Modèles & Base de Données",
+    color: "#3a6b8b",
+    steps: [
+      {
+        title: "Générer les modèles (avec migrations)",
+        desc: "Créer les modèles dans l'ordre des dépendances : les modèles parents avant les enfants. Spécifier les types de colonnes précisément.",
+        code: `<span class="comment"># Ordre : parent avant enfant</span>
+<span class="cmd">rails g model</span> User <span class="str">email:string:uniq name:string</span>
+<span class="cmd">rails g model</span> Post <span class="str">title:string body:text user:references</span>
+<span class="cmd">rails g model</span> Comment <span class="str">body:text user:references post:references</span>
+
+<span class="comment"># :references génère automatiquement la foreign key + index</span>`,
+        tags: ["critical"],
+        warn: "⚠ Toujours spécifier les types explicitement. Ne pas laisser Rails deviner."
+      },
+      {
+        title: "Écrire/réviser les migrations",
+        desc: "Vérifier les migrations générées avant de les exécuter. Ajouter les contraintes NOT NULL, les index, et les valeurs par défaut manquantes.",
+        code: `<span class="comment"># db/migrate/xxx_create_posts.rb</span>
+<span class="kw">class</span> CreatePosts < ActiveRecord::Migration[7.0]
+  <span class="kw">def</span> change
+    create_table :posts <span class="kw">do</span> |t|
+      t.string  :title, <span class="flag">null: false</span>
+      t.text    :body
+      t.boolean :published, <span class="flag">default: false, null: false</span>
+      t.references :user, <span class="flag">null: false, foreign_key: true, index: true</span>
+      t.timestamps
+    <span class="kw">end</span>
+  <span class="kw">end</span>
+<span class="kw">end</span>
+
+<span class="cmd">rails db:migrate</span>`,
+        tags: ["critical"],
+        tip: "→ Ajouter null: false dès que possible. Beaucoup plus facile que de corriger plus tard."
+      },
+      {
+        title: "Définir les associations dans les modèles",
+        desc: "Toutes les associations ActiveRecord avec leurs options (dependent:, through:, etc.). Valider que les deux côtés de chaque relation sont déclarés.",
+        code: `<span class="comment"># app/models/user.rb</span>
+<span class="kw">class</span> User < ApplicationRecord
+  has_many :posts, <span class="flag">dependent: :destroy</span>
+  has_many :comments, <span class="flag">dependent: :destroy</span>
+<span class="kw">end</span>
+
+<span class="comment"># app/models/post.rb</span>
+<span class="kw">class</span> Post < ApplicationRecord
+  belongs_to :user
+  has_many :comments, <span class="flag">dependent: :destroy</span>
+  has_many :commenters, <span class="flag">through: :comments, source: :user</span>
+<span class="kw">end</span>`,
+        tags: ["critical"]
+      },
+      {
+        title: "Ajouter les validations",
+        desc: "Définir toutes les règles de validité au niveau modèle. C'est la première ligne de défense pour l'intégrité des données.",
+        code: `<span class="comment"># app/models/post.rb</span>
+validates :title, presence: <span class="flag">true</span>, length: { <span class="flag">minimum: 3, maximum: 200</span> }
+validates :body, presence: <span class="flag">true</span>
+validates :user, presence: <span class="flag">true</span>
+
+<span class="comment"># Scope utile</span>
+scope :published, -> { where(published: <span class="flag">true</span>) }
+scope :recent, -> { order(created_at: <span class="flag">:desc</span>) }`,
+        tags: ["critical"]
+      },
+      {
+        title: "Seeder la base de données",
+        desc: "Écrire des seeds réalistes pour le développement. Utiliser Faker pour des données variées.",
+        code: `<span class="comment"># db/seeds.rb</span>
+10.times <span class="kw">do</span>
+  user = User.create!(
+    name: Faker::Name.name,
+    email: Faker::Internet.unique.email
+  )
+  5.times { user.posts.create!(title: Faker::Lorem.sentence, body: Faker::Lorem.paragraphs(number: 3).join) }
+<span class="kw">end</span>
+
+<span class="cmd">rails db:seed</span>`,
+        tags: ["tip"],
+        tip: "→ Un bon seed file = dev plus rapide. Investir 30 min ici économise des heures."
+      }
+    ]
+  },
+  {
+    title: "Authentification & Autorisation",
+    color: "#6b3a8b",
+    steps: [
+      {
+        title: "Installer et configurer Devise",
+        desc: "Mettre en place l'authentification tôt. Ça conditionne beaucoup d'autres décisions (routes, controllers, views).",
+        code: `<span class="cmd">rails generate devise:install</span>
+<span class="cmd">rails generate devise</span> User
+<span class="cmd">rails db:migrate</span>
+
+<span class="comment"># Générer les views si customisation nécessaire</span>
+<span class="cmd">rails generate devise:views</span>
+
+<span class="comment"># config/environments/development.rb</span>
+config.action_mailer.default_url_options = { host: <span class="str">'localhost'</span>, port: 3000 }`,
+        tags: ["critical"],
+        tip: "→ Tester le flow d'inscription/connexion manuellement avant de continuer."
+      },
+      {
+        title: "Configurer Pundit (autorisation)",
+        desc: "Devise = authentification (qui es-tu ?). Pundit = autorisation (qu'as-tu le droit de faire ?). Les deux sont nécessaires.",
+        code: `<span class="cmd">rails generate pundit:install</span>
+
+<span class="comment"># app/policies/post_policy.rb</span>
+<span class="kw">class</span> PostPolicy < ApplicationPolicy
+  <span class="kw">def</span> update?
+    record.user == user  <span class="comment"># seul l'auteur peut modifier</span>
+  <span class="kw">end</span>
+
+  <span class="kw">def</span> destroy?
+    record.user == user || user.admin?
+  <span class="kw">end</span>
+<span class="kw">end</span>`,
+        tags: ["critical"],
+        warn: "⚠ Ne pas mélanger logique d'autorisation dans les controllers. Tout dans les policies."
+      }
+    ]
+  },
+  {
+    title: "Routes & Controllers",
+    color: "#3a8b5c",
+    steps: [
+      {
+        title: "Définir les routes (config/routes.rb)",
+        desc: "Utiliser les routes REST Rails. Limiter les actions disponibles avec :only ou :except. Éviter les routes custom sauf nécessité absolue.",
+        code: `<span class="comment"># config/routes.rb</span>
+Rails.application.routes.draw <span class="kw">do</span>
+  devise_for :users
+
+  resources :posts, <span class="flag">only: [:index, :show, :new, :create, :edit, :update, :destroy]</span> <span class="kw">do</span>
+    resources :comments, <span class="flag">only: [:create, :destroy]</span>  <span class="comment"># nested</span>
+  <span class="kw">end</span>
+
+  root <span class="str">"posts#index"</span>
+<span class="kw">end</span>
+
+<span class="cmd">rails routes</span>  <span class="comment"># vérifier toutes les routes générées</span>`,
+        tags: ["critical"],
+        tip: "→ rails routes | grep post → filtrer les routes par ressource."
+      },
+      {
+        title: "Générer les controllers",
+        desc: "Un controller par ressource. Garder les controllers minces — la logique appartient aux modèles ou aux services.",
+        code: `<span class="cmd">rails g controller</span> Posts index show new create edit update destroy
+<span class="cmd">rails g controller</span> Comments create destroy
+
+<span class="comment"># Structure cible d'une action :</span>
+<span class="kw">def</span> create
+  @post = current_user.posts.build(post_params)  <span class="comment"># scoped à l'user</span>
+  <span class="kw">if</span> @post.save
+    redirect_to @post, notice: <span class="str">"Post créé."</span>
+  <span class="kw">else</span>
+    render :new, status: :unprocessable_entity
+  <span class="kw">end</span>
+<span class="kw">end</span>`,
+        tags: ["critical"]
+      },
+      {
+        title: "Strong Parameters",
+        desc: "Toujours filtrer les params entrants via Strong Parameters. Ne jamais passer params directement à un modèle.",
+        code: `<span class="comment"># En bas du controller — méthode privée</span>
+<span class="kw">private</span>
+
+<span class="kw">def</span> post_params
+  params.require(:post).permit(:title, :body, :published, tag_ids: [])
+<span class="kw">end</span>
+
+<span class="kw">def</span> set_post
+  @post = Post.find(params[:id])
+<span class="kw">end</span>`,
+        tags: ["critical"],
+        warn: "⚠ Mass assignment vulnerability — ne jamais utiliser params[:post] directement."
+      },
+      {
+        title: "Before Actions & Callbacks controllers",
+        desc: "Éviter la répétition avec before_action. Séparer la récupération de l'objet, l'authentification, et l'autorisation.",
+        code: `<span class="kw">class</span> PostsController < ApplicationController
+  before_action :authenticate_user!,  <span class="flag">except: [:index, :show]</span>
+  before_action :set_post,            <span class="flag">only: [:show, :edit, :update, :destroy]</span>
+  before_action :authorize_post!,     <span class="flag">only: [:edit, :update, :destroy]</span>
+
+  <span class="kw">private</span>
+
+  <span class="kw">def</span> authorize_post!
+    authorize @post  <span class="comment"># Pundit</span>
+  <span class="kw">end</span>
+<span class="kw">end</span>`,
+        tags: ["critical"]
+      }
+    ]
+  },
+  {
+    title: "Views & Frontend",
+    color: "#d4823a",
+    steps: [
+      {
+        title: "Structure des views",
+        desc: "Organiser les views par ressource, utiliser les partials pour réduire la répétition. Un partial = un composant réutilisable.",
+        code: `app/views/
+  layouts/
+    application.html.erb     <span class="comment"># layout global</span>
+  posts/
+    _post.html.erb           <span class="comment"># partial : 1 post</span>
+    index.html.erb           <span class="comment"># render collection</span>
+    show.html.erb
+    _form.html.erb           <span class="comment"># partial : form partagé new/edit</span>
+    new.html.erb
+    edit.html.erb
+  shared/
+    _flash.html.erb          <span class="comment"># messages flash</span>
+    _navbar.html.erb`,
+        tags: ["tip"],
+        tip: "→ <%= render @posts %> utilise automatiquement _post.html.erb — convention Rails."
+      },
+      {
+        title: "Helpers, Partials & Layouts",
+        desc: "Extraire la logique de présentation dans les helpers. Ne pas mettre de logique Ruby complexe dans les views.",
+        code: `<span class="comment"># app/helpers/posts_helper.rb</span>
+<span class="kw">module</span> PostsHelper
+  <span class="kw">def</span> published_badge(post)
+    post.published? ? content_tag(:span, <span class="str">"Publié"</span>, class: <span class="str">"badge green"</span>)
+                    : content_tag(:span, <span class="str">"Brouillon"</span>, class: <span class="str">"badge gray"</span>)
+  <span class="kw">end</span>
+<span class="kw">end</span>
+
+<span class="comment"># Dans la view</span>
+<%= published_badge(@post) %>`,
+        tags: ["tip"]
+      },
+      {
+        title: "Éviter les N+1 queries",
+        desc: "Le problème le plus fréquent en Rails. Chaque association appelée dans une boucle sans eager loading = une requête SQL supplémentaire.",
+        code: `<span class="comment"># ❌ N+1 — génère N requêtes SQL</span>
+@posts = Post.all
+<span class="comment"># Dans la view : post.user.name → 1 requête par post</span>
+
+<span class="comment"># ✅ Correct — 2 requêtes seulement</span>
+@posts = Post.includes(:user, :tags).recent
+
+<span class="comment"># Gem bullet en dev pour détecter les N+1</span>
+gem <span class="str">'bullet'</span>, group: :development`,
+        tags: ["critical"],
+        warn: "⚠ Installer la gem 'bullet' en développement — elle détecte automatiquement les N+1."
+      },
+      {
+        title: "Pagination avec Pagy",
+        desc: "Ne jamais charger tous les enregistrements dans un index. Paginer dès le premier jour.",
+        code: `<span class="comment"># app/controllers/posts_controller.rb</span>
+include Pagy::Backend
+
+<span class="kw">def</span> index
+  @pagy, @posts = pagy(Post.published.recent.includes(:user), items: 20)
+<span class="kw">end</span>
+
+<span class="comment"># app/views/posts/index.html.erb</span>
+<%= render @posts %>
+<%== pagy_nav(@pagy) %>`,
+        tags: ["tip"]
+      }
+    ]
+  },
+  {
+    title: "Service Objects & Logique Métier",
+    color: "#5a7a3a",
+    steps: [
+      {
+        title: "Identifier ce qui ne appartient pas au modèle ni au controller",
+        desc: "La règle Fat Model / Skinny Controller a ses limites. Quand une opération implique plusieurs modèles, des appels externes, ou une logique complexe, elle mérite son propre Service Object.",
+        code: `<span class="comment"># Cas typiques pour un Service Object :</span>
+<span class="comment"># - Inscription utilisateur (créer user + envoyer email + créer profil)</span>
+<span class="comment"># - Paiement (Stripe + order + invoice + email)</span>
+<span class="comment"># - Import CSV (parser + valider + persister)</span>
+<span class="comment"># - Notification multi-canal (email + SMS + push)</span>
+
+<span class="comment"># Convention de nommage : verbe + nom</span>
+<span class="comment"># app/services/posts/publish_post.rb</span>
+<span class="comment"># app/services/users/register_user.rb</span>
+<span class="comment"># app/services/payments/process_checkout.rb</span>`,
+        tags: ["tip"]
+      },
+      {
+        title: "Écrire un Service Object",
+        desc: "Pattern simple et consistant : initialize avec les dépendances, call comme point d'entrée unique, retourner un résultat structuré.",
+        code: `<span class="comment"># app/services/posts/publish_post.rb</span>
+<span class="kw">module</span> Posts
+  <span class="kw">class</span> PublishPost
+    Result = Struct.new(:success?, :post, :error)
+
+    <span class="kw">def initialize</span>(post:, publisher:)
+      @post      = post
+      @publisher = publisher
+    <span class="kw">end</span>
+
+    <span class="kw">def</span> call
+      return Result.new(<span class="flag">false</span>, nil, <span class="str">"Non autorisé"</span>) unless can_publish?
+
+      @post.update!(published: <span class="flag">true</span>, published_at: Time.current)
+      PostMailer.published_notification(@post).deliver_later
+      Result.new(<span class="flag">true</span>, @post, nil)
+    rescue => e
+      Result.new(<span class="flag">false</span>, nil, e.message)
+    <span class="kw">end</span>
+
+    <span class="kw">private</span>
+
+    <span class="kw">def</span> can_publish?
+      @post.user == @publisher || @publisher.admin?
+    <span class="kw">end</span>
+  <span class="kw">end</span>
+<span class="kw">end</span>
+
+<span class="comment"># Dans le controller</span>
+result = Posts::PublishPost.new(post: @post, publisher: current_user).call
+result.success? ? redirect_to(@post) : render(:edit, alert: result.error)`,
+        tags: ["critical"],
+        tip: "→ Un Service Object = une seule responsabilité. Si call fait trop de choses, le découper."
+      },
+      {
+        title: "Query Objects pour les requêtes complexes",
+        desc: "Extraire les requêtes ActiveRecord complexes hors des modèles et controllers. Facilite les tests et la réutilisation.",
+        code: `<span class="comment"># app/queries/posts_query.rb</span>
+<span class="kw">class</span> PostsQuery
+  <span class="kw">def initialize</span>(relation = Post.all)
+    @relation = relation
+  <span class="kw">end</span>
+
+  <span class="kw">def</span> published_by_tag(tag_name)
+    @relation
+      .joins(:tags)
+      .where(tags: { name: tag_name })
+      .where(published: <span class="flag">true</span>)
+      .includes(:user)
+      .order(published_at: <span class="flag">:desc</span>)
+  <span class="kw">end</span>
+<span class="kw">end</span>
+
+<span class="comment"># Utilisation</span>
+@posts = PostsQuery.new.published_by_tag(<span class="str">"ruby"</span>)`,
+        tags: ["tip"]
+      },
+      {
+        title: "Form Objects pour les formulaires complexes",
+        desc: "Quand un formulaire touche plusieurs modèles ou a des validations spécifiques à la présentation (pas au domaine), utiliser un Form Object.",
+        code: `<span class="comment"># app/forms/registration_form.rb</span>
+<span class="kw">class</span> RegistrationForm
+  include ActiveModel::Model
+  include ActiveModel::Attributes
+
+  attribute :email,            :string
+  attribute :password,         :string
+  attribute :company_name,     :string
+
+  validates :email,        presence: <span class="flag">true</span>, format: { with: URI::MailTo::EMAIL_REGEXP }
+  validates :password,     length: { minimum: 8 }
+  validates :company_name, presence: <span class="flag">true</span>
+
+  <span class="kw">def</span> save
+    return <span class="flag">false</span> unless valid?
+
+    ActiveRecord::Base.transaction <span class="kw">do</span>
+      user    = User.create!(email: email, password: password)
+      Company.create!(name: company_name, owner: user)
+    <span class="kw">end</span>
+    <span class="flag">true</span>
+  <span class="kw">end</span>
+<span class="kw">end</span>`,
+        tags: ["tip"]
+      }
+    ]
+  },
+  {
+    title: "Background Jobs & Email",
+    color: "#3a5a8b",
+    steps: [
+      {
+        title: "Configurer Active Job + Sidekiq",
+        desc: "Tout ce qui peut attendre (emails, notifications, traitements lourds, appels API externes) doit être en background. Ne jamais bloquer le thread HTTP.",
+        code: `<span class="comment"># Gemfile</span>
+gem <span class="str">'sidekiq'</span>
+
+<span class="comment"># config/application.rb</span>
+config.active_job.queue_adapter = :sidekiq
+
+<span class="comment"># config/sidekiq.yml</span>
+:queues:
+  - [critical, 3]
+  - [default, 2]
+  - [low, 1]
+
+<span class="comment"># Lancer Sidekiq</span>
+<span class="cmd">bundle exec sidekiq</span>
+
+<span class="comment"># Dashboard (Gemfile)</span>
+gem <span class="str">'sidekiq-web'</span>  <span class="comment"># /sidekiq en dev</span>`,
+        tags: ["critical"],
+        tip: "→ Redis requis pour Sidekiq. En dev : brew install redis && redis-server"
+      },
+      {
+        title: "Créer et enqueuer des jobs",
+        desc: "Hériter de ApplicationJob. Toujours passer des IDs (pas d'objets ActiveRecord) pour éviter la désérialisation stale.",
+        code: `<span class="cmd">rails g job</span> ProcessCsvImport
+
+<span class="comment"># app/jobs/process_csv_import_job.rb</span>
+<span class="kw">class</span> ProcessCsvImportJob < ApplicationJob
+  queue_as :default
+  retry_on StandardError, wait: :polynomially_longer, attempts: 3
+  discard_on ActiveRecord::RecordNotFound
+
+  <span class="kw">def</span> perform(import_id)
+    import = CsvImport.find(import_id)  <span class="comment"># ID, pas l'objet</span>
+    CsvImportService.new(import).call
+    import.update!(status: <span class="str">'completed'</span>)
+  <span class="kw">end</span>
+<span class="kw">end</span>
+
+<span class="comment"># Enqueue</span>
+ProcessCsvImportJob.perform_later(import.id)
+ProcessCsvImportJob.set(wait: 5.minutes).perform_later(import.id)`,
+        tags: ["critical"],
+        warn: "⚠ Ne jamais passer un objet AR directement — utiliser l'ID et retrouver l'objet dans perform."
+      },
+      {
+        title: "Action Mailer",
+        desc: "Configurer les mailers et toujours les envoyer en background avec deliver_later.",
+        code: `<span class="cmd">rails g mailer</span> PostMailer published_notification
+
+<span class="comment"># app/mailers/post_mailer.rb</span>
+<span class="kw">class</span> PostMailer < ApplicationMailer
+  default from: <span class="str">'noreply@monapp.com'</span>
+
+  <span class="kw">def</span> published_notification(post)
+    @post = post
+    @author = post.user
+    mail(to: @author.email, subject: <span class="str">"Votre post \"#{post.title}\" est publié"</span>)
+  <span class="kw">end</span>
+<span class="kw">end</span>
+
+<span class="comment"># Utilisation — toujours deliver_later !</span>
+PostMailer.published_notification(post).deliver_later
+PostMailer.published_notification(post).deliver_later(wait: 1.hour)`,
+        tags: ["critical"],
+        warn: "⚠ deliver_now bloque le thread HTTP. Utiliser deliver_later sauf en console/seed."
+      }
+    ]
+  },
+  {
+    title: "Hotwire : Turbo & Stimulus",
+    color: "#7a5a3a",
+    steps: [
+      {
+        title: "Comprendre Hotwire (Turbo + Stimulus)",
+        desc: "Rails 7+ intègre Hotwire par défaut. Turbo remplace les rechargements de page complets et gère les mises à jour partielles. Stimulus ajoute du comportement JS léger sans framework SPA.",
+        code: `<span class="comment"># Hotwire = Turbo + Stimulus (inclus par défaut Rails 7)</span>
+
+<span class="comment"># Turbo Drive  — navigation sans rechargement complet</span>
+<span class="comment"># Turbo Frames — mise à jour d'une section de la page</span>
+<span class="comment"># Turbo Streams — updates temps réel depuis server/WebSocket</span>
+<span class="comment"># Stimulus     — controllers JS légers, conventions claires</span>
+
+<span class="comment"># Installation (si manquant)</span>
+<span class="cmd">./bin/importmap</span> pin @hotwired/turbo-rails
+<span class="cmd">./bin/importmap</span> pin @hotwired/stimulus`,
+        tags: ["tip"]
+      },
+      {
+        title: "Turbo Frames — mises à jour partielles",
+        desc: "Entourer une section HTML avec turbo-frame-tag pour qu'elle se mette à jour indépendamment sans JS custom.",
+        code: `<span class="comment"># app/views/posts/index.html.erb</span>
+<%= turbo_frame_tag <span class="str">"posts-list"</span> <span class="kw">do</span> %>
+  <%= render @posts %>
+  <%= pagy_nav(@pagy) %>
+<% <span class="kw">end</span> %>
+
+<span class="comment"># app/views/posts/show.html.erb</span>
+<%= turbo_frame_tag dom_id(@post) <span class="kw">do</span> %>
+  <h1><%= @post.title %></h1>
+  <%= link_to <span class="str">"Modifier"</span>, edit_post_path(@post) %>
+<% <span class="kw">end</span> %>
+
+<span class="comment"># Le lien "Modifier" met à jour seulement le frame,</span>
+<span class="comment"># pas toute la page</span>`,
+        tags: ["tip"]
+      },
+      {
+        title: "Turbo Streams — updates temps réel",
+        desc: "Mettre à jour plusieurs parties de la page après une action (create, update, destroy) sans rechargement.",
+        code: `<span class="comment"># Controller — respond_to avec turbo_stream</span>
+<span class="kw">def</span> create
+  @comment = @post.comments.build(comment_params.merge(user: current_user))
+  <span class="kw">if</span> @comment.save
+    respond_to <span class="kw">do</span> |format|
+      format.turbo_stream  <span class="comment"># cherche create.turbo_stream.erb</span>
+      format.html { redirect_to @post }
+    <span class="kw">end</span>
+  <span class="kw">end</span>
+<span class="kw">end</span>
+
+<span class="comment"># app/views/comments/create.turbo_stream.erb</span>
+<%= turbo_stream.prepend <span class="str">"comments"</span>, partial: <span class="str">"comment"</span>, locals: { comment: @comment } %>
+<%= turbo_stream.replace <span class="str">"comment-form"</span>, partial: <span class="str">"form"</span>, locals: { comment: Comment.new } %>`,
+        tags: ["tip"],
+        tip: "→ Actions disponibles : append, prepend, replace, update, remove, before, after."
+      },
+      {
+        title: "Stimulus Controllers",
+        desc: "Ajouter du comportement JS avec Stimulus. Un controller = un fichier, une responsabilité. Pas de jQuery, pas de spaghetti.",
+        code: `<span class="comment"># app/javascript/controllers/toggle_controller.js</span>
+<span class="kw">import</span> { Controller } from <span class="str">"@hotwired/stimulus"</span>
+
+<span class="kw">export default class extends</span> Controller {
+  static targets = [<span class="str">"content"</span>]
+  static classes = [<span class="str">"hidden"</span>]
+
+  toggle() {
+    this.contentTarget.classList.toggle(this.hiddenClass)
+  }
+}
+
+<span class="comment"># Dans la view</span>
+<span class="comment"># &lt;div data-controller="toggle"&gt;</span>
+<span class="comment">#   &lt;button data-action="toggle#toggle"&gt;Afficher&lt;/button&gt;</span>
+<span class="comment">#   &lt;div data-toggle-target="content" class="hidden"&gt;...&lt;/div&gt;</span>
+<span class="comment"># &lt;/div&gt;</span>`,
+        tags: ["tip"]
+      }
+    ]
+  },
+  {
+    title: "Caching & Performance",
+    color: "#4a3a8b",
+    steps: [
+      {
+        title: "Russian Doll Caching (fragment cache)",
+        desc: "Mettre en cache les fragments de vue les plus coûteux. Rails invalide automatiquement le cache quand l'objet change (via updated_at).",
+        code: `<span class="comment"># app/views/posts/_post.html.erb</span>
+<span class="comment"># Cache le partial — invalidé si post.updated_at change</span>
+<%= cache post <span class="kw">do</span> %>
+  <article>
+    <h2><%= post.title %></h2>
+    <span class="comment"># Cache imbriqué (Russian Doll)</span>
+    <%= cache [post, <span class="str">"comments-count"</span>] <span class="kw">do</span> %>
+      <%= post.comments.count %> commentaires
+    <% <span class="kw">end</span> %>
+  </article>
+<% <span class="kw">end</span> %>
+
+<span class="comment"># Configurer Redis comme cache store</span>
+<span class="comment"># config/environments/production.rb</span>
+config.cache_store = :redis_cache_store, { url: ENV[<span class="str">'REDIS_URL'</span>] }`,
+        tags: ["tip"],
+        tip: "→ touch: true sur belongs_to propage l'invalidation vers le parent automatiquement."
+      },
+      {
+        title: "Low-level caching",
+        desc: "Mettre en cache des calculs coûteux, des appels API externes, ou des agrégations DB complexes.",
+        code: `<span class="comment"># Cache un calcul coûteux</span>
+<span class="kw">def</span> expensive_stats
+  Rails.cache.fetch(<span class="str">"posts/stats"</span>, expires_in: 1.hour) <span class="kw">do</span>
+    {
+      total:     Post.count,
+      published: Post.published.count,
+      avg_comments: Post.joins(:comments).average(<span class="str">"comments.id"</span>)
+    }
+  <span class="kw">end</span>
+<span class="kw">end</span>
+
+<span class="comment"># Invalider manuellement</span>
+Rails.cache.delete(<span class="str">"posts/stats"</span>)
+
+<span class="comment"># Activer cache en développement</span>
+<span class="cmd">rails dev:cache</span>  <span class="comment"># toggle on/off</span>`,
+        tags: ["tip"]
+      },
+      {
+        title: "ActiveRecord : optimisations SQL",
+        desc: "Sélectionner uniquement les colonnes nécessaires, utiliser pluck pour les listes simples, compter en SQL pas en Ruby.",
+        code: `<span class="comment"># ❌ Charge tous les attributs</span>
+User.all.map(&:email)
+
+<span class="comment"># ✅ 1 seule colonne, pas d'objets AR</span>
+User.pluck(:email)
+
+<span class="comment"># ✅ Sélection partielle</span>
+Post.select(:id, :title, :published_at).published
+
+<span class="comment"># ❌ Compte en Ruby</span>
+Post.all.to_a.size
+
+<span class="comment"># ✅ COUNT(*) en SQL</span>
+Post.count
+
+<span class="comment"># ✅ Exists? plus rapide que present?</span>
+Post.where(user: user).exists?
+
+<span class="comment"># Explain pour analyser une requête</span>
+Post.includes(:user).where(published: <span class="flag">true</span>).explain`,
+        tags: ["critical"]
+      },
+      {
+        title: "Background jobs pour les tâches lourdes",
+        desc: "Identifier et déplacer en background tout ce qui dépasse ~100ms : exports CSV, envois d'emails en masse, recalculs d'agrégats.",
+        code: `<span class="comment"># Cas typiques à déplacer en background</span>
+
+<span class="comment"># Export CSV</span>
+ExportPostsCsvJob.perform_later(current_user.id, filter_params)
+
+<span class="comment"># Recalcul de stats</span>
+RecalculateUserStatsJob.perform_later(user.id)
+
+<span class="comment"># Bulk emails</span>
+NewsletterJob.perform_later(newsletter.id)
+
+<span class="comment"># Pattern : enqueue → polling / Turbo Stream pour feedback</span>
+<span class="comment"># Ne jamais faire attendre l'utilisateur plus de 200ms</span>`,
+        tags: ["critical"]
+      }
+    ]
+  },
+  {
+    title: "Git Workflow & Conventions",
+    color: "#3a7a5a",
+    steps: [
+      {
+        title: "Structure de branches",
+        desc: "Adopter un workflow Git clair dès le début. GitHub Flow (main + feature branches) est suffisant pour la plupart des projets Rails.",
+        code: `<span class="comment"># GitHub Flow — simple et efficace</span>
+main           <span class="comment"># production, toujours stable</span>
+feature/xxx    <span class="comment"># nouvelle fonctionnalité</span>
+fix/xxx        <span class="comment"># bugfix</span>
+chore/xxx      <span class="comment"># maintenance (deps, config)</span>
+refactor/xxx   <span class="comment"># refactoring sans nouvelle feature</span>
+
+<span class="comment"># Créer une branche feature</span>
+<span class="cmd">git checkout</span> <span class="flag">-b</span> feature/user-authentication
+<span class="comment"># Travailler, committer, push, PR → merge → delete</span>`,
+        tags: ["tip"]
+      },
+      {
+        title: "Conventions de commits",
+        desc: "Des commits lisibles rendent le debug et les code reviews beaucoup plus rapides. Conventional Commits est le standard.",
+        code: `<span class="comment"># Format : type(scope): description</span>
+
+feat(auth):     add Devise authentication
+fix(posts):     correct N+1 query in index
+refactor(user): extract registration to service object
+test(posts):    add request specs for create action
+chore(deps):    update Rails to 7.2.1
+docs(readme):   add setup instructions
+style:          run rubocop auto-correct
+
+<span class="comment"># ❌ Mauvais commits</span>
+<span class="comment"># "fix bug"</span>
+<span class="comment"># "wip"</span>
+<span class="comment"># "asdfgh"</span>
+<span class="comment"># "changes"</span>`,
+        tags: ["tip"],
+        tip: "→ gem 'overcommit' + commitlint pour enforcer les conventions automatiquement."
+      },
+      {
+        title: ".gitignore Rails essentiel",
+        desc: "S'assurer que les fichiers sensibles et les artefacts locaux ne sont jamais committés.",
+        code: `<span class="comment"># .gitignore — éléments critiques</span>
+<span class="str">/config/master.key</span>        <span class="comment"># ← JAMAIS committer</span>
+<span class="str">/config/credentials/*.key</span> <span class="comment"># ← JAMAIS committer</span>
+<span class="str">.env</span>
+<span class="str">.env.local</span>
+<span class="str">/log/*</span>
+<span class="str">/tmp/*</span>
+<span class="str">/storage/*</span>
+<span class="str">.DS_Store</span>
+<span class="str">/public/assets</span>
+<span class="str">/public/packs</span>
+<span class="str">node_modules/</span>
+
+<span class="comment"># Vérifier ce qui sera commité</span>
+<span class="cmd">git status</span>
+<span class="cmd">git diff --staged</span>`,
+        tags: ["critical"],
+        warn: "⚠ Si master.key est déjà commité, régénérer les credentials immédiatement et changer toutes les clés."
+      },
+      {
+        title: "Pre-commit hooks",
+        desc: "Automatiser les vérifications avant chaque commit pour garder le code propre sans effort.",
+        code: `<span class="comment"># Gemfile (development)</span>
+gem <span class="str">'overcommit'</span>
+
+<span class="cmd">overcommit</span> <span class="flag">--install</span>
+
+<span class="comment"># .overcommit.yml</span>
+PreCommit:
+  RuboCop:
+    enabled: <span class="flag">true</span>
+    on_warn: fail
+  TrailingWhitespace:
+    enabled: <span class="flag">true</span>
+  MergeConflicts:
+    enabled: <span class="flag">true</span>
+
+PrePush:
+  RSpec:
+    enabled: <span class="flag">true</span>
+    command: [<span class="str">'bundle'</span>, <span class="str">'exec'</span>, <span class="str">'rspec'</span>, <span class="str">'--fail-fast'</span>]`,
+        tags: ["tip"],
+        tip: "→ Les hooks pre-push RSpec ralentissent un peu mais évitent les regressions sur main."
+      }
+    ]
+  },
+  {
+    title: "Tests, Quality & Deploy",
+    color: "#cc3333",
+    steps: [
+      {
+        title: "Écrire les tests modèles",
+        desc: "Tester toutes les validations, associations, scopes et méthodes custom. Les tests modèles sont les plus rapides à écrire et à exécuter.",
+        code: `<span class="comment"># spec/models/post_spec.rb</span>
+RSpec.describe Post, type: :model <span class="kw">do</span>
+  it { is_expected.to validate_presence_of(:title) }
+  it { is_expected.to belong_to(:user) }
+  it { is_expected.to have_many(:comments).dependent(:destroy) }
+
+  describe <span class="str">'.published'</span> <span class="kw">do</span>
+    it <span class="str">'retourne seulement les posts publiés'</span> <span class="kw">do</span>
+      published = create(:post, published: <span class="flag">true</span>)
+      draft     = create(:post, published: <span class="flag">false</span>)
+      expect(Post.published).to include(published)
+      expect(Post.published).not_to include(draft)
+    <span class="kw">end</span>
+  <span class="kw">end</span>
+<span class="kw">end</span>`,
+        tags: ["critical"]
+      },
+      {
+        title: "Tests controllers / requests",
+        desc: "Tester les routes, les redirections, les codes HTTP et les permissions. Request specs > Controller specs en Rails moderne.",
+        code: `<span class="comment"># spec/requests/posts_spec.rb</span>
+RSpec.describe <span class="str">"Posts"</span>, type: :request <span class="kw">do</span>
+  describe <span class="str">"GET /posts"</span> <span class="kw">do</span>
+    it <span class="str">"retourne 200"</span> <span class="kw">do</span>
+      get posts_path
+      expect(response).to have_http_status(<span class="flag">:ok</span>)
+    <span class="kw">end</span>
+  <span class="kw">end</span>
+
+  describe <span class="str">"POST /posts"</span> <span class="kw">do</span>
+    context <span class="str">"non authentifié"</span> <span class="kw">do</span>
+      it <span class="str">"redirige vers login"</span> <span class="kw">do</span>
+        post posts_path, params: { post: { title: <span class="str">"test"</span> } }
+        expect(response).to redirect_to(new_user_session_path)
+      <span class="kw">end</span>
+    <span class="kw">end</span>
+  <span class="kw">end</span>
+<span class="kw">end</span>`,
+        tags: ["critical"]
+      },
+      {
+        title: "Linting avec RuboCop",
+        desc: "Enforcer le style dès le début. Plus difficile à introduire sur un projet existant.",
+        code: `<span class="comment"># .rubocop.yml</span>
+require:
+  - rubocop-rails
+  - rubocop-rspec
+
+AllCops:
+  NewCops: enable
+  Exclude:
+    - <span class="str">'db/schema.rb'</span>
+    - <span class="str">'bin/**/*'</span>
+
+<span class="cmd">rubocop</span>            <span class="comment"># linter</span>
+<span class="cmd">rubocop -a</span>         <span class="comment"># auto-correct safe</span>
+<span class="cmd">rubocop -A</span>         <span class="comment"># auto-correct unsafe</span>`,
+        tags: ["tip"]
+      },
+      {
+        title: "Réviser les indexes et performance DB",
+        desc: "Avant le premier deploy, vérifier que toutes les foreign keys et colonnes fréquemment cherchées sont indexées.",
+        code: `<span class="comment"># Vérifier les indexes manquants</span>
+<span class="cmd">rails db:schema:dump</span>
+
+<span class="comment"># Ajouter indexes manquants</span>
+<span class="kw">class</span> AddIndexes < ActiveRecord::Migration[7.0]
+  <span class="kw">def</span> change
+    add_index :posts, :published
+    add_index :posts, :created_at
+    add_index :posts, [:user_id, :published]  <span class="comment"># index composite</span>
+  <span class="kw">end</span>
+<span class="kw">end</span>`,
+        tags: ["critical"],
+        warn: "⚠ Gem 'lol_dba' scanne votre app et suggère les indexes manquants."
+      },
+      {
+        title: "Variables d'environnement & credentials",
+        desc: "Ne jamais committer de secrets. Utiliser Rails credentials ou dotenv pour les clés API, DB passwords, etc.",
+        code: `<span class="comment"># Rails credentials (recommandé)</span>
+<span class="cmd">rails credentials:edit</span>
+
+<span class="comment"># credentials.yml.enc (encrypté)</span>
+secret_key_base: xxx
+aws:
+  access_key_id: xxx
+  secret_access_key: xxx
+
+<span class="comment"># Utilisation</span>
+Rails.application.credentials.aws[:access_key_id]`,
+        tags: ["critical"],
+        warn: "⚠ Ne jamais ajouter .env ou config/master.key au dépôt Git."
+      },
+      {
+        title: "Préparer le deploy",
+        desc: "Vérifier la config production, les assets, les migrations. Tester en environnement staging si possible.",
+        code: `<span class="comment"># Checklist pré-deploy</span>
+<span class="cmd">rails assets:precompile</span> RAILS_ENV=production
+<span class="cmd">rails db:migrate</span> RAILS_ENV=production
+<span class="cmd">rails log:clear</span>
+
+<span class="comment"># config/environments/production.rb</span>
+config.force_ssl = <span class="flag">true</span>
+config.log_level = :info
+config.cache_classes = <span class="flag">true</span>
+
+<span class="comment"># Plateformes recommandées</span>
+<span class="comment"># Render.com, Fly.io, Heroku, Kamal (self-hosted)</span>`,
+        tags: ["critical"]
+      }
+    ]
+  }
+];
+
+let checkState = {};
+
+function renderPhases() {
+  const container = document.getElementById('phases');
+  let totalSteps = 0;
+
+  PHASES.forEach((phase, pi) => {
+    totalSteps += phase.steps.length;
+    const phaseEl = document.createElement('div');
+    phaseEl.className = 'phase';
+    phaseEl.id = `phase-${pi}`;
+
+    const stepsHTML = phase.steps.map((step, si) => {
+      const key = `${pi}-${si}`;
+      const checked = checkState[key] || false;
+      return `
+        <div class="step" style="--phase-color: ${phase.color}">
+          <div class="step-gutter">
+            <div class="step-checkbox ${checked ? 'checked' : ''}" onclick="toggleCheck('${key}', this)" data-key="${key}"></div>
+            <div class="step-number">${String(si + 1).padStart(2, '0')}</div>
+          </div>
+          <div class="step-content">
+            <div class="step-title">${step.title}</div>
+            <div class="step-desc">${step.desc}</div>
+            ${step.code ? `<div class="step-code">${step.code}</div>` : ''}
+            ${step.tip ? `<div class="tip-block">${step.tip}</div>` : ''}
+            ${step.warn ? `<div class="warn-block">${step.warn}</div>` : ''}
+            <div class="step-tags">
+              ${(step.tags || []).map(t => `<span class="tag ${t === 'critical' ? 'tag-critical' : t === 'tip' ? 'tag-tip' : ''}">${t === 'critical' ? '⚑ critique' : t === 'tip' ? '✓ best practice' : t}</span>`).join('')}
+            </div>
+          </div>
+        </div>`;
+    }).join('');
+
+    phaseEl.innerHTML = `
+      <div class="phase-header" style="--phase-color: ${phase.color}" onclick="togglePhase(${pi})">
+        <div class="phase-num">PHASE ${String(pi + 1).padStart(2, '0')}</div>
+        <div class="phase-title">${phase.title}</div>
+        <div class="phase-count">${phase.steps.length} étapes</div>
+        <div class="phase-chevron">▼</div>
+      </div>
+      <div class="phase-body">${stepsHTML}</div>`;
+
+    container.appendChild(phaseEl);
+  });
+
+  document.getElementById('stat-total').textContent = totalSteps;
+  updateProgress();
+
+  // Open first phase by default
+  document.getElementById('phase-0').classList.add('open');
+}
+
+function togglePhase(pi) {
+  const el = document.getElementById(`phase-${pi}`);
+  el.classList.toggle('open');
+}
+
+function toggleCheck(key, el) {
+  checkState[key] = !checkState[key];
+  el.classList.toggle('checked', checkState[key]);
+  saveState();
+  updateProgress();
+}
+
+function updateProgress() {
+  const total = PHASES.reduce((s, p) => s + p.steps.length, 0);
+  const done = Object.values(checkState).filter(Boolean).length;
+  const pct = total > 0 ? Math.round((done / total) * 100) : 0;
+
+  document.getElementById('progress-fill').style.width = pct + '%';
+  document.getElementById('progress-text').textContent = `${done} / ${total} étapes complétées`;
+  document.getElementById('stat-done').textContent = done;
+}
+
+function expandAll() {
+  PHASES.forEach((_, pi) => document.getElementById(`phase-${pi}`).classList.add('open'));
+}
+
+function collapseAll() {
+  PHASES.forEach((_, pi) => document.getElementById(`phase-${pi}`).classList.remove('open'));
+}
+
+function resetChecks() {
+  checkState = {};
+  document.querySelectorAll('.step-checkbox').forEach(el => el.classList.remove('checked'));
+  saveState();
+  updateProgress();
+}
+
+function saveState() {
+  try { localStorage.setItem('rails-workflow-checks', JSON.stringify(checkState)); } catch(e) {}
+}
+
+function loadState() {
+  try {
+    const saved = localStorage.getItem('rails-workflow-checks');
+    if (saved) checkState = JSON.parse(saved);
+  } catch(e) {}
+}
+
+loadState();
+renderPhases();
+</script>
+</body>
+</html>

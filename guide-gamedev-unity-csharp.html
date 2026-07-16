@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Game Dev Autodidacte — C# &amp; Unity</title>
+<style>
+:root{
+  --bg:#0f1115; --bg2:#161922; --card:#1b1f2a; --card2:#20253200;
+  --text:#e8e9ee; --muted:#9aa0b4; --accent:#7c9fff; --accent2:#ff9f6b;
+  --good:#5fd99b; --border:#2a3040; --shadow:0 8px 24px rgba(0,0,0,.35);
+  --radius:14px; --mono:'JetBrains Mono','Courier New',monospace;
+}
+[data-theme="light"]{
+  --bg:#f6f5f1; --bg2:#ffffff; --card:#ffffff; --text:#1d1f27; --muted:#5a5f72;
+  --accent:#3b5bdb; --accent2:#d9622b; --good:#1f9d62; --border:#e3e1da;
+  --shadow:0 8px 24px rgba(20,20,30,.08);
+}
+*{box-sizing:border-box;}
+body{
+  margin:0; font-family:'Segoe UI',system-ui,-apple-system,sans-serif;
+  background:var(--bg); color:var(--text); transition:background .3s,color .3s;
+}
+h1,h2,h3{font-family:'Segoe UI',system-ui,sans-serif; letter-spacing:-.02em;}
+.wrap{max-width:1180px; margin:0 auto; padding:0 24px 80px;}
+
+/* HEADER */
+header{
+  padding:48px 24px 28px; text-align:center; position:relative;
+  background:linear-gradient(180deg,var(--bg2),var(--bg));
+  border-bottom:1px solid var(--border);
+}
+header .tag{
+  font-family:var(--mono); font-size:12px; letter-spacing:.18em; color:var(--accent);
+  text-transform:uppercase; margin-bottom:10px;
+}
+header h1{font-size:clamp(28px,5vw,46px); margin:0 0 10px; background:linear-gradient(90deg,var(--accent),var(--accent2)); -webkit-background-clip:text; background-clip:text; color:transparent;}
+header p{color:var(--muted); max-width:680px; margin:0 auto; font-size:15px; line-height:1.6;}
+
+#theme-toggle{
+  position:absolute; top:20px; right:24px; background:var(--card); border:1px solid var(--border);
+  color:var(--text); padding:8px 14px; border-radius:99px; cursor:pointer; font-size:13px;
+}
+
+/* PROGRESS BAR */
+.progress-shell{max-width:680px; margin:26px auto 0; text-align:left;}
+.progress-meta{display:flex; justify-content:space-between; font-size:12px; color:var(--muted); margin-bottom:6px; font-family:var(--mono);}
+.progress-track{height:10px; background:var(--card); border-radius:99px; overflow:hidden; border:1px solid var(--border);}
+.progress-fill{height:100%; background:linear-gradient(90deg,var(--accent),var(--good)); width:0%; transition:width .4s ease;}
+
+/* NAV */
+nav.toc{
+  display:flex; flex-wrap:wrap; gap:8px; justify-content:center; padding:20px 24px;
+  position:sticky; top:0; z-index:50; background:var(--bg); border-bottom:1px solid var(--border);
+}
+nav.toc a{
+  font-size:12.5px; padding:7px 13px; border-radius:99px; border:1px solid var(--border);
+  color:var(--muted); text-decoration:none; font-family:var(--mono); white-space:nowrap;
+}
+nav.toc a:hover{color:var(--text); border-color:var(--accent);}
+
+/* PHASES */
+.phase{margin-top:56px;}
+.phase-head{display:flex; align-items:baseline; gap:14px; margin-bottom:6px; flex-wrap:wrap;}
+.phase-num{font-family:var(--mono); color:var(--accent2); font-size:14px;}
+.phase-head h2{margin:0; font-size:26px;}
+.phase-sub{color:var(--muted); font-size:14px; margin:0 0 22px; max-width:760px; line-height:1.6;}
+.phase-hours{font-family:var(--mono); font-size:12px; color:var(--muted); border:1px solid var(--border); padding:3px 10px; border-radius:99px;}
+
+.grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(330px,1fr)); gap:18px;}
+
+/* COURSE CARD */
+.course{
+  background:var(--card); border:1px solid var(--border); border-radius:var(--radius);
+  padding:18px 20px; box-shadow:var(--shadow); position:relative;
+}
+.course.done{border-color:var(--good);}
+.course-top{display:flex; justify-content:space-between; align-items:flex-start; gap:10px;}
+.course-title{font-size:15.5px; font-weight:600; margin:0 0 6px;}
+.course-hours{font-family:var(--mono); font-size:11px; color:var(--muted); white-space:nowrap;}
+.course-desc{font-size:13px; color:var(--muted); line-height:1.55; margin:6px 0 12px;}
+.checkbox{
+  width:22px; height:22px; border-radius:6px; border:2px solid var(--border); cursor:pointer;
+  flex-shrink:0; display:flex; align-items:center; justify-content:center; font-size:13px; color:transparent;
+  transition:all .15s;
+}
+.checkbox.checked{background:var(--good); border-color:var(--good); color:#06140c;}
+
+.resources{list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:6px;}
+.resources li a{
+  font-size:12.5px; color:var(--accent); text-decoration:none; display:flex; gap:6px; align-items:center;
+}
+.resources li a:hover{text-decoration:underline;}
+.res-dot{width:5px; height:5px; border-radius:50%; background:var(--accent2); flex-shrink:0;}
+
+.badge{
+  display:inline-block; font-family:var(--mono); font-size:10px; text-transform:uppercase; letter-spacing:.06em;
+  padding:2px 8px; border-radius:99px; margin-bottom:8px; border:1px solid var(--border); color:var(--muted);
+}
+.badge.unity{color:#7c9fff; border-color:#7c9fff44;}
+.badge.code{color:#ff9f6b; border-color:#ff9f6b44;}
+.badge.art{color:#5fd99b; border-color:#5fd99b44;}
+.badge.design{color:#e0a3ff; border-color:#e0a3ff44;}
+.badge.pro{color:#ffd56b; border-color:#ffd56b44;}
+
+/* MILESTONE */
+.milestone{
+  margin-top:22px; padding:16px 20px; border-left:3px solid var(--accent2); background:var(--bg2);
+  border-radius:0 10px 10px 0; font-size:13.5px; color:var(--text);
+}
+.milestone b{color:var(--accent2);}
+
+footer{text-align:center; padding:50px 24px 20px; color:var(--muted); font-size:12.5px; border-top:1px solid var(--border); margin-top:60px;}
+footer a{color:var(--accent);}
+
+@media(max-width:600px){
+  nav.toc{display:none;}
+}
+</style>
+</head>
+<body data-theme="dark">
+
+<header>
+  <button id="theme-toggle">🌓 Thème</button>
+  <div class="tag">Parcours autodidacte — 12 à 18 mois</div>
+  <h1>Développement de jeux vidéo<br>avec C# &amp; Unity</h1>
+  <p>Curriculum hybride basé sur le programme de l'École du jeu vidéo de Montréal et un plan d'apprentissage en ligne, adapté pour favoriser <b>Unity</b> et <b>C#</b> plutôt qu'Unreal/Blueprints. Quatre phases progressives : fondations, mécaniques avancées, prototypage en équipe, production finale.</p>
+
+  <div class="progress-shell">
+    <div class="progress-meta"><span id="prog-label">0 / 0 cours complétés</span><span id="prog-pct">0%</span></div>
+    <div class="progress-track"><div class="progress-fill" id="progress-fill"></div></div>
+  </div>
+</header>
+
+<nav class="toc">
+  <a href="#phase1">Phase 1 — Fondations</a>
+  <a href="#phase2">Phase 2 — Mécaniques avancées</a>
+  <a href="#phase3">Phase 3 — Prototypage</a>
+  <a href="#phase4">Phase 4 — Production finale</a>
+  <a href="#pro">Intégration professionnelle</a>
+  <a href="#tools">Outils &amp; ressources</a>
+</nav>
+
+<div class="wrap">
+
+<!-- PHASE 1 -->
+<section class="phase" id="phase1">
+  <div class="phase-head">
+    <span class="phase-num">01</span><h2>Fondations</h2>
+    <span class="phase-hours">≈ 285 h</span>
+  </div>
+  <p class="phase-sub">Apprendre les bases du Game Design, prendre en main Unity en profondeur (équivalent de l'approfondissement Unreal Engine 5 du programme original), maîtriser les fondamentaux de C# et s'initier à la modélisation 3D.</p>
+
+  <div class="grid">
+    <div class="course" data-id="p1-1">
+      <div class="course-top">
+        <div><span class="badge design">Design</span><p class="course-title">Design de jeux I</p></div>
+        <div class="checkbox" onclick="toggle(this)"></div>
+      </div>
+      <p class="course-desc">Principes essentiels du Game Design : boucles de gameplay, mécaniques, dynamiques, esthétique (MDA framework). Se mettre dans la peau d'un Game Designer.</p>
+      <span class="course-hours">75 h</span>
+      <ul class="resources">
+        <li><span class="res-dot"></span><a href="https://www.coursera.org/learn/game-design" target="_blank">Coursera — Game Design: Art and Concepts</a></li>
+        <li><span class="res-dot"></span><a href="https://www.gdcvault.com/" target="_blank">GDC Vault — conférences de Game Design</a></li>
+        <li><span class="res-dot"></span><a href="https://www.schellgames.com/art-of-game-design/" target="_blank">Livre : The Art of Game Design (Jesse Schell)</a></li>
+      </ul>
+    </div>
+
+    <div class="course" data-id="p1-2">
+      <div class="course-top">
+        <div><span class="badge unity">Unity</span><p class="course-title">Design de niveaux I — Unity en profondeur</p></div>
+        <div class="checkbox" onclick="toggle(this)"></div>
+      </div>
+      <p class="course-desc">Prise en main complète de l'éditeur Unity (au lieu d'Unreal Engine 5) : scènes, prefabs, Terrain Tools, ProBuilder, lighting, Tilemap pour le 2D. Conception de niveaux jouables.</p>
+      <span class="course-hours">75 h</span>
+      <ul class="resources">
+        <li><span class="res-dot"></span><a href="https://learn.unity.com/pathway/junior-programmer" target="_blank">Unity Learn — Junior Programmer Pathway</a></li>
+        <li><span class="res-dot"></span><a href="https://learn.unity.com/course/level-design" target="_blank">Unity Learn — Level Design fundamentals</a></li>
+        <li><span class="res-dot"></span><a href="https://docs.unity3d.com/Manual/index.html" target="_blank">Documentation officielle Unity</a></li>
+      </ul>
+    </div>
+
+    <div class="course" data-id="p1-3">
+      <div class="course-top">
+        <div><span class="badge code">Code</span><p class="course-title">Programmation C# fondamentale</p></div>
+        <div class="checkbox" onclick="toggle(this)"></div>
+      </div>
+      <p class="course-desc">Remplace la « programmation visuelle » (Blueprints) par C# textuel : variables, structures de contrôle, OOP, coroutines, événements. Implémentation de mécaniques (mouvement, collisions, inventaire, états).</p>
+      <span class="course-hours">90 h</span>
+      <ul class="resources">
+        <li><span class="res-dot"></span><a href="https://www.youtube.com/playlist?list=PLPV2KyIb3jR6ZkG8gZwJYSjnXxmfPAl51" target="_blank">Brackeys — C# &amp; Unity Basics (YouTube)</a></li>
+        <li><span class="res-dot"></span><a href="https://learn.unity.com/pathway/junior-programmer" target="_blank">Unity Learn — Create with Code</a></li>
+        <li><span class="res-dot"></span><a href="https://learn.microsoft.com/fr-fr/dotnet/csharp/" target="_blank">Microsoft Learn — Guide C#</a></li>
+      </ul>
+    </div>
+
+    <div class="course" data-id="p1-4">
+      <div class="course-top">
+        <div><span class="badge art">Art</span><p class="course-title">Introduction à la 3D — Modélisation &amp; texture</p></div>
+        <div class="checkbox" onclick="toggle(this)"></div>
+      </div>
+      <p class="course-desc">Bases de Blender pour modéliser et texturer des assets de jeu (props, environnements simples) et les importer dans Unity via FBX.</p>
+      <span class="course-hours">45 h</span>
+      <ul class="resources">
+        <li><span class="res-dot"></span><a href="https://www.youtube.com/c/BlenderGuru" target="_blank">Blender Guru (YouTube)</a></li>
+        <li><span class="res-dot"></span><a href="https://www.blender.org/support/tutorials/" target="_blank">Blender — tutoriels officiels</a></li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="milestone">🎯 <b>Objectif de phase :</b> créer un petit jeu jouable de bout en bout (plateforme 2D ou shooter simple) entièrement dans Unity/C#, avec assets 3D de base modélisés soi-même.</div>
+</section>
+
+<!-- PHASE 2 -->
+<section class="phase" id="phase2">
+  <div class="phase-head">
+    <span class="phase-num">02</span><h2>Mécaniques avancées</h2>
+    <span class="phase-hours">≈ 285 h</span>
+  </div>
+  <p class="phase-sub">Concepts avancés (IA, level design complet), narration interactive, VFX/audio, et compréhension de l'industrie. C'est ici qu'on intègre aussi les cours d'Animation et de Dessin du second programme.</p>
+
+  <div class="grid">
+    <div class="course" data-id="p2-1">
+      <div class="course-top">
+        <div><span class="badge code">Code</span><p class="course-title">Design de jeux II — IA &amp; systèmes avancés</p></div>
+        <div class="checkbox" onclick="toggle(this)"></div>
+      </div>
+      <p class="course-desc">Mise en pratique des notions de la phase 1 dans un jeu complet. Intelligence artificielle des ennemis : NavMesh, machines à états finis (FSM), Behaviour Trees, comportements de poursuite/patrouille.</p>
+      <span class="course-hours">75 h</span>
+      <ul class="resources">
+        <li><span class="res-dot"></span><a href="https://learn.unity.com/course/ai-for-beginners" target="_blank">Unity Learn — AI for Beginners</a></li>
+        <li><span class="res-dot"></span><a href="https://docs.unity3d.com/Manual/nav-NavigationSystem.html" target="_blank">Unity NavMesh &amp; Pathfinding (doc)</a></li>
+        <li><span class="res-dot"></span><a href="https://www.youtube.com/watch?v=db0KWYaWfeM" target="_blank">Sebastian Lague — FSM &amp; AI patterns</a></li>
+      </ul>
+    </div>
+
+    <div class="course" data-id="p2-2">
+      <div class="course-top">
+        <div><span class="badge unity">Unity</span><p class="course-title">Design de niveaux II — Niveaux complets</p></div>
+        <div class="checkbox" onclick="toggle(this)"></div>
+      </div>
+      <p class="course-desc">Techniques avancées : pacing, courbe de difficulté, lecture de niveau (level legibility), lighting d'ambiance, optimisation des scènes Unity.</p>
+      <span class="course-hours">75 h</span>
+      <ul class="resources">
+        <li><span class="res-dot"></span><a href="https://www.youtube.com/watch?v=GpwGZayQEnA" target="_blank">GDC — The Art of Level Design</a></li>
+        <li><span class="res-dot"></span><a href="https://learn.unity.com/course/level-design" target="_blank">Unity Learn — Level Design avancé</a></li>
+      </ul>
+    </div>
+
+    <div class="course" data-id="p2-3">
+      <div class="course-top">
+        <div><span class="badge design">Design</span><p class="course-title">Design narratif</p></div>
+        <div class="checkbox" onclick="toggle(this)"></div>
+      </div>
+      <p class="course-desc">Quêtes, dialogues, cinématiques, techniques de scénarisation. Implémentation d'un système de dialogue interactif en Unity (Ink/Yarn Spinner ou ScriptableObjects).</p>
+      <span class="course-hours">45 h</span>
+      <ul class="resources">
+        <li><span class="res-dot"></span><a href="https://www.inklestudios.com/ink/" target="_blank">Ink — outil narratif (Inkle)</a></li>
+        <li><span class="res-dot"></span><a href="https://www.yarnspinner.dev/" target="_blank">Yarn Spinner — dialogues Unity</a></li>
+      </ul>
+    </div>
+
+    <div class="course" data-id="p2-4">
+      <div class="course-top">
+        <div><span class="badge pro">Pro</span><p class="course-title">Méthodologie et industrie du jeu vidéo</p></div>
+        <div class="checkbox" onclick="toggle(this)"></div>
+      </div>
+      <p class="course-desc">Pratiques et conventions de l'industrie : Agile/Scrum appliqué au jeu vidéo, documentation de design (GDD), pipelines de production.</p>
+      <span class="course-hours">45 h</span>
+      <ul class="resources">
+        <li><span class="res-dot"></span><a href="https://www.gdcvault.com/" target="_blank">GDC Vault — talks méthodologie</a></li>
+      </ul>
+    </div>
+
+    <div class="course" data-id="p2-5">
+      <div class="course-top">
+        <div><span class="badge art">Art</span><p class="course-title">Effets visuels et Design audio</p></div>
+        <div class="checkbox" onclick="toggle(this)"></div>
+      </div>
+      <p class="course-desc">VFX Graph / Particle System de Unity pour effets visuels, et bases de FMOD ou audio natif Unity pour le sound design.</p>
+      <span class="course-hours">45 h</span>
+      <ul class="resources">
+        <li><span class="res-dot"></span><a href="https://learn.unity.com/course/introduction-to-vfx-graph" target="_blank">Unity Learn — Intro VFX Graph</a></li>
+        <li><span class="res-dot"></span><a href="https://www.fmod.com/learn" target="_blank">FMOD — Learn (audio middleware)</a></li>
+      </ul>
+    </div>
+
+    <div class="course" data-id="p2-6">
+      <div class="course-top">
+        <div><span class="badge art">Art</span><p class="course-title">Animation &amp; Dessin (complément)</p></div>
+        <div class="checkbox" onclick="toggle(this)"></div>
+      </div>
+      <p class="course-desc">Bases de l'animation 2D/3D (Animator Controller, Blend Trees dans Unity) et croquis rapide pour le concept art / storyboard de niveaux.</p>
+      <span class="course-hours">45 h</span>
+      <ul class="resources">
+        <li><span class="res-dot"></span><a href="https://learn.unity.com/tutorial/animator-controllers" target="_blank">Unity Learn — Animator Controllers</a></li>
+        <li><span class="res-dot"></span><a href="https://www.youtube.com/c/ProkoTV" target="_blank">Proko — Drawing fundamentals (YouTube)</a></li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="milestone">🎯 <b>Objectif de phase :</b> un prototype avancé avec ennemis intelligents, un niveau complet et soigné, un peu de narration et d'habillage audio/visuel — testé avec de vrais joueurs.</div>
+</section>
+
+<!-- PHASE 3 -->
+<section class="phase" id="phase3">
+  <div class="phase-head">
+    <span class="phase-num">03</span><h2>Prototypage en équipe</h2>
+    <span class="phase-hours">≈ 270 h</span>
+  </div>
+  <p class="phase-sub">Le cœur du programme original : deux Game Jams de 6 semaines en équipe. Pour un parcours solo, on les adapte en jams personnels ou via des communautés en ligne (itch.io, Discord).</p>
+
+  <div class="grid">
+    <div class="course" data-id="p3-1">
+      <div class="course-top">
+        <div><span class="badge code">Projet</span><p class="course-title">Prototypage de jeux — Game Jams</p></div>
+        <div class="checkbox" onclick="toggle(this)"></div>
+      </div>
+      <p class="course-desc">Deux cycles de production rapide (style Game Jam) respectant un thème imposé. Apprendre à scoper un projet, livrer un build jouable, itérer rapidement en C#/Unity.</p>
+      <span class="course-hours">225 h</span>
+      <ul class="resources">
+        <li><span class="res-dot"></span><a href="https://itch.io/jams" target="_blank">itch.io — Game Jams en cours</a></li>
+        <li><span class="res-dot"></span><a href="https://ldjam.com/" target="_blank">Ludum Dare</a></li>
+        <li><span class="res-dot"></span><a href="https://globalgamejam.org/" target="_blank">Global Game Jam</a></li>
+      </ul>
+    </div>
+
+    <div class="course" data-id="p3-2">
+      <div class="course-top">
+        <div><span class="badge art">Art</span><p class="course-title">Infographie et graphisme 2D</p></div>
+        <div class="checkbox" onclick="toggle(this)"></div>
+      </div>
+      <p class="course-desc">Logiciels 2D (Aseprite, Photoshop, Krita) pour UI, icônes, sprites et habillage visuel des prototypes.</p>
+      <span class="course-hours">45 h</span>
+      <ul class="resources">
+        <li><span class="res-dot"></span><a href="https://www.aseprite.org/" target="_blank">Aseprite — pixel art</a></li>
+        <li><span class="res-dot"></span><a href="https://www.youtube.com/c/Krita" target="_blank">Krita — tutoriels</a></li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="milestone">🎯 <b>Objectif de phase :</b> deux jeux complets jouables publiés sur itch.io, avec retours de joueurs réels intégrés.</div>
+</section>
+
+<!-- PHASE 4 -->
+<section class="phase" id="phase4">
+  <div class="phase-head">
+    <span class="phase-num">04</span><h2>Production finale</h2>
+    <span class="phase-hours">≈ 300 h</span>
+  </div>
+  <p class="phase-sub">Simulation de production de studio sur 15 semaines : alpha → beta → gold. Le projet capstone du portfolio.</p>
+
+  <div class="grid">
+    <div class="course" data-id="p4-1">
+      <div class="course-top">
+        <div><span class="badge code">Capstone</span><p class="course-title">Production finale — Alpha/Beta/Gold</p></div>
+        <div class="checkbox" onclick="toggle(this)"></div>
+      </div>
+      <p class="course-desc">Production d'un jeu complet en Unity/C# sur 15 semaines, en suivant les jalons réels d'un studio : phase Alpha (mécaniques figées), Beta (contenu complet), Gold (polish &amp; bugfix). Gestion de projet (Trello/Notion + Git).</p>
+      <span class="course-hours">300 h</span>
+      <ul class="resources">
+        <li><span class="res-dot"></span><a href="https://www.atlassian.com/agile/scrum" target="_blank">Atlassian — Scrum guide</a></li>
+        <li><span class="res-dot"></span><a href="https://docs.github.com/fr/get-started" target="_blank">GitHub — gestion de projet et versioning</a></li>
+        <li><span class="res-dot"></span><a href="https://learn.unity.com/course/production-ready-game-development" target="_blank">Unity Learn — Production-ready development</a></li>
+      </ul>
+    </div>
+
+    <div class="course" data-id="p4-2">
+      <div class="course-top">
+        <div><span class="badge art">VR</span><p class="course-title">Production en réalité virtuelle (optionnel)</p></div>
+        <div class="checkbox" onclick="toggle(this)"></div>
+      </div>
+      <p class="course-desc">Initiation au développement VR avec Unity XR Toolkit (Quest, PCVR). Module optionnel, complément du programme original.</p>
+      <span class="course-hours">120 h</span>
+      <ul class="resources">
+        <li><span class="res-dot"></span><a href="https://learn.unity.com/pathway/vr-development" target="_blank">Unity Learn — VR Development</a></li>
+        <li><span class="res-dot"></span><a href="https://docs.unity3d.com/Packages/com.unity.xr.interaction.toolkit@latest" target="_blank">Unity XR Interaction Toolkit (doc)</a></li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="milestone">🎯 <b>Objectif de phase :</b> un jeu « gold », poli et stable, prêt pour le portfolio ou une sortie sur Steam/itch.io.</div>
+</section>
+
+<!-- PRO -->
+<section class="phase" id="pro">
+  <div class="phase-head">
+    <span class="phase-num">05</span><h2>Intégration professionnelle &amp; entrepreneuriat</h2>
+    <span class="phase-hours">≈ 90 h</span>
+  </div>
+  <p class="phase-sub">Préparer le marché du travail ou la mise en marché de son propre jeu.</p>
+
+  <div class="grid">
+    <div class="course" data-id="pro-1">
+      <div class="course-top">
+        <div><span class="badge pro">Pro</span><p class="course-title">CV, portfolio &amp; demo reel</p></div>
+        <div class="checkbox" onclick="toggle(this)"></div>
+      </div>
+      <p class="course-desc">Construction d'un CV ciblé, d'un portfolio en ligne et d'un site web professionnel. Préparation à des entretiens techniques.</p>
+      <span class="course-hours">45 h</span>
+      <ul class="resources">
+        <li><span class="res-dot"></span><a href="https://www.artstation.com/" target="_blank">ArtStation — portfolio</a></li>
+        <li><span class="res-dot"></span><a href="https://itch.io/" target="_blank">itch.io — page de profil/jeux</a></li>
+      </ul>
+    </div>
+
+    <div class="course" data-id="pro-2">
+      <div class="course-top">
+        <div><span class="badge pro">Business</span><p class="course-title">Monétisation, vente &amp; entrepreneuriat</p></div>
+        <div class="checkbox" onclick="toggle(this)"></div>
+      </div>
+      <p class="course-desc">Stratégies de mise en marché indie, publication (Steam, itch.io, Epic Games Store, Google Play), crowdfunding, et — pour le contexte québécois — incorporation et subventions (Investissement Québec, Ubisoft Entrepreneurs).</p>
+      <span class="course-hours">45 h</span>
+      <ul class="resources">
+        <li><span class="res-dot"></span><a href="https://www.youtube.com/watch?v=vjboXvV_3Hk" target="_blank">GDC — How to Market Your Indie Game</a></li>
+        <li><span class="res-dot"></span><a href="https://www.udemy.com/course/the-business-of-game-development/" target="_blank">Udemy — Business of Game Development</a></li>
+        <li><span class="res-dot"></span><a href="https://www.quebec.ca/entreprises-et-travailleurs-autonomes/demarrer-entreprise" target="_blank">Québec.ca — démarrer une entreprise</a></li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- TOOLS -->
+<section class="phase" id="tools">
+  <div class="phase-head">
+    <span class="phase-num">★</span><h2>Outils &amp; ressources transversales</h2>
+  </div>
+  <div class="grid">
+    <div class="course">
+      <p class="course-title">🎮 Moteur</p>
+      <ul class="resources">
+        <li><span class="res-dot"></span><a href="https://unity.com/download" target="_blank">Unity Hub (LTS)</a></li>
+      </ul>
+    </div>
+    <div class="course">
+      <p class="course-title">💻 IDE</p>
+      <ul class="resources">
+        <li><span class="res-dot"></span><a href="https://visualstudio.microsoft.com/fr/" target="_blank">Visual Studio Community</a></li>
+        <li><span class="res-dot"></span><a href="https://code.visualstudio.com/" target="_blank">VS Code + extension C#</a></li>
+      </ul>
+    </div>
+    <div class="course">
+      <p class="course-title">🎨 Art</p>
+      <ul class="resources">
+        <li><span class="res-dot"></span><a href="https://www.blender.org/" target="_blank">Blender</a></li>
+        <li><span class="res-dot"></span><a href="https://www.aseprite.org/" target="_blank">Aseprite</a></li>
+      </ul>
+    </div>
+    <div class="course">
+      <p class="course-title">🧠 Communauté</p>
+      <ul class="resources">
+        <li><span class="res-dot"></span><a href="https://discussions.unity.com/" target="_blank">Unity Discussions</a></li>
+        <li><span class="res-dot"></span><a href="https://www.reddit.com/r/Unity3D/" target="_blank">r/Unity3D</a></li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+</div>
+
+<footer>
+  Guide d'autoformation personnalisé · C# &amp; Unity · Progression sauvegardée localement dans ton navigateur.
+</footer>
+
+<script>
+const checkboxes = () => document.querySelectorAll('.checkbox');
+
+function updateProgress(){
+  const all = checkboxes();
+  const done = document.querySelectorAll('.checkbox.checked').length;
+  const pct = all.length ? Math.round((done/all.length)*100) : 0;
+  document.getElementById('progress-fill').style.width = pct + '%';
+  document.getElementById('prog-label').textContent = `${done} / ${all.length} cours complétés`;
+  document.getElementById('prog-pct').textContent = pct + '%';
+}
+
+function toggle(el){
+  el.classList.toggle('checked');
+  el.textContent = el.classList.contains('checked') ? '✓' : '';
+  el.closest('.course').classList.toggle('done', el.classList.contains('checked'));
+  const id = el.closest('.course').dataset.id;
+  if(id){
+    const state = JSON.parse(localStorage.getItem('gamedev-progress') || '{}');
+    state[id] = el.classList.contains('checked');
+    localStorage.setItem('gamedev-progress', JSON.stringify(state));
+  }
+  updateProgress();
+}
+
+// Restore progress
+window.addEventListener('DOMContentLoaded', () => {
+  const state = JSON.parse(localStorage.getItem('gamedev-progress') || '{}');
+  document.querySelectorAll('.course[data-id]').forEach(c => {
+    const id = c.dataset.id;
+    if(state[id]){
+      const cb = c.querySelector('.checkbox');
+      cb.classList.add('checked');
+      cb.textContent = '✓';
+      c.classList.add('done');
+    }
+  });
+  updateProgress();
+
+  // theme
+  const saved = localStorage.getItem('gamedev-theme') || 'dark';
+  document.body.setAttribute('data-theme', saved);
+});
+
+document.getElementById('theme-toggle').addEventListener('click', () => {
+  const current = document.body.getAttribute('data-theme');
+  const next = current === 'dark' ? 'light' : 'dark';
+  document.body.setAttribute('data-theme', next);
+  localStorage.setItem('gamedev-theme', next);
+});
+</script>
+
+</body>
+</html>

@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Atelier — Tous les parcours</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap');
+
+  :root{
+    --bg:#efece4; --bg-2:#e6e1d3; --ink:#211f1c; --ink-soft:#615c4e;
+    --line:#d7d0bd; --card:#f9f7f0; --accent:#b5651d; --accent-soft:#b5651d1c;
+    --good:#4d6b4a; --good-soft:#4d6b4a1e; --shadow:0 1px 0 rgba(33,31,28,0.05);
+  }
+  html[data-theme="dark"]{
+    --bg:#1a1917; --bg-2:#211f1b; --ink:#ece7d9; --ink-soft:#a89f8c;
+    --line:#39352c; --card:#211f1b; --accent:#e08a3c; --accent-soft:#e08a3c26;
+    --good:#8fb37f; --good-soft:#8fb37f22; --shadow:0 1px 0 rgba(0,0,0,0.3);
+  }
+  *{box-sizing:border-box;}
+  body{ margin:0; background:var(--bg); color:var(--ink); font-family:'Inter', system-ui, sans-serif; padding-bottom:80px; transition:background .3s, color .3s;}
+
+  header{ max-width:1080px; margin:0 auto; padding:52px 24px 24px; border-bottom:1px solid var(--line);}
+  .eyebrow{ font-family:'IBM Plex Mono', monospace; font-size:12px; letter-spacing:.14em; text-transform:uppercase; color:var(--ink-soft); margin-bottom:12px;}
+  h1{ font-family:'Fraunces', serif; font-size:38px; font-weight:700; margin:0 0 8px;}
+  .subtitle{ color:var(--ink-soft); font-size:15.5px; max-width:64ch; margin:0 0 24px;}
+
+  .top-row{ display:flex; gap:16px; align-items:stretch; flex-wrap:wrap;}
+  .global-card{ flex:1; min-width:280px; background:var(--card); border:1px solid var(--line); border-radius:10px; padding:18px 20px;}
+  .global-top{ display:flex; justify-content:space-between; align-items:baseline; margin-bottom:8px;}
+  .global-num{ font-family:'Fraunces', serif; font-size:28px; font-weight:700; color:var(--accent);}
+  .global-label{ font-family:'IBM Plex Mono', monospace; font-size:11px; color:var(--ink-soft); text-transform:uppercase; letter-spacing:.05em;}
+  .global-track{ height:9px; border-radius:5px; background:var(--bg-2); overflow:hidden; border:1px solid var(--line);}
+  .global-fill{ height:100%; width:0%; background:linear-gradient(90deg, var(--good), var(--accent)); transition:width .6s ease;}
+  .global-meta{ margin-top:8px; font-size:12.5px; color:var(--ink-soft);}
+
+  #theme-toggle{ font-family:'IBM Plex Mono', monospace; font-size:12px; background:transparent; border:1px solid var(--line);
+    color:var(--ink-soft); padding:10px 16px; border-radius:20px; cursor:pointer; align-self:flex-start; white-space:nowrap;}
+  #theme-toggle:hover{ border-color:var(--accent); color:var(--accent);}
+
+  .server-note{ max-width:1080px; margin:16px auto 0; padding:0 24px;}
+  .note-box{ background:var(--accent-soft); border:1px solid var(--accent); border-radius:8px; padding:12px 16px; font-size:13px; color:var(--ink-soft); display:none;}
+  .note-box.show{ display:block;}
+  .note-box code{ font-family:'IBM Plex Mono', monospace; background:var(--bg-2); padding:1px 6px; border-radius:4px; color:var(--ink);}
+
+  main{ max-width:1080px; margin:0 auto; padding:12px 24px 0;}
+  .category{ margin-top:38px;}
+  .category-title{ font-family:'IBM Plex Mono', monospace; font-size:12px; letter-spacing:.1em; text-transform:uppercase;
+    color:var(--ink-soft); display:flex; align-items:center; gap:10px; margin-bottom:14px;}
+  .category-title::after{ content:""; flex:1; height:1px; background:var(--line);}
+
+  .grid{ display:grid; grid-template-columns:repeat(auto-fill, minmax(260px, 1fr)); gap:12px;}
+
+  .plan-card{ background:var(--card); border:1px solid var(--line); border-radius:10px; padding:16px 18px;
+    display:flex; flex-direction:column; gap:10px; box-shadow:var(--shadow); position:relative;}
+  .plan-title{ font-size:15.5px; font-weight:600; line-height:1.3; text-decoration:none; color:var(--ink);}
+  .plan-title:hover{ color:var(--accent);}
+  .plan-track{ height:6px; border-radius:4px; background:var(--bg-2); overflow:hidden; border:1px solid var(--line);}
+  .plan-fill{ height:100%; width:0%; background:var(--accent); transition:width .6s ease;}
+  .plan-fill.done{ background:var(--good);}
+  .plan-stat{ font-family:'IBM Plex Mono', monospace; font-size:11.5px; color:var(--ink-soft); display:flex; justify-content:space-between;}
+  .plan-open{ font-family:'IBM Plex Mono', monospace; font-size:11.5px; color:var(--accent); text-decoration:none; margin-top:2px;}
+  .plan-open:hover{ text-decoration:underline;}
+
+  .ref-row{ display:flex; align-items:center; justify-content:space-between; margin-top:2px;}
+  .ref-tag{ font-family:'IBM Plex Mono', monospace; font-size:10.5px; color:var(--ink-soft); text-transform:uppercase; letter-spacing:.05em;
+    border:1px dashed var(--line); border-radius:20px; padding:3px 9px;}
+  .ref-check{ display:flex; align-items:center; gap:6px; font-size:12px; color:var(--ink-soft); cursor:pointer;}
+  .ref-check input{ accent-color:var(--good); width:14px; height:14px; cursor:pointer;}
+
+  footer{ max-width:1080px; margin:48px auto 0; padding:20px 24px; text-align:center; font-family:'IBM Plex Mono', monospace; font-size:11px; color:var(--ink-soft);}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="eyebrow">Dudley Orestil · Atelier d'apprentissage</div>
+  <h1>Tous les parcours</h1>
+  <p class="subtitle">Un seul endroit pour naviguer entre les 16 plans — la progression de chacun est lue directement dans sa page, rien n'a été modifié dans les fichiers individuels.</p>
+  <div class="top-row">
+    <div class="global-card">
+      <div class="global-top">
+        <span class="global-num" id="global-num">0%</span>
+        <span class="global-label">Progression globale</span>
+      </div>
+      <div class="global-track"><div class="global-fill" id="global-fill"></div></div>
+      <div class="global-meta" id="global-meta">Lecture des 12 parcours suivis en cours…</div>
+    </div>
+    <button id="theme-toggle">☾ Mode sombre</button>
+  </div>
+</header>
+
+<div class="server-note">
+  <div class="note-box" id="note-box">
+    ⚠️ La progression ne se charge pas. Ce tableau de bord doit être ouvert via un petit serveur local (pas en double-cliquant sur le fichier) pour pouvoir lire les autres pages. Depuis ce dossier, lancez <code>python3 -m http.server</code> puis ouvrez <code>http://localhost:8000</code>.
+  </div>
+</div>
+
+<main id="categories"></main>
+
+<footer>檔案 · 進度 · 一覽 — un seul tableau de bord, seize parcours</footer>
+
+<script>
+const PLANS = [
+  { file:'plan_hsk1.html', title:'HSK 1 — Mandarin (繁體字)', cat:'🌏 Langues', selector:'#progress-text', mode:'fraction' },
+
+  { file:'parcours-go-devops-sre.html', title:'Go → DevOps / SRE / Architecte', cat:'🖥️ DevOps & Architecture', selector:'#progress-label', mode:'fraction' },
+  { file:'plan-defis-system-design.html', title:"Défis d'ingénierie & System Design", cat:'🖥️ DevOps & Architecture', selector:'#progress-label', mode:'fraction' },
+  { file:'parcours_hft_fpga.html', title:'HFT / FPGA — Feuille de route', cat:'🖥️ DevOps & Architecture', selector:'#total-pct', mode:'percent' },
+
+  { file:'angular_workflow.html', title:'Angular — Dev Workflow', cat:'💻 Frameworks Web', selector:'#progress-text', mode:'fraction' },
+  { file:'rails_workflow.html', title:'Rails — Dev Workflow', cat:'💻 Frameworks Web', selector:'#progress-text', mode:'fraction' },
+  { file:'ruby_guide.html', title:"Ruby — Guide d'études", cat:'💻 Frameworks Web', selector:null },
+  { file:'ux_workflow.html', title:'UX Design — Workflow + IA', cat:'💻 Frameworks Web', selector:null },
+
+  { file:'rust_crypto_exercises.html', title:'Rust × Crypto — 50 exercices', cat:'🦀 Rust & Cryptographie', selector:'#sb-progress', mode:'fraction' },
+  { file:'rust_crypto_solutions_01_20.html', title:'Solutions 01–20', cat:'🦀 Rust & Cryptographie', selector:null },
+  { file:'rust_crypto_solutions_21_30.html', title:'Solutions 21–30', cat:'🦀 Rust & Cryptographie', selector:null },
+  { file:'rust_crypto_solutions_31_40.html', title:'Solutions 31–40', cat:'🦀 Rust & Cryptographie', selector:null },
+
+  { file:'IND_informatique_distribuee.html', title:'Informatique Distribuée (UQAM)', cat:'🎓 Curriculum académique', selector:'#global-progress', mode:'fraction' },
+  { file:'LOG_autodidacte.html', title:'LOG121 · 210 · 240 · 410 · 430', cat:'🎓 Curriculum académique', selector:'#global-progress', mode:'fraction' },
+
+  { file:'guide-gamedev-unity-csharp.html', title:'Game Dev — C# & Unity', cat:'🎮 Jeu vidéo', selector:'#prog-label', mode:'fraction' },
+
+  { file:'plan-jeux-argumentation-dissertation.html', title:'Stratégie, Parole, Écrit', cat:'🧠 Stratégie & Écriture', selector:'#globalLabel', mode:'fraction' },
+];
+
+const CATEGORY_ORDER = ['🌏 Langues','🖥️ DevOps & Architecture','💻 Frameworks Web','🦀 Rust & Cryptographie','🎓 Curriculum académique','🎮 Jeu vidéo','🧠 Stratégie & Écriture'];
+
+const HUB_SEEN_KEY = 'hub_manual_seen';
+function loadSeen(){ try{ return JSON.parse(localStorage.getItem(HUB_SEEN_KEY)) || {}; }catch(e){ return {}; } }
+function saveSeen(s){ localStorage.setItem(HUB_SEEN_KEY, JSON.stringify(s)); }
+let seenState = loadSeen();
+
+function parseProgress(text, mode){
+  if(!text) return null;
+  if(mode === 'percent'){
+    const m = text.match(/(\d+)\s*%/);
+    if(m) return { done:parseInt(m[1]), total:100, pct:parseInt(m[1]) };
+    return null;
+  }
+  const m = text.match(/(\d+)\s*\/\s*(\d+)/);
+  if(m){
+    const done = parseInt(m[1]), total = parseInt(m[2]);
+    return { done, total, pct: total>0 ? Math.round((done/total)*100) : 0 };
+  }
+  return null;
+}
+
+// build category sections + card skeletons
+const categoriesEl = document.getElementById('categories');
+const cardRefs = {};
+CATEGORY_ORDER.forEach(cat => {
+  const plansInCat = PLANS.filter(p => p.cat === cat);
+  if(!plansInCat.length) return;
+  const sec = document.createElement('div');
+  sec.className = 'category';
+  sec.innerHTML = `<div class="category-title">${cat}</div><div class="grid" data-grid="${cat}"></div>`;
+  categoriesEl.appendChild(sec);
+  const grid = sec.querySelector('.grid');
+  plansInCat.forEach(p => {
+    const card = document.createElement('div');
+    card.className = 'plan-card';
+    if(p.selector){
+      card.innerHTML = `
+        <a class="plan-title" href="${p.file}">${p.title}</a>
+        <div class="plan-track"><div class="plan-fill" id="fill-${p.file}"></div></div>
+        <div class="plan-stat"><span id="stat-${p.file}">chargement…</span><span id="pct-${p.file}"></span></div>
+        <a class="plan-open" href="${p.file}">Ouvrir →</a>
+      `;
+    } else {
+      const isSeen = !!seenState[p.file];
+      card.innerHTML = `
+        <a class="plan-title" href="${p.file}">${p.title}</a>
+        <div class="ref-row">
+          <span class="ref-tag">Référence</span>
+          <label class="ref-check">
+            <input type="checkbox" data-seen="${p.file}" ${isSeen ? 'checked' : ''}> vu
+          </label>
+        </div>
+        <a class="plan-open" href="${p.file}">Ouvrir →</a>
+      `;
+    }
+    grid.appendChild(card);
+    cardRefs[p.file] = card;
+  });
+});
+
+document.querySelectorAll('[data-seen]').forEach(cb => {
+  cb.addEventListener('change', () => {
+    const key = cb.getAttribute('data-seen');
+    seenState[key] = cb.checked;
+    saveSeen(seenState);
+  });
+});
+
+// load each tracked plan in a hidden iframe, sequentially in small batches, to read its own computed progress
+const trackedPlans = PLANS.filter(p => p.selector);
+const results = {};
+let noteTimer = setTimeout(() => document.getElementById('note-box').classList.add('show'), 6000);
+
+function loadOne(plan){
+  return new Promise(resolve => {
+    const iframe = document.createElement('iframe');
+    iframe.style.cssText = 'position:absolute; width:1px; height:1px; opacity:0; pointer-events:none; left:-9999px;';
+    let settled = false;
+    const finish = (val) => { if(settled) return; settled = true; try{ iframe.remove(); }catch(e){} resolve(val); };
+    iframe.onload = () => {
+      setTimeout(() => {
+        try{
+          const doc = iframe.contentDocument;
+          const el = doc.querySelector(plan.selector);
+          const parsed = parseProgress(el ? el.textContent : null, plan.mode);
+          finish(parsed);
+        }catch(e){
+          finish(null);
+        }
+      }, 150);
+    };
+    iframe.onerror = () => finish(null);
+    document.body.appendChild(iframe);
+    iframe.src = plan.file;
+    setTimeout(() => finish(null), 4000); // safety timeout
+  });
+}
+
+async function loadAllTracked(){
+  const BATCH = 3;
+  for(let i=0; i<trackedPlans.length; i+=BATCH){
+    const batch = trackedPlans.slice(i, i+BATCH);
+    const outcomes = await Promise.all(batch.map(loadOne));
+    batch.forEach((plan, idx) => {
+      results[plan.file] = outcomes[idx];
+      renderPlanResult(plan, outcomes[idx]);
+    });
+  }
+  clearTimeout(noteTimer);
+  renderGlobal();
+}
+
+function renderPlanResult(plan, result){
+  const fill = document.getElementById('fill-' + plan.file);
+  const stat = document.getElementById('stat-' + plan.file);
+  const pctEl = document.getElementById('pct-' + plan.file);
+  if(!fill || !stat) return;
+  if(!result){
+    stat.textContent = 'progression indisponible';
+    pctEl.textContent = '';
+    fill.style.width = '0%';
+    document.getElementById('note-box').classList.add('show');
+    return;
+  }
+  fill.style.width = result.pct + '%';
+  if(result.pct >= 100) fill.classList.add('done');
+  pctEl.textContent = result.pct + '%';
+  stat.textContent = plan.mode === 'percent' ? 'complété' : (result.done + ' / ' + result.total);
+}
+
+function renderGlobal(){
+  const valid = trackedPlans.map(p => results[p.file]).filter(r => r);
+  const globalFill = document.getElementById('global-fill');
+  const globalNum = document.getElementById('global-num');
+  const globalMeta = document.getElementById('global-meta');
+  if(!valid.length){
+    globalNum.textContent = '—';
+    globalMeta.textContent = "Impossible de lire la progression — ouvrez ce tableau via un serveur local.";
+    return;
+  }
+  const avgPct = Math.round(valid.reduce((a,r) => a + r.pct, 0) / valid.length);
+  globalFill.style.width = avgPct + '%';
+  globalNum.textContent = avgPct + '%';
+  const completed = valid.filter(r => r.pct >= 100).length;
+  globalMeta.textContent = `Moyenne sur ${valid.length} / ${trackedPlans.length} parcours suivis · ${completed} terminé(s)`;
+}
+
+loadAllTracked();
+
+const themeBtn = document.getElementById('theme-toggle');
+const root = document.documentElement;
+function applyTheme(t){
+  root.setAttribute('data-theme', t);
+  themeBtn.textContent = t === 'dark' ? '☀ Mode clair' : '☾ Mode sombre';
+  localStorage.setItem('hub_theme', t);
+}
+applyTheme(localStorage.getItem('hub_theme') || 'light');
+themeBtn.addEventListener('click', () => applyTheme(root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark'));
+</script>
+</body>
+</html>

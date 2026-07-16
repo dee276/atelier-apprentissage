@@ -1,0 +1,871 @@
+<!DOCTYPE html>
+<html lang="fr" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tutoriels Autodidactes — LOG121·LOG210·LOG240·LOG410·LOG430</title>
+<style>
+:root[data-theme="dark"]{--bg:#0f1117;--bg2:#171a23;--bg3:#1e2130;--border:#2a2f45;--text:#e2e6f0;--text2:#8a93b0;--accent:#6c8aff;--accent2:#a78bfa;--green:#34d399;--orange:#fb923c;--red:#f87171;--yellow:#fbbf24;--tag-bg:#252a3d}
+:root[data-theme="light"]{--bg:#f4f5f9;--bg2:#ffffff;--bg3:#eef0f7;--border:#d4d8ea;--text:#1a1d2e;--text2:#5a6080;--accent:#4060e0;--accent2:#7c3aed;--green:#059669;--orange:#d97706;--red:#dc2626;--yellow:#b45309;--tag-bg:#e5e8f5}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Inter','Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);display:flex;min-height:100vh;font-size:15px;line-height:1.6}
+#sidebar{width:262px;min-width:262px;background:var(--bg2);border-right:1px solid var(--border);display:flex;flex-direction:column;position:sticky;top:0;height:100vh;overflow-y:auto}
+#sidebar-header{padding:20px 16px 12px;border-bottom:1px solid var(--border)}
+#sidebar-header h1{font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--accent);margin-bottom:4px}
+#sidebar-header p{font-size:11px;color:var(--text2)}
+#course-nav{padding:8px 0;flex:1}
+.nav-course{display:flex;flex-direction:column}
+.nav-course-btn{display:flex;align-items:center;gap:10px;padding:10px 16px;cursor:pointer;border:none;background:none;color:var(--text);text-align:left;width:100%;font-size:13px;font-weight:600;transition:background .15s;border-left:3px solid transparent}
+.nav-course-btn:hover{background:var(--bg3)}
+.nav-course-btn.active{background:var(--bg3);border-left-color:var(--accent);color:var(--accent)}
+.nav-course-btn .code{background:var(--tag-bg);color:var(--accent);font-size:10px;font-weight:700;padding:2px 6px;border-radius:4px;letter-spacing:.05em;white-space:nowrap}
+.nav-section-links{display:none;flex-direction:column;padding:0 0 4px 28px}
+.nav-section-links.open{display:flex}
+.nav-sec-link{font-size:12px;color:var(--text2);padding:5px 12px;cursor:pointer;border-radius:4px;transition:color .15s}
+.nav-sec-link:hover{color:var(--accent)}
+.progress-mini{margin:2px 16px 8px;height:4px;background:var(--border);border-radius:2px;overflow:hidden}
+.progress-mini-fill{height:100%;background:var(--green);border-radius:2px;transition:width .4s}
+#sidebar-bottom{padding:12px 16px;border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+#theme-toggle{background:var(--bg3);border:1px solid var(--border);color:var(--text);border-radius:6px;padding:5px 10px;font-size:12px;cursor:pointer;transition:background .15s}
+#theme-toggle:hover{background:var(--border)}
+#global-progress{font-size:11px;color:var(--text2)}
+#main{flex:1;overflow-y:auto}
+.course-panel{display:none;padding:32px 40px 60px;max-width:900px;animation:fadeIn .2s ease}
+.course-panel.active{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.course-header{margin-bottom:32px;padding-bottom:24px;border-bottom:1px solid var(--border)}
+.course-tag{display:inline-block;background:var(--tag-bg);color:var(--accent);font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:3px 8px;border-radius:4px;margin-bottom:10px}
+.course-title{font-size:26px;font-weight:700;margin-bottom:8px;line-height:1.3}
+.course-subtitle{color:var(--text2);font-size:14px;max-width:640px}
+.course-meta{display:flex;gap:16px;margin-top:16px;flex-wrap:wrap}
+.meta-pill{background:var(--bg3);border:1px solid var(--border);border-radius:20px;padding:4px 12px;font-size:12px;color:var(--text2)}
+.meta-pill strong{color:var(--text)}
+.progress-block{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:20px 24px;margin-bottom:28px}
+.progress-block h3{font-size:13px;font-weight:600;color:var(--text2);letter-spacing:.06em;text-transform:uppercase;margin-bottom:12px}
+.progress-bar-wrap{background:var(--border);border-radius:6px;height:8px;margin-bottom:10px;overflow:hidden}
+.progress-bar-fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--accent2));border-radius:6px;transition:width .5s ease}
+.progress-stats{display:flex;gap:20px;font-size:13px;color:var(--text2)}
+.progress-stats span strong{color:var(--text)}
+.section{margin-bottom:36px}
+.section-title{display:flex;align-items:center;gap:10px;font-size:17px;font-weight:700;margin-bottom:16px;color:var(--text)}
+.section-icon{width:28px;height:28px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0}
+.icon-obj{background:#1a3a5c}.icon-res{background:#1a3a2e}.icon-ex{background:#2e1a3a}.icon-eval{background:#3a2a1a}
+.obj-list{display:flex;flex-direction:column;gap:8px}
+.obj-item{display:flex;align-items:flex-start;gap:10px;background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:12px 14px;font-size:14px}
+.obj-check{width:18px;height:18px;border:2px solid var(--border);border-radius:4px;cursor:pointer;flex-shrink:0;margin-top:1px;display:flex;align-items:center;justify-content:center;font-size:11px;transition:all .15s}
+.obj-check.done{background:var(--green);border-color:var(--green);color:#fff}
+.resources-grid{display:flex;flex-direction:column;gap:10px}
+.res-card{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:14px 16px;display:flex;gap:14px;align-items:flex-start;transition:border-color .15s;text-decoration:none;color:var(--text)}
+.res-card:hover{border-color:var(--accent)}
+.res-icon{font-size:20px;flex-shrink:0;margin-top:2px}
+.res-body{flex:1;min-width:0}
+.res-title{font-size:14px;font-weight:600;color:var(--text);margin-bottom:3px}
+.res-desc{font-size:12px;color:var(--text2);line-height:1.5;margin-bottom:6px}
+.res-tags{display:flex;gap:6px;flex-wrap:wrap}
+.res-tag{background:var(--tag-bg);border-radius:4px;padding:2px 7px;font-size:11px;font-weight:600}
+.tag-free{color:var(--green)}.tag-video{color:var(--orange)}.tag-book{color:var(--accent)}.tag-pdf{color:var(--red)}.tag-course{color:var(--accent2)}.tag-key{color:var(--yellow);background:rgba(251,191,36,.1)}
+.ex-list{display:flex;flex-direction:column;gap:12px}
+.ex-card{background:var(--bg2);border:1px solid var(--border);border-radius:10px;overflow:hidden;transition:border-color .15s}
+.ex-card.done-ex{border-color:var(--green)}
+.ex-header{display:flex;align-items:center;gap:12px;padding:12px 16px;cursor:pointer;user-select:none}
+.ex-num{background:var(--tag-bg);color:var(--accent);font-size:11px;font-weight:700;padding:2px 8px;border-radius:4px;flex-shrink:0}
+.ex-title-text{font-size:14px;font-weight:600;flex:1}
+.ex-difficulty{font-size:11px;padding:2px 8px;border-radius:4px;font-weight:600}
+.diff-easy{background:rgba(52,211,153,.15);color:var(--green)}
+.diff-medium{background:rgba(251,146,60,.15);color:var(--orange)}
+.diff-hard{background:rgba(248,113,113,.15);color:var(--red)}
+.ex-check-btn{background:none;border:2px solid var(--border);color:var(--text2);border-radius:6px;padding:3px 10px;font-size:11px;cursor:pointer;transition:all .15s;white-space:nowrap}
+.ex-check-btn.done{background:var(--green);border-color:var(--green);color:#fff}
+.ex-chevron{color:var(--text2);font-size:12px;transition:transform .2s;flex-shrink:0}
+.ex-card.open .ex-chevron{transform:rotate(90deg)}
+.ex-body{display:none;padding:0 16px 16px;border-top:1px solid var(--border)}
+.ex-card.open .ex-body{display:block}
+.ex-body p{font-size:13px;color:var(--text2);margin:12px 0 8px;line-height:1.6}
+.ex-body ul,.ex-body ol{padding-left:18px;font-size:13px;color:var(--text2);line-height:1.8}
+.ex-hint{background:var(--bg3);border-left:3px solid var(--accent2);border-radius:0 6px 6px 0;padding:8px 12px;font-size:12px;color:var(--text2);margin-top:10px}
+.ex-hint strong{color:var(--accent2)}
+.eval-card{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:16px 18px;margin-bottom:10px}
+.eval-card h4{font-size:14px;font-weight:700;margin-bottom:8px;color:var(--accent)}
+.eval-card p,.eval-card li{font-size:13px;color:var(--text2);line-height:1.6}
+.eval-card ul{padding-left:18px}
+.roadmap{display:flex;flex-direction:column}
+.roadmap-step{display:flex;gap:16px;align-items:flex-start;position:relative}
+.roadmap-step:not(:last-child)::after{content:'';position:absolute;left:13px;top:28px;width:2px;height:calc(100% - 8px);background:var(--border)}
+.roadmap-dot{width:28px;height:28px;border-radius:50%;background:var(--bg3);border:2px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:var(--text2);flex-shrink:0;z-index:1}
+.roadmap-content{flex:1;padding:2px 0 20px}
+.roadmap-week{font-size:11px;color:var(--accent);font-weight:600;text-transform:uppercase;letter-spacing:.06em}
+.roadmap-desc{font-size:13px;color:var(--text2);margin-top:2px}
+@media(max-width:768px){body{flex-direction:column}#sidebar{width:100%;height:auto;min-width:0;position:static;border-right:none;border-bottom:1px solid var(--border)}.course-panel{padding:20px 16px 40px}}
+</style>
+</head>
+<body>
+<nav id="sidebar">
+  <div id="sidebar-header">
+    <h1>Génie Logiciel — UQAM</h1>
+    <p>Tutoriels autodidactes · 5 cours</p>
+  </div>
+  <div id="course-nav">
+    <div class="nav-course">
+      <button class="nav-course-btn active" onclick="showCourse('log121',this)"><span class="code">LOG121</span>Conception OO</button>
+      <div class="progress-mini"><div class="progress-mini-fill" id="mini-log121" style="width:0%"></div></div>
+      <div class="nav-section-links open" id="nav-log121">
+        <span class="nav-sec-link" onclick="scrollSec('log121','obj')">Objectifs</span>
+        <span class="nav-sec-link" onclick="scrollSec('log121','roadmap')">Feuille de route</span>
+        <span class="nav-sec-link" onclick="scrollSec('log121','res')">Ressources</span>
+        <span class="nav-sec-link" onclick="scrollSec('log121','ex')">Exercices</span>
+        <span class="nav-sec-link" onclick="scrollSec('log121','eval')">Auto-évaluation</span>
+      </div>
+    </div>
+    <div class="nav-course">
+      <button class="nav-course-btn" onclick="showCourse('log210',this)"><span class="code">LOG210</span>Analyse &amp; Conception</button>
+      <div class="progress-mini"><div class="progress-mini-fill" id="mini-log210" style="width:0%"></div></div>
+      <div class="nav-section-links" id="nav-log210">
+        <span class="nav-sec-link" onclick="scrollSec('log210','obj')">Objectifs</span>
+        <span class="nav-sec-link" onclick="scrollSec('log210','roadmap')">Feuille de route</span>
+        <span class="nav-sec-link" onclick="scrollSec('log210','res')">Ressources</span>
+        <span class="nav-sec-link" onclick="scrollSec('log210','ex')">Exercices</span>
+        <span class="nav-sec-link" onclick="scrollSec('log210','eval')">Auto-évaluation</span>
+      </div>
+    </div>
+    <div class="nav-course">
+      <button class="nav-course-btn" onclick="showCourse('log240',this)"><span class="code">LOG240</span>Tests &amp; Maintenance</button>
+      <div class="progress-mini"><div class="progress-mini-fill" id="mini-log240" style="width:0%"></div></div>
+      <div class="nav-section-links" id="nav-log240">
+        <span class="nav-sec-link" onclick="scrollSec('log240','obj')">Objectifs</span>
+        <span class="nav-sec-link" onclick="scrollSec('log240','roadmap')">Feuille de route</span>
+        <span class="nav-sec-link" onclick="scrollSec('log240','res')">Ressources</span>
+        <span class="nav-sec-link" onclick="scrollSec('log240','ex')">Exercices</span>
+        <span class="nav-sec-link" onclick="scrollSec('log240','eval')">Auto-évaluation</span>
+      </div>
+    </div>
+    <div class="nav-course">
+      <button class="nav-course-btn" onclick="showCourse('log410',this)"><span class="code">LOG410</span>Analyse des besoins</button>
+      <div class="progress-mini"><div class="progress-mini-fill" id="mini-log410" style="width:0%"></div></div>
+      <div class="nav-section-links" id="nav-log410">
+        <span class="nav-sec-link" onclick="scrollSec('log410','obj')">Objectifs</span>
+        <span class="nav-sec-link" onclick="scrollSec('log410','roadmap')">Feuille de route</span>
+        <span class="nav-sec-link" onclick="scrollSec('log410','res')">Ressources</span>
+        <span class="nav-sec-link" onclick="scrollSec('log410','ex')">Exercices</span>
+        <span class="nav-sec-link" onclick="scrollSec('log410','eval')">Auto-évaluation</span>
+      </div>
+    </div>
+    <div class="nav-course">
+      <button class="nav-course-btn" onclick="showCourse('log430',this)"><span class="code">LOG430</span>Architecture logicielle</button>
+      <div class="progress-mini"><div class="progress-mini-fill" id="mini-log430" style="width:0%"></div></div>
+      <div class="nav-section-links" id="nav-log430">
+        <span class="nav-sec-link" onclick="scrollSec('log430','obj')">Objectifs</span>
+        <span class="nav-sec-link" onclick="scrollSec('log430','roadmap')">Feuille de route</span>
+        <span class="nav-sec-link" onclick="scrollSec('log430','res')">Ressources</span>
+        <span class="nav-sec-link" onclick="scrollSec('log430','ex')">Exercices</span>
+        <span class="nav-sec-link" onclick="scrollSec('log430','eval')">Auto-évaluation</span>
+      </div>
+    </div>
+  </div>
+  <div id="sidebar-bottom">
+    <span id="global-progress">0 / 0 complétés</span>
+    <button id="theme-toggle" onclick="toggleTheme()">☀ Clair</button>
+  </div>
+</nav>
+
+<main id="main">
+
+<!-- ===== LOG121 ===== -->
+<div class="course-panel active" id="panel-log121">
+  <div class="course-header">
+    <span class="course-tag">LOG121</span>
+    <h2 class="course-title">Conception orientée objet</h2>
+    <p class="course-subtitle">Principes OO, patrons de conception GoF (23 patrons), UML, cohésion/couplage, composition vs héritage.</p>
+    <div class="course-meta">
+      <span class="meta-pill"><strong>~8 semaines</strong> autodidactes</span>
+      <span class="meta-pill"><strong>Langage cible :</strong> Java ou Python</span>
+      <span class="meta-pill"><strong>Niveau :</strong> Intermédiaire</span>
+    </div>
+  </div>
+  <div class="progress-block">
+    <h3>Progression</h3>
+    <div class="progress-bar-wrap"><div class="progress-bar-fill" id="prog-log121" style="width:0%"></div></div>
+    <div class="progress-stats"><span><strong id="done-log121">0</strong> exercices complétés</span><span><strong id="obj-done-log121">0</strong> objectifs cochés</span></div>
+  </div>
+
+  <div class="section" id="log121-obj">
+    <div class="section-title"><div class="section-icon icon-obj">🎯</div>Objectifs d'apprentissage</div>
+    <div class="obj-list">
+      <div class="obj-item"><div class="obj-check" onclick="toggleObj(this,'log121')" data-id="121-1">✓</div><span>Identifier objets, responsabilités et interactions — maîtriser cohésion forte et couplage faible</span></div>
+      <div class="obj-item"><div class="obj-check" onclick="toggleObj(this,'log121')" data-id="121-2">✓</div><span>Lire et produire des diagrammes UML : classes, objets, séquences</span></div>
+      <div class="obj-item"><div class="obj-check" onclick="toggleObj(this,'log121')" data-id="121-3">✓</div><span>Comprendre et appliquer les 23 patrons GoF dans des contextes concrets</span></div>
+      <div class="obj-item"><div class="obj-check" onclick="toggleObj(this,'log121')" data-id="121-4">✓</div><span>Choisir entre composition et héritage de manière justifiée (principe GoF)</span></div>
+      <div class="obj-item"><div class="obj-check" onclick="toggleObj(this,'log121')" data-id="121-5">✓</div><span>Appliquer les 5 principes SOLID sur des exemples de code réels</span></div>
+      <div class="obj-item"><div class="obj-check" onclick="toggleObj(this,'log121')" data-id="121-6">✓</div><span>Écrire des tests unitaires (JUnit/pytest) pour valider la conception</span></div>
+    </div>
+  </div>
+
+  <div class="section" id="log121-roadmap">
+    <div class="section-title"><div class="section-icon icon-obj">🗺</div>Feuille de route — 8 semaines</div>
+    <div class="roadmap">
+      <div class="roadmap-step"><div class="roadmap-dot">1</div><div class="roadmap-content"><div class="roadmap-week">Semaine 1</div><div class="roadmap-desc">Révision OO fondamentale — encapsulation, héritage, polymorphisme, interfaces abstraites. Installer PlantUML + VS Code.</div></div></div>
+      <div class="roadmap-step"><div class="roadmap-dot">2</div><div class="roadmap-content"><div class="roadmap-week">Semaine 2</div><div class="roadmap-desc">Cohésion &amp; couplage — principes SOLID (SRP, OCP, LSP, ISP, DIP). Exercices de refactoring ciblés.</div></div></div>
+      <div class="roadmap-step"><div class="roadmap-dot">3</div><div class="roadmap-content"><div class="roadmap-week">Semaine 3</div><div class="roadmap-desc">UML — diagrammes de classes et d'objets. Modéliser un domaine métier réel (bibliothèque, e-commerce).</div></div></div>
+      <div class="roadmap-step"><div class="roadmap-dot">4</div><div class="roadmap-content"><div class="roadmap-week">Semaine 4</div><div class="roadmap-desc">Patrons créationnels — Singleton, Factory Method, Abstract Factory, Builder, Prototype.</div></div></div>
+      <div class="roadmap-step"><div class="roadmap-dot">5</div><div class="roadmap-content"><div class="roadmap-week">Semaine 5</div><div class="roadmap-desc">Patrons structuraux — Adapter, Bridge, Composite, Decorator, Facade, Flyweight, Proxy.</div></div></div>
+      <div class="roadmap-step"><div class="roadmap-dot">6</div><div class="roadmap-content"><div class="roadmap-week">Semaine 6</div><div class="roadmap-desc">Patrons comportementaux — Strategy, Observer, Command, Iterator, State, Template Method, Chain of Responsibility, Visitor.</div></div></div>
+      <div class="roadmap-step"><div class="roadmap-dot">7</div><div class="roadmap-content"><div class="roadmap-week">Semaine 7</div><div class="roadmap-desc">Diagrammes de séquence UML — modéliser des interactions entre objets avec patrons intégrés.</div></div></div>
+      <div class="roadmap-step"><div class="roadmap-dot">8</div><div class="roadmap-content"><div class="roadmap-week">Semaine 8</div><div class="roadmap-desc">Projet intégrateur : mini-application avec 3+ patrons, diagrammes complets, tests unitaires ≥ 80% couverture.</div></div></div>
+    </div>
+  </div>
+
+  <div class="section" id="log121-res">
+    <div class="section-title"><div class="section-icon icon-res">📚</div>Ressources recommandées</div>
+    <div class="resources-grid">
+      <a class="res-card" href="https://refactoring.guru/fr/design-patterns" target="_blank">
+        <div class="res-icon">🌐</div>
+        <div class="res-body"><div class="res-title">Refactoring.Guru — Design Patterns (FR)</div><div class="res-desc">La référence visuelle par excellence. Chaque patron expliqué avec illustrations, exemples de code multi-langages et cas d'usage réels. Totalement gratuit en ligne.</div><div class="res-tags"><span class="res-tag tag-free">Gratuit</span><span class="res-tag tag-key">⭐ Incontournable</span></div></div>
+      </a>
+      <a class="res-card" href="https://www.youtube.com/playlist?list=PL6XklZATqYx9dj72MKG6wLYjljeB2odra" target="_blank">
+        <div class="res-icon">▶</div>
+        <div class="res-body"><div class="res-title">Christopher Okhravi — Design Patterns (YouTube)</div><div class="res-desc">Série très pédagogique, niveau académique élevé. Discussions sur le pourquoi de chaque patron, pas seulement le comment. Idéal pour préparer des examens écrits.</div><div class="res-tags"><span class="res-tag tag-free">Gratuit</span><span class="res-tag tag-video">Vidéo</span><span class="res-tag tag-key">⭐ Recommandé</span></div></div>
+      </a>
+      <a class="res-card" href="https://fr.coursera.org/learn/object-oriented-design" target="_blank">
+        <div class="res-icon">🎓</div>
+        <div class="res-body"><div class="res-title">Coursera — Object-Oriented Design (Univ. Alberta)</div><div class="res-desc">Cours structuré couvrant OO, UML et patrons. Audit gratuit disponible. Fait partie de la spécialisation "Software Design and Architecture" — les 4 cours sont pertinents.</div><div class="res-tags"><span class="res-tag tag-free">Audit gratuit</span><span class="res-tag tag-course">Cours en ligne</span></div></div>
+      </a>
+      <a class="res-card" href="https://plantuml.com/fr/" target="_blank">
+        <div class="res-icon">🛠</div>
+        <div class="res-body"><div class="res-title">PlantUML — Outil UML textuel</div><div class="res-desc">Générer diagrammes de classes, séquences, objets depuis du texte. Plugin VS Code + IntelliJ. Versionneable avec Git. Utilisé en industrie et en milieu académique.</div><div class="res-tags"><span class="res-tag tag-free">Gratuit</span></div></div>
+      </a>
+      <a class="res-card" href="https://www.youtube.com/playlist?list=PLrhzvIcii0T9HIBIOzdBKXMkH4bx9KuLW" target="_blank">
+        <div class="res-icon">▶</div>
+        <div class="res-body"><div class="res-title">Derek Banas — Design Patterns Java (YouTube)</div><div class="res-desc">Capsules de 10-20 min par patron GoF, avec code Java. Excellent pour consolider chaque patron juste après la lecture de Refactoring.Guru.</div><div class="res-tags"><span class="res-tag tag-free">Gratuit</span><span class="res-tag tag-video">Vidéo</span></div></div>
+      </a>
+      <a class="res-card" href="https://www.goodreads.com/book/show/85009.Head_First_Design_Patterns" target="_blank">
+        <div class="res-icon">📖</div>
+        <div class="res-body"><div class="res-title">Head First Design Patterns — Freeman &amp; Robson</div><div class="res-desc">Approche visuelle et narrative, idéale pour une première découverte des patrons. Disponible à la bibliothèque UQAM via O'Reilly Learning (accès institutionnel).</div><div class="res-tags"><span class="res-tag tag-book">Livre</span></div></div>
+      </a>
+    </div>
+  </div>
+
+  <div class="section" id="log121-ex">
+    <div class="section-title"><div class="section-icon icon-ex">💡</div>Exercices pratiques</div>
+    <div class="ex-list">
+      <div class="ex-card" id="ex-log121-1">
+        <div class="ex-header" onclick="toggleEx('log121-1')"><span class="ex-num">Ex 1</span><span class="ex-title-text">Refactoring — Détecter et corriger les violations SOLID</span><span class="ex-difficulty diff-easy">Facile</span><button class="ex-check-btn" onclick="event.stopPropagation();markDone('log121-1','log121')">Complété</button><span class="ex-chevron">▶</span></div>
+        <div class="ex-body">
+          <p>Une classe <code>UserManager</code> gère les utilisateurs, envoie des emails ET génère des PDF. Identifiez toutes les violations SOLID.</p>
+          <ol><li>Listez chaque violation (SRP, OCP, LSP, ISP, DIP) avec justification.</li><li>Refactorez en 3 classes distinctes respectant SRP.</li><li>Dessinez le diagramme de classes PlantUML du résultat.</li></ol>
+          <div class="ex-hint"><strong>Indice :</strong> Si vous décrivez la responsabilité d'une classe avec le mot "et", c'est une violation SRP. Une classe = une raison de changer.</div>
+        </div>
+      </div>
+      <div class="ex-card" id="ex-log121-2">
+        <div class="ex-header" onclick="toggleEx('log121-2')"><span class="ex-num">Ex 2</span><span class="ex-title-text">Patron Strategy — Système de paiement multi-méthodes</span><span class="ex-difficulty diff-easy">Facile</span><button class="ex-check-btn" onclick="event.stopPropagation();markDone('log121-2','log121')">Complété</button><span class="ex-chevron">▶</span></div>
+        <div class="ex-body">
+          <p>Une boutique supporte carte de crédit, PayPal et virement bancaire. Le mode de paiement est choisi à l'exécution.</p>
+          <ol><li>Implémentez Strategy avec une interface <code>PaymentStrategy</code> et 3 classes concrètes.</li><li>Modifiez <code>ShoppingCart</code> pour recevoir la stratégie par injection.</li><li>Ajoutez un test unitaire par stratégie.</li><li>Justifiez pourquoi Strategy est préférable à un <code>if/else</code> ici (OCP).</li></ol>
+          <div class="ex-hint"><strong>Indice :</strong> Strategy encapsule un algorithme interchangeable. L'ajout d'un nouveau mode de paiement ne doit pas modifier les classes existantes.</div>
+        </div>
+      </div>
+      <div class="ex-card" id="ex-log121-3">
+        <div class="ex-header" onclick="toggleEx('log121-3')"><span class="ex-num">Ex 3</span><span class="ex-title-text">Patron Observer — Notifications de commandes</span><span class="ex-difficulty diff-medium">Moyen</span><button class="ex-check-btn" onclick="event.stopPropagation();markDone('log121-3','log121')">Complété</button><span class="ex-chevron">▶</span></div>
+        <div class="ex-body">
+          <p>À chaque nouvelle commande, le système doit notifier : service de livraison, email client, tableau de bord analytics.</p>
+          <ol><li>Implémentez Observer avec <code>Subject</code>, interface <code>Observer</code> et 3 observateurs concrets.</li><li>Diagramme de séquence UML d'une notification complète.</li><li>Discutez : comment gérer la désinscription ? Quels risques de fuite mémoire en Java ?</li></ol>
+          <div class="ex-hint"><strong>Indice :</strong> Pensez à WeakReference ou à un mécanisme d'unsubscribe explicite pour éviter de retenir des objets inutilement.</div>
+        </div>
+      </div>
+      <div class="ex-card" id="ex-log121-4">
+        <div class="ex-header" onclick="toggleEx('log121-4')"><span class="ex-num">Ex 4</span><span class="ex-title-text">Composition vs Héritage — Personnages de jeu vidéo</span><span class="ex-difficulty diff-medium">Moyen</span><button class="ex-check-btn" onclick="event.stopPropagation();markDone('log121-4','log121')">Complété</button><span class="ex-chevron">▶</span></div>
+        <div class="ex-body">
+          <p>Personnages (Guerrier, Mage, Archer) avec capacités de déplacement (marche, vol, nage), d'attaque (épée, magie, arc) et défense (bouclier, esquive, armure magique) — combinaisons libres.</p>
+          <ol><li>Modélisez avec héritage pur. Combien de classes pour couvrir toutes les combinaisons ?</li><li>Modélisez avec composition (Strategy + injection). Comparez la complexité.</li><li>Implémentez la version composition. Ajoutez un <code>Paladin</code> en moins de 10 lignes.</li></ol>
+          <div class="ex-hint"><strong>Indice :</strong> L'explosion combinatoire de l'héritage (3×3×3 = 27 classes) illustre exactement pourquoi le GoF dit "préférez la composition".</div>
+        </div>
+      </div>
+      <div class="ex-card" id="ex-log121-5">
+        <div class="ex-header" onclick="toggleEx('log121-5')"><span class="ex-num">Ex 5</span><span class="ex-title-text">Patrons Decorator &amp; Facade — Système de café</span><span class="ex-difficulty diff-medium">Moyen</span><button class="ex-check-btn" onclick="event.stopPropagation();markDone('log121-5','log121')">Complété</button><span class="ex-chevron">▶</span></div>
+        <div class="ex-body">
+          <p>Boissons de base (espresso, thé) + suppléments ajoutables dynamiquement (lait, sirop, mousse, caramel) avec prix additionnel.</p>
+          <ol><li>Implémentez Decorator pour calculer le prix dynamiquement.</li><li>Ajoutez une Facade <code>CoffeeShop</code> qui simplifie la création de boissons populaires.</li><li>Diagramme de classes UML complet.</li></ol>
+        </div>
+      </div>
+      <div class="ex-card" id="ex-log121-6">
+        <div class="ex-header" onclick="toggleEx('log121-6')"><span class="ex-num">Ex 6</span><span class="ex-title-text">Projet intégrateur — Mini-gestionnaire de tâches</span><span class="ex-difficulty diff-hard">Difficile</span><button class="ex-check-btn" onclick="event.stopPropagation();markDone('log121-6','log121')">Complété</button><span class="ex-chevron">▶</span></div>
+        <div class="ex-body">
+          <p>Concevez un gestionnaire de tâches simplifié (Trello-like) en appliquant au minimum 3 patrons distincts.</p>
+          <ol><li>Identifiez et justifiez les 3+ patrons utilisés.</li><li>Diagramme de classes UML complet (PlantUML).</li><li>Diagramme de séquence UML pour "ajouter une tâche et notifier les observateurs".</li><li>Implémentation Java ou Python avec tests unitaires (couverture ≥ 80%).</li><li>Document de 1 page expliquant vos décisions de conception.</li></ol>
+          <div class="ex-hint"><strong>Suggestion :</strong> Command (undo/redo), Observer (notifications), Builder (création de tâches complexes), Singleton (accès au gestionnaire central).</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section" id="log121-eval">
+    <div class="section-title"><div class="section-icon icon-eval">📝</div>Auto-évaluation</div>
+    <div class="eval-card"><h4>Critères de maîtrise</h4><ul><li>Vous nommez et esquissez les 23 patrons GoF sans aide, classés par catégorie.</li><li>Vous lisez un diagramme de classes UML et le traduisez en code en moins de 10 min.</li><li>Face à un problème de conception, vous identifiez 2-3 patrons candidats et justifiez votre choix.</li><li>Vous expliquez cohésion forte / couplage faible avec des exemples de code concrets.</li></ul></div>
+    <div class="eval-card"><h4>Questions d'examen typiques</h4><ul><li>Quel patron utiliseriez-vous pour ajouter dynamiquement des comportements sans modifier la classe ?</li><li>Expliquez la différence entre Abstract Factory et Factory Method.</li><li>Réécrivez ce code utilisant l'héritage en utilisant la composition.</li><li>Dessinez le diagramme de séquence de <code>order.execute()</code> dans un système Command.</li></ul></div>
+  </div>
+</div>
+
+<!-- ===== LOG210 ===== -->
+<div class="course-panel" id="panel-log210">
+  <div class="course-header">
+    <span class="course-tag">LOG210</span>
+    <h2 class="course-title">Analyse et conception de logiciels</h2>
+    <p class="course-subtitle">GRASP (9 principes), UML avancé, cas d'utilisation détaillés, modèle du domaine, processus itératif UP/Agile.</p>
+    <div class="course-meta">
+      <span class="meta-pill"><strong>~9 semaines</strong> autodidactes</span>
+      <span class="meta-pill"><strong>Prérequis :</strong> LOG121</span>
+      <span class="meta-pill"><strong>Référence :</strong> Larman — Applying UML and Patterns</span>
+    </div>
+  </div>
+  <div class="progress-block">
+    <h3>Progression</h3>
+    <div class="progress-bar-wrap"><div class="progress-bar-fill" id="prog-log210" style="width:0%"></div></div>
+    <div class="progress-stats"><span><strong id="done-log210">0</strong> exercices complétés</span><span><strong id="obj-done-log210">0</strong> objectifs cochés</span></div>
+  </div>
+
+  <div class="section" id="log210-obj">
+    <div class="section-title"><div class="section-icon icon-obj">🎯</div>Objectifs d'apprentissage</div>
+    <div class="obj-list">
+      <div class="obj-item"><div class="obj-check" onclick="toggleObj(this,'log210')" data-id="210-1">✓</div><span>Maîtriser les 9 principes GRASP et les appliquer systématiquement à l'attribution des responsabilités</span></div>
+      <div class="obj-item"><div class="obj-check" onclick="toggleObj(this,'log210')" data-id="210-2">✓</div><span>Rédiger des cas d'utilisation au format détaillé (Larman) et construire le modèle du domaine</span></div>
+      <div class="obj-item"><div class="obj-check" onclick="toggleObj(this,'log210')" data-id="210-3">✓</div><span>Produire des DSS (Diagrammes de Séquence Système) et des contrats d'opérations</span></div>
+      <div class="obj-item"><div class="obj-check" onclick="toggleObj(this,'log210')" data-id="210-4">✓</div><span>Concevoir une architecture en couches (Présentation, Domaine, Persistance)</span></div>
+      <div class="obj-item"><div class="obj-check" onclick="toggleObj(this,'log210')" data-id="210-5">✓</div><span>Appliquer un processus itératif et évolutif (UP) de l'analyse jusqu'à l'implémentation</span></div>
+    </div>
+  </div>
+
+  <div class="section" id="log210-roadmap">
+    <div class="section-title"><div class="section-icon icon-obj">🗺</div>Feuille de route — 9 semaines</div>
+    <div class="roadmap">
+      <div class="roadmap-step"><div class="roadmap-dot">1</div><div class="roadmap-content"><div class="roadmap-week">Semaine 1-2</div><div class="roadmap-desc">Processus itératif UP / Agile — phases, itérations, livrables. Cas d'utilisation : format bref → format détaillé (acteur, préconditions, scénario principal, extensions, postconditions).</div></div></div>
+      <div class="roadmap-step"><div class="roadmap-dot">2</div><div class="roadmap-content"><div class="roadmap-week">Semaine 3</div><div class="roadmap-desc">Modèle du domaine — identifier les concepts, associations et attributs. Différence cruciale : modèle du domaine ≠ modèle de conception.</div></div></div>
+      <div class="roadmap-step"><div class="roadmap-dot">3</div><div class="roadmap-content"><div class="roadmap-week">Semaine 4</div><div class="roadmap-desc">GRASP — Expert en information, Créateur, Contrôleur, Faible couplage, Forte cohésion, Polymorphisme, Indirection, Fabrication pure, Variation protégée.</div></div></div>
+      <div class="roadmap-step"><div class="roadmap-dot">4</div><div class="roadmap-content"><div class="roadmap-week">Semaine 5</div><div class="roadmap-desc">DSS (Diagrammes de Séquence Système) — modéliser acteur ↔ système. Contrats d'opérations : préconditions et postconditions.</div></div></div>
+      <div class="roadmap-step"><div class="roadmap-dot">5</div><div class="roadmap-content"><div class="roadmap-week">Semaine 6-7</div><div class="roadmap-desc">Patrons GoF dans la conception — Facade, Adapter, Singleton, Factory Method appliqués aux diagrammes de collaboration et d'interaction.</div></div></div>
+      <div class="roadmap-step"><div class="roadmap-dot">6</div><div class="roadmap-content"><div class="roadmap-week">Semaine 8</div><div class="roadmap-desc">Architecture en couches — séparation UI / Domaine / Persistance. Patron Controller GRASP pour la couche domaine.</div></div></div>
+      <div class="roadmap-step"><div class="roadmap-dot">7</div><div class="roadmap-content"><div class="roadmap-week">Semaine 9</div><div class="roadmap-desc">Projet complet itération 1 : CU → Modèle domaine → DSS → Diagrammes de conception → Code avec tests.</div></div></div>
+    </div>
+  </div>
+
+  <div class="section" id="log210-res">
+    <div class="section-title"><div class="section-icon icon-res">📚</div>Ressources recommandées</div>
+    <div class="resources-grid">
+      <a class="res-card" href="https://www.amazon.ca/Applying-UML-Patterns-Introduction-Object-Oriented/dp/0131489062" target="_blank">
+        <div class="res-icon">📖</div>
+        <div class="res-body"><div class="res-title">Applying UML and Patterns — Craig Larman (3e éd.)</div><div class="res-desc">LE manuel de LOG210 à l'UQAM. Couvre GRASP, CU détaillés, modèle du domaine, DSS, UP et patrons GoF appliqués. Chapitres 1-17 sont le cœur du cours.</div><div class="res-tags"><span class="res-tag tag-book">Livre</span><span class="res-tag tag-key">⭐ Manuel officieux</span></div></div>
+      </a>
+      <a class="res-card" href="https://github.com/fuhrmanator/log210-notes-de-cours" target="_blank">
+        <div class="res-icon">📄</div>
+        <div class="res-body"><div class="res-title">Notes de cours LOG210 — Prof. Fuhrman (GitHub UQAM)</div><div class="res-desc">Notes de cours open-source directement issues du cours LOG210 de l'UQAM. Exercices résolus, explications des 9 GRASP, exemples avec système de POS de Larman.</div><div class="res-tags"><span class="res-tag tag-free">Gratuit</span><span class="res-tag tag-key">⭐ Ressource UQAM</span></div></div>
+      </a>
+      <a class="res-card" href="https://fr.coursera.org/learn/design-patterns" target="_blank">
+        <div class="res-icon">🎓</div>
+        <div class="res-body"><div class="res-title">Coursera — Design Patterns (Univ. Alberta)</div><div class="res-desc">Complément à Larman. Patrons GoF appliqués à la conception OO avec UML. Audit gratuit disponible. Partie 2 de la spécialisation Software Design and Architecture.</div><div class="res-tags"><span class="res-tag tag-free">Audit gratuit</span><span class="res-tag tag-course">Cours en ligne</span></div></div>
+      </a>
+      <a class="res-card" href="https://app.diagrams.net/" target="_blank">
+        <div class="res-icon">🛠</div>
+        <div class="res-body"><div class="res-title">draw.io (diagrams.net) — UML gratuit en ligne</div><div class="res-desc">Outil accessible pour tous types de diagrammes UML. En ligne, sans installation, export PNG/SVG/PDF. Idéal pour les DSS et diagrammes de classes.</div><div class="res-tags"><span class="res-tag tag-free">Gratuit</span></div></div>
+      </a>
+    </div>
+  </div>
+
+  <div class="section" id="log210-ex">
+    <div class="section-title"><div class="section-icon icon-ex">💡</div>Exercices pratiques</div>
+    <div class="ex-list">
+      <div class="ex-card" id="ex-log210-1">
+        <div class="ex-header" onclick="toggleEx('log210-1')"><span class="ex-num">Ex 1</span><span class="ex-title-text">Cas d'utilisation détaillé — Réservation de billets</span><span class="ex-difficulty diff-easy">Facile</span><button class="ex-check-btn" onclick="event.stopPropagation();markDone('log210-1','log210')">Complété</button><span class="ex-chevron">▶</span></div>
+        <div class="ex-body">
+          <p>Système de réservation de billets de cinéma en ligne.</p>
+          <ol><li>Identifiez les acteurs primaires et secondaires.</li><li>Rédigez le diagramme de cas d'utilisation avec relations include/extend.</li><li>Rédigez le CU "Réserver un billet" au format détaillé Larman (acteur, préconditions, scénario principal, extensions, postconditions).</li></ol>
+          <div class="ex-hint"><strong>Indice :</strong> Format détaillé Larman : Titre, Portée, Niveau, Acteur principal, Parties prenantes &amp; intérêts, Préconditions, Garanties minimales, Garanties en cas de succès, Scénario principal, Extensions.</div>
+        </div>
+      </div>
+      <div class="ex-card" id="ex-log210-2">
+        <div class="ex-header" onclick="toggleEx('log210-2')"><span class="ex-num">Ex 2</span><span class="ex-title-text">Modèle du domaine — Système de bibliothèque</span><span class="ex-difficulty diff-easy">Facile</span><button class="ex-check-btn" onclick="event.stopPropagation();markDone('log210-2','log210')">Complété</button><span class="ex-chevron">▶</span></div>
+        <div class="ex-body">
+          <p>Gestion d'une bibliothèque : membres, livres, exemplaires, emprunts, retours et amendes.</p>
+          <ol><li>Identifiez les concepts-clés du domaine (noms communs dans la description).</li><li>Dessinez le modèle du domaine avec attributs, associations et multiplicités.</li><li>Distinguez explicitement : concept vs valeur descriptive vs association.</li><li>Expliquez pourquoi <code>Exemplaire</code> et <code>Livre</code> sont deux concepts distincts.</li></ol>
+        </div>
+      </div>
+      <div class="ex-card" id="ex-log210-3">
+        <div class="ex-header" onclick="toggleEx('log210-3')"><span class="ex-num">Ex 3</span><span class="ex-title-text">GRASP — Attribuer les responsabilités dans un POS</span><span class="ex-difficulty diff-medium">Moyen</span><button class="ex-check-btn" onclick="event.stopPropagation();markDone('log210-3','log210')">Complété</button><span class="ex-chevron">▶</span></div>
+        <div class="ex-body">
+          <p>Système point de vente (POS) : <code>Vente</code> contient des <code>LigneDeVente</code>, chaque ligne référence un <code>Produit</code> avec un prix. Qui calcule le total ?</p>
+          <ol><li>Appliquez "Expert en information" pour justifier l'attribution à <code>LigneDeVente</code> et <code>Vente</code>.</li><li>Validez avec "Faible couplage" et "Forte cohésion".</li><li>Produisez le DSS pour l'opération <code>entrerArticle(codeArticle, qte)</code>.</li><li>Produisez le diagramme d'interaction pour <code>calculerTotal()</code>.</li></ol>
+          <div class="ex-hint"><strong>Indice :</strong> Expert = la classe qui possède les données nécessaires. LigneDeVente connaît son quantité et son produit, Vente connaît ses lignes.</div>
+        </div>
+      </div>
+      <div class="ex-card" id="ex-log210-4">
+        <div class="ex-header" onclick="toggleEx('log210-4')"><span class="ex-num">Ex 4</span><span class="ex-title-text">Architecture en couches — Refactoring d'un monolithe</span><span class="ex-difficulty diff-medium">Moyen</span><button class="ex-check-btn" onclick="event.stopPropagation();markDone('log210-4','log210')">Complété</button><span class="ex-chevron">▶</span></div>
+        <div class="ex-body">
+          <p>Une classe <code>MainFrame</code> mélange interface graphique, logique métier et accès base de données.</p>
+          <ol><li>Identifiez les 3 couches et attribuez chaque portion de code à sa couche.</li><li>Refactorez en 3 packages distincts. Diagramme de packages UML.</li><li>Appliquez le patron Facade pour l'interface Présentation ↔ Domaine.</li></ol>
+        </div>
+      </div>
+      <div class="ex-card" id="ex-log210-5">
+        <div class="ex-header" onclick="toggleEx('log210-5')"><span class="ex-num">Ex 5</span><span class="ex-title-text">Itération complète — De l'analyse à l'implémentation</span><span class="ex-difficulty diff-hard">Difficile</span><button class="ex-check-btn" onclick="event.stopPropagation();markDone('log210-5','log210')">Complété</button><span class="ex-chevron">▶</span></div>
+        <div class="ex-body">
+          <p>Choisissez un mini-domaine (location de voitures, gestion d'inventaire, etc.) et réalisez une itération UP complète :</p>
+          <ol><li>2 CU format détaillé</li><li>Modèle du domaine</li><li>DSS pour les opérations système principales</li><li>Diagramme de classes de conception (GRASP + 1 patron GoF)</li><li>Implémentation couche domaine (Java ou Python)</li><li>Tests unitaires</li></ol>
+          <div class="ex-hint"><strong>Durée estimée :</strong> 6-10h. Cet exercice est représentatif d'un examen ou d'un lab LOG210 complet.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section" id="log210-eval">
+    <div class="section-title"><div class="section-icon icon-eval">📝</div>Auto-évaluation</div>
+    <div class="eval-card"><h4>Critères de maîtrise</h4><ul><li>Vous citez et définissez les 9 GRASP avec un exemple de code pour chacun.</li><li>Vous rédigez un CU format détaillé complet en moins de 20 min.</li><li>Vous passez du CU au DSS, du DSS au diagramme de conception, sans aide.</li><li>Chaque décision de responsabilité est justifiée par un principe GRASP nommé.</li></ul></div>
+    <div class="eval-card"><h4>Questions d'examen typiques</h4><ul><li>Appliquez le principe "Expert en information" pour l'opération X dans le domaine Y.</li><li>Quelle est la différence entre Contrôleur de façade et Contrôleur de cas d'utilisation ?</li><li>Pourquoi Fabrication pure est-il un principe de dernier recours ?</li><li>Dessinez le DSS pour l'opération <code>terminerVente()</code> dans le système POS.</li></ul></div>
+  </div>
+</div>
+
+<!-- ===== LOG240 ===== -->
+<div class="course-panel" id="panel-log240">
+  <div class="course-header">
+    <span class="course-tag">LOG240</span>
+    <h2 class="course-title">Tests et maintenance du logiciel</h2>
+    <p class="course-subtitle">Tests boîte noire/blanche, niveaux de tests, TDD, gestion de configuration, cycle de vie de la maintenance.</p>
+    <div class="course-meta">
+      <span class="meta-pill"><strong>~8 semaines</strong> autodidactes</span>
+      <span class="meta-pill"><strong>Outils :</strong> JUnit 5 / pytest / Git</span>
+      <span class="meta-pill"><strong>Niveau :</strong> Intermédiaire</span>
+    </div>
+  </div>
+  <div class="progress-block">
+    <h3>Progression</h3>
+    <div class="progress-bar-wrap"><div class="progress-bar-fill" id="prog-log240" style="width:0%"></div></div>
+    <div class="progress-stats"><span><strong id="done-log240">0</strong> exercices complétés</span><span><strong id="obj-done-log240">0</strong> objectifs cochés</span></div>
+  </div>
+
+  <div class="section" id="log240-obj">
+    <div class="section-title"><div class="section-icon icon-obj">🎯</div>Objectifs d'apprentissage</div>
+    <div class="obj-list">
+      <div class="obj-item"><div class="obj-check" onclick="toggleObj(this,'log240')" data-id="240-1">✓</div><span>Concevoir des tests boîte noire : classes d'équivalence, valeurs limites, tables de décision, graphe cause-effet</span></div>
+      <div class="obj-item"><div class="obj-check" onclick="toggleObj(this,'log240')" data-id="240-2">✓</div><span>Concevoir des tests boîte blanche : graphes de flot, couverture instructions/branches/chemins, complexité cyclomatique</span></div>
+      <div class="obj-item"><div class="obj-check" onclick="toggleObj(this,'log240')" data-id="240-3">✓</div><span>Implémenter des tests unitaires, d'intégration, système et d'acceptation avec les frameworks standards</span></div>
+      <div class="obj-item"><div class="obj-check" onclick="toggleObj(this,'log240')" data-id="240-4">✓</div><span>Appliquer TDD (cycle Rouge / Vert / Refactor) sur des fonctionnalités complètes</span></div>
+      <div class="obj-item"><div class="obj-check" onclick="toggleObj(this,'log240')" data-id="240-5">✓</div><span>Gérer la configuration logicielle avec Git (branches, tags, gestion de versions)</span></div>
+      <div class="obj-item"><div class="obj-check" onclick="toggleObj(this,'log240')" data-id="240-6">✓</div><span>Analyser l'impact d'un changement et gérer les rapports de problèmes (maintenance)</span></div>
+    </div>
+  </div>
+
+  <div class="section" id="log240-roadmap">
+    <div class="section-title"><div class="section-icon icon-obj">🗺</div>Feuille de route — 8 semaines</div>
+    <div class="roadmap">
+      <div class="roadmap-step"><div class="roadmap-dot">1</div><div class="roadmap-content"><div class="roadmap-week">Semaine 1</div><div class="roadmap-desc">Fondamentaux — terminologie (erreur, défaut, échec), principes de test, types de tests, gestion de configuration Git (branches, tags, semantic versioning).</div></div></div>
+      <div class="roadmap-step"><div class="roadmap-dot">2</div><div class="roadmap-content"><div class="roadmap-week">Semaine 2</div><div class="roadmap-desc">Tests boîte noire — classes d'équivalence valides/invalides, analyse des valeurs limites, graphe cause-effet, tables de décision. Exercices sur spécifications réelles.</div></div></div>
+      <div class="roadmap-step"><div class="roadmap-dot">3</div><div class="roadmap-content"><div class="roadmap-week">Semaine 3</div><div class="roadmap-desc">Tests boîte blanche — graphe de flot de contrôle, complexité cyclomatique de McCabe, couverture instructions / branches / chemins indépendants. Outil : JaCoCo ou coverage.py.</div></div></div>
+      <div class="roadmap-step"><div class="roadmap-dot">4</div><div class="roadmap-content"><div class="roadmap-week">Semaine 4</div><div class="roadmap-desc">TDD — cycle Rouge/Vert/Refactor. Mocks, stubs, spies et fakes (Mockito / unittest.mock). Différences et cas d'usage de chaque doublure de test.</div></div></div>
+      <div class="roadmap-step"><div class="roadmap-dot">5</div><div class="roadmap-content"><div class="roadmap-week">Semaine 5</div><div class="roadmap-desc">Tests d'intégration et système. Tests d'acceptation (BDD / Gherkin / Cucumber ou Behave). Pipeline CI/CD basique avec GitHub Actions.</div></div></div>
+      <div class="roadmap-step"><div class="roadmap-dot">6</div><div class="roadmap-content"><div class="roadmap-week">Semaine 6</div><div class="roadmap-desc">Maintenance logicielle — cycle de vie (IEEE 14764), types de maintenance (corrective, adaptative, perfective, préventive), transition développement → maintenance.</div></div></div>
+      <div class="roadmap-step"><div class="roadmap-dot">7</div><div class="roadmap-content"><div class="roadmap-week">Semaine 7</div><div class="roadmap-desc">Analyse d'impact, gestion des rapports de problèmes, dette technique. Modèles de maturité (CMMI, TMMi). Métriques de maintenabilité.</div></div></div>
+      <div class="roadmap-step"><div class="roadmap-dot">8</div><div class="roadmap-content"><div class="roadmap-week">Semaine 8</div><div class="roadmap-desc">Projet : pipeline TDD complet sur un module de taille moyenne, rapport de couverture JaCoCo/coverage, configuration Git structurée.</div></div></div>
+    </div>
+  </div>
+
+  <div class="section" id="log240-res">
+    <div class="section-title"><div class="section-icon icon-res">📚</div>Ressources recommandées</div>
+    <div class="resources-grid">
+      <a class="res-card" href="https://www.obeythetestinggoat.com/" target="_blank">
+        <div class="res-icon">📖</div>
+        <div class="res-body"><div class="res-title">Obey the Testing Goat — TDD with Python (gratuit en ligne)</div><div class="res-desc">Livre complet sur TDD avec Python, disponible gratuitement. Du test unitaire aux tests fonctionnels et CI. Structure progressive, très bien adapté à l'autodidaxie.</div><div class="res-tags"><span class="res-tag tag-free">Gratuit</span><span class="res-tag tag-book">Livre</span><span class="res-tag tag-key">⭐ Recommandé</span></div></div>
+      </a>
+      <a class="res-card" href="https://martinfowler.com/articles/practical-test-pyramid.html" target="_blank">
+        <div class="res-icon">📄</div>
+        <div class="res-body"><div class="res-title">Martin Fowler — The Practical Test Pyramid</div><div class="res-desc">Article fondamental sur la pyramide des tests : proportion idéale unitaires / intégration / E2E. Référence universelle citée dans tous les cours de génie logiciel.</div><div class="res-tags"><span class="res-tag tag-free">Gratuit</span><span class="res-tag tag-key">⭐ Incontournable</span></div></div>
+      </a>
+      <a class="res-card" href="https://junit.org/junit5/docs/current/user-guide/" target="_blank">
+        <div class="res-icon">📄</div>
+        <div class="res-body"><div class="res-title">JUnit 5 — Documentation officielle</div><div class="res-desc">Référence complète pour JUnit 5 : annotations, assertions, tests paramétrés, extensions. Lire les chapitres 2-4 (Writing Tests, Annotations, Assertions) en priorité.</div><div class="res-tags"><span class="res-tag tag-free">Gratuit</span><span class="res-tag tag-pdf">Doc officielle</span></div></div>
+      </a>
+      <a class="res-card" href="https://www.youtube.com/c/ArjanCodes" target="_blank">
+        <div class="res-icon">▶</div>
+        <div class="res-body"><div class="res-title">ArjanCodes — Tests et architecture Python (YouTube)</div><div class="res-desc">Série sur TDD, tests unitaires, mocks et architecture testable en Python. Style pédagogique clair, projets réalistes. Chercher "ArjanCodes TDD" et "ArjanCodes testing".</div><div class="res-tags"><span class="res-tag tag-free">Gratuit</span><span class="res-tag tag-video">Vidéo</span></div></div>
+      </a>
+      <a class="res-card" href="https://docs.github.com/en/actions/automating-builds-and-tests" target="_blank">
+        <div class="res-icon">🛠</div>
+        <div class="res-body"><div class="res-title">GitHub Actions — Automatiser les tests (CI)</div><div class="res-desc">Documentation officielle pour mettre en place un pipeline CI qui exécute vos tests automatiquement à chaque push. Configuration YAML, matrices de test, rapports.</div><div class="res-tags"><span class="res-tag tag-free">Gratuit</span></div></div>
+      </a>
+    </div>
+  </div>
+
+  <div class="section" id="log240-ex">
+    <div class="section-title"><div class="section-icon icon-ex">💡</div>Exercices pratiques</div>
+    <div class="ex-list">
+      <div class="ex-card" id="ex-log240-1">
+        <div class="ex-header" onclick="toggleEx('log240-1')"><span class="ex-num">Ex 1</span><span class="ex-title-text">Boîte noire — Tester une validation d'email</span><span class="ex-difficulty diff-easy">Facile</span><button class="ex-check-btn" onclick="event.stopPropagation();markDone('log240-1','log240')">Complété</button><span class="ex-chevron">▶</span></div>
+        <div class="ex-body">
+          <p><code>validerEmail(email: String): Boolean</code> — doit contenir exactement un @, un domaine valide, aucun espace.</p>
+          <ol><li>Identifiez les classes d'équivalence valides et invalides.</li><li>Identifiez les valeurs limites (longueur min/max, caractères spéciaux).</li><li>Construisez la table de décision.</li><li>Implémentez les cas de test (JUnit 5 ou pytest). Visez 100% des classes d'équivalence couvertes.</li></ol>
+          <div class="ex-hint"><strong>Classes à identifier :</strong> sans @, avec 2 @, domaine manquant, TLD manquant, email vide, email valide normal, email avec espaces, sous-domaine valide...</div>
+        </div>
+      </div>
+      <div class="ex-card" id="ex-log240-2">
+        <div class="ex-header" onclick="toggleEx('log240-2')"><span class="ex-num">Ex 2</span><span class="ex-title-text">Boîte blanche — Couverture sur un calcul de remise</span><span class="ex-difficulty diff-medium">Moyen</span><button class="ex-check-btn" onclick="event.stopPropagation();markDone('log240-2','log240')">Complété</button><span class="ex-chevron">▶</span></div>
+        <div class="ex-body">
+          <p>Fonction <code>calculerRemise(prix, quantite, estMembre)</code> avec plusieurs branches conditionnelles imbriquées.</p>
+          <ol><li>Dessinez le graphe de flot de contrôle.</li><li>Calculez la complexité cyclomatique de McCabe (CC = E − N + 2P).</li><li>Identifiez le nombre minimum de tests pour : couverture instructions, couverture branches, couverture chemins indépendants.</li><li>Implémentez et mesurez la couverture réelle avec JaCoCo ou coverage.py.</li></ol>
+        </div>
+      </div>
+      <div class="ex-card" id="ex-log240-3">
+        <div class="ex-header" onclick="toggleEx('log240-3')"><span class="ex-num">Ex 3</span><span class="ex-title-text">TDD — Développer une Stack en Rouge / Vert / Refactor</span><span class="ex-difficulty diff-easy">Facile</span><button class="ex-check-btn" onclick="event.stopPropagation();markDone('log240-3','log240')">Complété</button><span class="ex-chevron">▶</span></div>
+        <div class="ex-body">
+          <p>Implémentez une pile générique (<code>Stack&lt;T&gt;</code>) en suivant strictement le cycle TDD.</p>
+          <ol><li><strong>Rouge :</strong> écrivez un test échouant pour <code>push()</code>, <code>pop()</code>, <code>peek()</code>, <code>isEmpty()</code>, <code>size()</code>.</li><li><strong>Vert :</strong> minimum de code pour passer chaque test.</li><li><strong>Refactor :</strong> améliorez sans casser les tests.</li><li>Un commit Git séparé par cycle Rouge → Vert → Refactor (l'historique est la preuve du TDD).</li></ol>
+          <div class="ex-hint"><strong>Règle d'or :</strong> On n'écrit jamais de code de production sans un test rouge qui le justifie. Jamais.</div>
+        </div>
+      </div>
+      <div class="ex-card" id="ex-log240-4">
+        <div class="ex-header" onclick="toggleEx('log240-4')"><span class="ex-num">Ex 4</span><span class="ex-title-text">Tests d'intégration avec mocks — OrderService</span><span class="ex-difficulty diff-medium">Moyen</span><button class="ex-check-btn" onclick="event.stopPropagation();markDone('log240-4','log240')">Complété</button><span class="ex-chevron">▶</span></div>
+        <div class="ex-body">
+          <p><code>OrderService</code> dépend de <code>PaymentGateway</code> et <code>InventoryRepository</code>. Le vrai service de paiement ne peut pas être appelé en tests.</p>
+          <ol><li>Mockez <code>PaymentGateway</code> avec Mockito ou unittest.mock.</li><li>Créez un stub pour <code>InventoryRepository</code> retournant des données fixes.</li><li>Testez : commande réussie, paiement refusé, stock insuffisant.</li><li>Expliquez la différence entre mock, stub, spy et fake avec vos propres exemples.</li></ol>
+        </div>
+      </div>
+      <div class="ex-card" id="ex-log240-5">
+        <div class="ex-header" onclick="toggleEx('log240-5')"><span class="ex-num">Ex 5</span><span class="ex-title-text">Analyse d'impact — Bug de calcul de taxes en production</span><span class="ex-difficulty diff-hard">Difficile</span><button class="ex-check-btn" onclick="event.stopPropagation();markDone('log240-5','log240')">Complété</button><span class="ex-chevron">▶</span></div>
+        <div class="ex-body">
+          <p>Bug reporté : le calcul de taxes est incorrect pour les commandes internationales.</p>
+          <ol><li>Rédigez un rapport de problème formel (titre, sévérité, étapes de reproduction, comportement attendu vs observé, environnement).</li><li>Analyse d'impact : quels modules/classes pourraient être affectés par le correctif ?</li><li>Plan de tests de régression : quels tests rejouer ? Quels nouveaux tests ajouter ?</li><li>Classifiez ce type de maintenance selon la taxonomie IEEE 14764.</li></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section" id="log240-eval">
+    <div class="section-title"><div class="section-icon icon-eval">📝</div>Auto-évaluation</div>
+    <div class="eval-card"><h4>Critères de maîtrise</h4><ul><li>Depuis une spécification, vous dérivez un ensemble de tests boîte noire complet en moins de 30 min.</li><li>Vous calculez la complexité cyclomatique et identifiez les chemins indépendants.</li><li>Vous appliquez TDD naturellement — le test avant le code, toujours.</li><li>Vous distinguez les 4 types de maintenance sur des exemples réels.</li></ul></div>
+    <div class="eval-card"><h4>Questions d'examen typiques</h4><ul><li>Identifiez les classes d'équivalence pour la fonction <code>f(x)</code> de spécification Y.</li><li>Calculez la complexité cyclomatique et listez les chemins indépendants de ce code.</li><li>Quelle est la différence entre un test d'intégration et un test système ?</li><li>Classifiez ces 4 activités de maintenance selon la taxonomie IEEE 14764.</li></ul></div>
+  </div>
+</div>
+
+<!-- ===== LOG410 ===== -->
+<div class="course-panel" id="panel-log410">
+  <div class="course-header">
+    <span class="course-tag">LOG410</span>
+    <h2 class="course-title">Analyse de besoins et spécifications</h2>
+    <p class="course-subtitle">Ingénierie des exigences, SRS (IEEE 29148), élicitation, validation, traçabilité, gestion des changements.</p>
+    <div class="course-meta">
+      <span class="meta-pill"><strong>~7 semaines</strong> autodidactes</span>
+      <span class="meta-pill"><strong>Prérequis :</strong> LOG240</span>
+      <span class="meta-pill"><strong>Niveau :</strong> Avancé</span>
+    </div>
+  </div>
+  <div class="progress-block">
+    <h3>Progression</h3>
+    <div class="progress-bar-wrap"><div class="progress-bar-fill" id="prog-log410" style="width:0%"></div></div>
+    <div class="progress-stats"><span><strong id="done-log410">0</strong> exercices complétés</span><span><strong id="obj-done-log410">0</strong> objectifs cochés</span></div>
+  </div>
+
+  <div class="section" id="log410-obj">
+    <div class="section-title"><div class="section-icon icon-obj">🎯</div>Objectifs d'apprentissage</div>
+    <div class="obj-list">
+      <div class="obj-item"><div class="obj-check" onclick="toggleObj(this,'log410')" data-id="410-1">✓</div><span>Distinguer besoins fonctionnels, non fonctionnels et contraintes — les éliciter correctement</span></div>
+      <div class="obj-item"><div class="obj-check" onclick="toggleObj(this,'log410')" data-id="410-2">✓</div><span>Rédiger un SRS (Software Requirements Specification) conforme IEEE 29148</span></div>
+      <div class="obj-item"><div class="obj-check" onclick="toggleObj(this,'log410')" data-id="410-3">✓</div><span>Appliquer des techniques d'élicitation : entretiens, ateliers JAD, prototypage, observation</span></div>
+      <div class="obj-item"><div class="obj-check" onclick="toggleObj(this,'log410')" data-id="410-4">✓</div><span>Valider des exigences selon les critères : cohérence, complétude, faisabilité, vérifiabilité</span></div>
+      <div class="obj-item"><div class="obj-check" onclick="toggleObj(this,'log410')" data-id="410-5">✓</div><span>Construire une matrice de traçabilité et gérer les changements d'exigences</span></div>
+    </div>
+  </div>
+
+  <div class="section" id="log410-roadmap">
+    <div class="section-title"><div class="section-icon icon-obj">🗺</div>Feuille de route — 7 semaines</div>
+    <div class="roadmap">
+      <div class="roadmap-step"><div class="roadmap-dot">1</div><div class="roadmap-content"><div class="roadmap-week">Semaine 1</div><div class="roadmap-desc">Introduction à l'ingénierie des exigences — définitions (besoin vs exigence vs spécification), importance, modèles de cycle de vie et forme des besoins à chaque étape.</div></div></div>
+      <div class="roadmap-step"><div class="roadmap-dot">2</div><div class="roadmap-content"><div class="roadmap-week">Semaine 2</div><div class="roadmap-desc">Techniques d'élicitation — entretiens (structurés/non structurés), ateliers JAD, observation ethnographique, prototypage, analyse de documents existants.</div></div></div>
+      <div class="roadmap-step"><div class="roadmap-dot">3</div><div class="roadmap-content"><div class="roadmap-week">Semaine 3</div><div class="roadmap-desc">Modélisation des besoins — user stories (INVEST), cas d'utilisation, diagrammes de contexte, modèles de données (ERD), prototypes papier / wireframes.</div></div></div>
+      <div class="roadmap-step"><div class="roadmap-dot">4</div><div class="roadmap-content"><div class="roadmap-week">Semaine 4</div><div class="roadmap-desc">Exigences non fonctionnelles — qualités ISO 25010 (performance, sécurité, fiabilité, maintenabilité, portabilité). Formulation mesurable (SMART).</div></div></div>
+      <div class="roadmap-step"><div class="roadmap-dot">5</div><div class="roadmap-content"><div class="roadmap-week">Semaine 5</div><div class="roadmap-desc">Rédaction SRS — structure IEEE 29148, caractéristiques d'une bonne exigence (non ambiguë, complète, correcte, faisable, nécessaire, priorisée, vérifiable, traçable).</div></div></div>
+      <div class="roadmap-step"><div class="roadmap-dot">6</div><div class="roadmap-content"><div class="roadmap-week">Semaine 6</div><div class="roadmap-desc">Validation et gestion — revues formelles, inspections (Fagan), matrice de traçabilité, processus de gestion des changements, versioning du document.</div></div></div>
+      <div class="roadmap-step"><div class="roadmap-dot">7</div><div class="roadmap-content"><div class="roadmap-week">Semaine 7</div><div class="roadmap-desc">Projet : rédiger un SRS complet pour un système réel (10-15 exigences fonctionnelles + 5 non fonctionnelles + matrice de traçabilité).</div></div></div>
+    </div>
+  </div>
+
+  <div class="section" id="log410-res">
+    <div class="section-title"><div class="section-icon icon-res">📚</div>Ressources recommandées</div>
+    <div class="resources-grid">
+      <a class="res-card" href="https://ieeexplore.ieee.org/document/8559686" target="_blank">
+        <div class="res-icon">📄</div>
+        <div class="res-body"><div class="res-title">IEEE 29148:2018 — Systems and Software Engineering Requirements</div><div class="res-desc">La norme de référence pour les SRS. Accès via la bibliothèque UQAM (IEEE Xplore inclus). Lire prioritairement les sections 6-9 sur la structure et les caractéristiques des exigences.</div><div class="res-tags"><span class="res-tag tag-pdf">Norme IEEE</span><span class="res-tag tag-key">⭐ Référence officielle</span></div></div>
+      </a>
+      <a class="res-card" href="https://www.youtube.com/playlist?list=PLJ9pm_Rc9HesnkwKlal_pomyTos4J0tNR" target="_blank">
+        <div class="res-icon">▶</div>
+        <div class="res-body"><div class="res-title">Requirements Engineering — Cours complet (YouTube)</div><div class="res-desc">Série couvrant l'ingénierie des exigences de A à Z : élicitation, spécification, validation, gestion. Adapté au niveau universitaire en génie logiciel.</div><div class="res-tags"><span class="res-tag tag-free">Gratuit</span><span class="res-tag tag-video">Vidéo</span></div></div>
+      </a>
+      <a class="res-card" href="https://agilealliance.org/glossary/user-stories/" target="_blank">
+        <div class="res-icon">📄</div>
+        <div class="res-body"><div class="res-title">Agile Alliance — User Stories Guide</div><div class="res-desc">Explication complète des user stories : format As/I want/So that, critères d'acceptation, principe INVEST (Independent, Negotiable, Valuable, Estimable, Small, Testable).</div><div class="res-tags"><span class="res-tag tag-free">Gratuit</span></div></div>
+      </a>
+      <a class="res-card" href="https://fr.coursera.org/learn/software-requirements-prioritization" target="_blank">
+        <div class="res-icon">🎓</div>
+        <div class="res-body"><div class="res-title">Coursera — Software Requirements Prioritization (Univ. Alberta)</div><div class="res-desc">Méthodes de priorisation des exigences : MoSCoW, Kano, vote pondéré. Complément utile pour la gestion de backlogs d'exigences. Audit gratuit.</div><div class="res-tags"><span class="res-tag tag-free">Audit gratuit</span><span class="res-tag tag-course">Cours en ligne</span></div></div>
+      </a>
+    </div>
+  </div>
+
+  <div class="section" id="log410-ex">
+    <div class="section-title"><div class="section-icon icon-ex">💡</div>Exercices pratiques</div>
+    <div class="ex-list">
+      <div class="ex-card" id="ex-log410-1">
+        <div class="ex-header" onclick="toggleEx('log410-1')"><span class="ex-num">Ex 1</span><span class="ex-title-text">Reformuler des exigences ambiguës en exigences SMART</span><span class="ex-difficulty diff-easy">Facile</span><button class="ex-check-btn" onclick="event.stopPropagation();markDone('log410-1','log410')">Complété</button><span class="ex-chevron">▶</span></div>
+        <div class="ex-body">
+          <p>Ces exigences sont mal rédigées. Pour chacune : identifiez le problème, réécrivez-la de manière vérifiable et mesurable.</p>
+          <ol><li>"Le système doit être rapide."</li><li>"L'interface doit être conviviale."</li><li>"Le système devrait gérer beaucoup d'utilisateurs."</li><li>"Les données doivent être sécurisées."</li><li>"Le logiciel doit être facile à maintenir."</li></ol>
+          <div class="ex-hint"><strong>Modèle :</strong> "Le système doit traiter 95% des requêtes en moins de 2 secondes sous une charge de 1000 utilisateurs simultanés, mesurée par un test de charge JMeter."</div>
+        </div>
+      </div>
+      <div class="ex-card" id="ex-log410-2">
+        <div class="ex-header" onclick="toggleEx('log410-2')"><span class="ex-num">Ex 2</span><span class="ex-title-text">Plan d'élicitation — App de covoiturage universitaire</span><span class="ex-difficulty diff-medium">Moyen</span><button class="ex-check-btn" onclick="event.stopPropagation();markDone('log410-2','log410')">Complété</button><span class="ex-chevron">▶</span></div>
+        <div class="ex-body">
+          <p>Vous développez une app de covoiturage pour une université. Préparez votre plan d'élicitation :</p>
+          <ol><li>Identifiez toutes les parties prenantes (stakeholders) et leur rôle dans le système.</li><li>Rédigez 10 questions ouvertes pour un entretien avec un étudiant utilisateur.</li><li>Rédigez 5 questions pour l'administrateur de l'université.</li><li>À partir de réponses imaginées, dérivez 8 exigences fonctionnelles et 4 non fonctionnelles avec critères de mesure.</li></ol>
+        </div>
+      </div>
+      <div class="ex-card" id="ex-log410-3">
+        <div class="ex-header" onclick="toggleEx('log410-3')"><span class="ex-num">Ex 3</span><span class="ex-title-text">Rédaction SRS partiel — Gestion d'horaires d'enseignants</span><span class="ex-difficulty diff-medium">Moyen</span><button class="ex-check-btn" onclick="event.stopPropagation();markDone('log410-3','log410')">Complété</button><span class="ex-chevron">▶</span></div>
+        <div class="ex-body">
+          <p>Application web de gestion d'horaires pour enseignants. Rédigez les sections 1 à 3 d'un SRS au format IEEE 29148 :</p>
+          <ol><li><strong>Section 1 — Introduction :</strong> objectif, portée, définitions, acronymes, références.</li><li><strong>Section 2 — Description générale :</strong> contexte système, fonctions principales, contraintes générales.</li><li><strong>Section 3 — Exigences spécifiques :</strong> 6 fonctionnelles + 3 non fonctionnelles avec attributs ISO 25010. Chaque exigence : ID, priorité, description, critère de vérification.</li></ol>
+          <div class="ex-hint"><strong>Structure exigence :</strong> REQ-F-001 (ID) | Haute (priorité) | Description précise | Critère : "Testé en simulant X, résultat attendu Y."</div>
+        </div>
+      </div>
+      <div class="ex-card" id="ex-log410-4">
+        <div class="ex-header" onclick="toggleEx('log410-4')"><span class="ex-num">Ex 4</span><span class="ex-title-text">Matrice de traçabilité &amp; gestion des changements</span><span class="ex-difficulty diff-hard">Difficile</span><button class="ex-check-btn" onclick="event.stopPropagation();markDone('log410-4','log410')">Complété</button><span class="ex-chevron">▶</span></div>
+        <div class="ex-body">
+          <p>En partant du SRS de l'exercice 3 :</p>
+          <ol><li>Construisez une matrice de traçabilité complète : exigences ↔ CU ↔ modules de conception ↔ cas de test.</li><li>Simulez un changement : "Les enseignants peuvent déléguer la gestion à un secrétaire." Identifiez toutes les exigences, tests et modules impactés.</li><li>Rédigez une demande de changement formelle (Change Request) avec analyse d'impact et estimation de l'effort.</li></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section" id="log410-eval">
+    <div class="section-title"><div class="section-icon icon-eval">📝</div>Auto-évaluation</div>
+    <div class="eval-card"><h4>Critères de maîtrise</h4><ul><li>Vous produisez un SRS structuré IEEE pour un système modeste en moins d'une journée.</li><li>Vous détectez immédiatement les exigences mal formulées et savez les corriger.</li><li>Vous distinguez exigences fonctionnelles, non fonctionnelles et contraintes sans hésitation.</li><li>Vous construisez une matrice de traçabilité et l'utilisez pour l'analyse d'impact.</li></ul></div>
+  </div>
+</div>
+
+<!-- ===== LOG430 ===== -->
+<div class="course-panel" id="panel-log430">
+  <div class="course-header">
+    <span class="course-tag">LOG430</span>
+    <h2 class="course-title">Architecture logicielle</h2>
+    <p class="course-subtitle">Attributs de qualité (QAS), tactiques architecturales, styles (Microservices, Layered, Event-Driven…), ADD, ATAM, documentation C4 / 4+1.</p>
+    <div class="course-meta">
+      <span class="meta-pill"><strong>~10 semaines</strong> autodidactes</span>
+      <span class="meta-pill"><strong>Référence :</strong> Bass, Clements &amp; Kazman</span>
+      <span class="meta-pill"><strong>Niveau :</strong> Avancé</span>
+    </div>
+  </div>
+  <div class="progress-block">
+    <h3>Progression</h3>
+    <div class="progress-bar-wrap"><div class="progress-bar-fill" id="prog-log430" style="width:0%"></div></div>
+    <div class="progress-stats"><span><strong id="done-log430">0</strong> exercices complétés</span><span><strong id="obj-done-log430">0</strong> objectifs cochés</span></div>
+  </div>
+
+  <div class="section" id="log430-obj">
+    <div class="section-title"><div class="section-icon icon-obj">🎯</div>Objectifs d'apprentissage</div>
+    <div class="obj-list">
+      <div class="obj-item"><div class="obj-check" onclick="toggleObj(this,'log430')" data-id="430-1">✓</div><span>Documenter une architecture logicielle avec plusieurs vues : C4 (niveaux 1-4), modèle 4+1, vues module/composant/allocation</span></div>
+      <div class="obj-item"><div class="obj-check" onclick="toggleObj(this,'log430')" data-id="430-2">✓</div><span>Rédiger des scénarios d'attributs de qualité (QAS) au format SEI (6 composantes)</span></div>
+      <div class="obj-item"><div class="obj-check" onclick="toggleObj(this,'log430')" data-id="430-3">✓</div><span>Identifier et appliquer des tactiques architecturales pour chaque attribut de qualité</span></div>
+      <div class="obj-item"><div class="obj-check" onclick="toggleObj(this,'log430')" data-id="430-4">✓</div><span>Concevoir une architecture avec la méthode ADD (Attribute-Driven Design)</span></div>
+      <div class="obj-item"><div class="obj-check" onclick="toggleObj(this,'log430')" data-id="430-5">✓</div><span>Évaluer une architecture existante avec l'ATAM (arbre d'utilité, risques, tradeoffs)</span></div>
+      <div class="obj-item"><div class="obj-check" onclick="toggleObj(this,'log430')" data-id="430-6">✓</div><span>Distinguer et choisir les styles architecturaux majeurs selon les QAS</span></div>
+    </div>
+  </div>
+
+  <div class="section" id="log430-roadmap">
+    <div class="section-title"><div class="section-icon icon-obj">🗺</div>Feuille de route — 10 semaines</div>
+    <div class="roadmap">
+      <div class="roadmap-step"><div class="roadmap-dot">1</div><div class="roadmap-content"><div class="roadmap-week">Semaine 1</div><div class="roadmap-desc">Rôle de l'architecte logiciel, structures architecturales (module, composant-connecteur, allocation). Problèmes de conception à grande échelle.</div></div></div>
+      <div class="roadmap-step"><div class="roadmap-dot">2</div><div class="roadmap-content"><div class="roadmap-week">Semaine 2</div><div class="roadmap-desc">Attributs de qualité — ISO 25010, scénarios QAS (6 composantes SEI : source, stimulus, artefact, environnement, réponse, mesure). Tensions entre attributs.</div></div></div>
+      <div class="roadmap-step"><div class="roadmap-dot">3</div><div class="roadmap-content"><div class="roadmap-week">Semaine 3</div><div class="roadmap-desc">Tactiques pour disponibilité (détection de fautes, recouvrement, prévention) et performance (gestion des ressources, arbitrage de la demande).</div></div></div>
+      <div class="roadmap-step"><div class="roadmap-dot">4</div><div class="roadmap-content"><div class="roadmap-week">Semaine 4</div><div class="roadmap-desc">Tactiques pour sécurité, modifiabilité et testabilité. Révision comparative : quels compromis entre les tactiques ?</div></div></div>
+      <div class="roadmap-step"><div class="roadmap-dot">5</div><div class="roadmap-content"><div class="roadmap-week">Semaine 5</div><div class="roadmap-desc">Styles architecturaux classiques — Layered, Client-Server, Peer-to-Peer, Publish-Subscribe, Pipes-and-Filters, Repository/Blackboard.</div></div></div>
+      <div class="roadmap-step"><div class="roadmap-dot">6</div><div class="roadmap-content"><div class="roadmap-week">Semaine 6</div><div class="roadmap-desc">Styles modernes — Microservices, Event-Driven Architecture, CQRS, Hexagonal (Ports &amp; Adapters), Clean Architecture. Comparaison avec le monolithe.</div></div></div>
+      <div class="roadmap-step"><div class="roadmap-dot">7</div><div class="roadmap-content"><div class="roadmap-week">Semaine 7</div><div class="roadmap-desc">Documentation — modèle 4+1 de Kruchten, modèle C4 (Simon Brown, niveaux 1-4). ADR (Architecture Decision Records) — formats MADR et Nygard.</div></div></div>
+      <div class="roadmap-step"><div class="roadmap-dot">8</div><div class="roadmap-content"><div class="roadmap-week">Semaine 8</div><div class="roadmap-desc">Méthode ADD 3.0 (Bass et al.) — processus pas-à-pas de conception architecturale dirigée par les QAS. Itérations, drivers, décisions, vues.</div></div></div>
+      <div class="roadmap-step"><div class="roadmap-dot">9</div><div class="roadmap-content"><div class="roadmap-week">Semaine 9</div><div class="roadmap-desc">Évaluation ATAM — arbre d'utilité, analyse des approches architecturales, points de sensibilité, tradeoffs, risques, non-risques.</div></div></div>
+      <div class="roadmap-step"><div class="roadmap-dot">10</div><div class="roadmap-content"><div class="roadmap-week">Semaine 10</div><div class="roadmap-desc">Projet intégrateur : ADD complet sur un système réel + documentation C4 (niveaux 1-3) + évaluation ATAM simulée + ADR.</div></div></div>
+    </div>
+  </div>
+
+  <div class="section" id="log430-res">
+    <div class="section-title"><div class="section-icon icon-res">📚</div>Ressources recommandées</div>
+    <div class="resources-grid">
+      <a class="res-card" href="https://www.amazon.ca/Software-Architecture-Practice-Len-Bass/dp/0136886094" target="_blank">
+        <div class="res-icon">📖</div>
+        <div class="res-body"><div class="res-title">Software Architecture in Practice — Bass, Clements &amp; Kazman (4e éd.)</div><div class="res-desc">LE manuel de LOG430. Couvre QAS, tactiques, ADD, ATAM, documentation. Bibliothèque UQAM. Chapitres 3-7 (qualité), 9 (ADD), 11 (documentation), 16, 18-21 (évaluation) en priorité.</div><div class="res-tags"><span class="res-tag tag-book">Livre</span><span class="res-tag tag-key">⭐ Manuel officieux</span></div></div>
+      </a>
+      <a class="res-card" href="https://c4model.com/" target="_blank">
+        <div class="res-icon">🌐</div>
+        <div class="res-body"><div class="res-title">C4 Model — Simon Brown (site officiel)</div><div class="res-desc">Documentation complète du modèle C4 : Context, Container, Component, Code. Exemples, outils supportés (Structurizr, draw.io), FAQ et bonnes pratiques. Référence gratuite.</div><div class="res-tags"><span class="res-tag tag-free">Gratuit</span><span class="res-tag tag-key">⭐ Incontournable</span></div></div>
+      </a>
+      <a class="res-card" href="https://www.youtube.com/watch?v=x2-rSnhpw0g" target="_blank">
+        <div class="res-icon">▶</div>
+        <div class="res-body"><div class="res-title">Mark Richards — Software Architecture Fundamentals (YouTube / O'Reilly)</div><div class="res-desc">Conférences O'Reilly sur les fondamentaux de l'architecture : styles, patterns, décisions. Mark Richards est co-auteur de "Fundamentals of Software Architecture" (Neal Ford).</div><div class="res-tags"><span class="res-tag tag-free">Gratuit</span><span class="res-tag tag-video">Vidéo</span><span class="res-tag tag-key">⭐ Recommandé</span></div></div>
+      </a>
+      <a class="res-card" href="https://adr.github.io/" target="_blank">
+        <div class="res-icon">📄</div>
+        <div class="res-body"><div class="res-title">ADR — Architecture Decision Records (adr.github.io)</div><div class="res-desc">Site de référence pour les ADR : formats MADR, Nygard, Y-Statements. Documenter les décisions architecturales est une compétence-clé de LOG430, souvent évaluée en lab.</div><div class="res-tags"><span class="res-tag tag-free">Gratuit</span></div></div>
+      </a>
+      <a class="res-card" href="https://structurizr.com/dsl" target="_blank">
+        <div class="res-icon">🛠</div>
+        <div class="res-body"><div class="res-title">Structurizr DSL — Diagrammes C4 as Code</div><div class="res-desc">Outil officiel pour créer des diagrammes C4 en code (DSL textuel). Version en ligne gratuite. Versionneable avec Git — parfait pour les projets LOG430.</div><div class="res-tags"><span class="res-tag tag-free">Gratuit (plan de base)</span></div></div>
+      </a>
+      <a class="res-card" href="https://www.youtube.com/playlist?list=PLMCXHnjXnTnvo6alSjVkgxV-VH6EPyvoX" target="_blank">
+        <div class="res-icon">▶</div>
+        <div class="res-body"><div class="res-title">Gaurav Sen — System Design (YouTube)</div><div class="res-desc">Playlist sur la conception de systèmes à grande échelle. Styles architecturaux appliqués à Netflix, Uber, Twitter. Ancre la théorie dans des cas réels concrets.</div><div class="res-tags"><span class="res-tag tag-free">Gratuit</span><span class="res-tag tag-video">Vidéo</span></div></div>
+      </a>
+    </div>
+  </div>
+
+  <div class="section" id="log430-ex">
+    <div class="section-title"><div class="section-icon icon-ex">💡</div>Exercices pratiques</div>
+    <div class="ex-list">
+      <div class="ex-card" id="ex-log430-1">
+        <div class="ex-header" onclick="toggleEx('log430-1')"><span class="ex-num">Ex 1</span><span class="ex-title-text">Rédiger des scénarios QAS — Système e-commerce</span><span class="ex-difficulty diff-easy">Facile</span><button class="ex-check-btn" onclick="event.stopPropagation();markDone('log430-1','log430')">Complété</button><span class="ex-chevron">▶</span></div>
+        <div class="ex-body">
+          <p>Pour un système e-commerce type Amazon, rédigez 6 QAS au format SEI complet.</p>
+          <p><em>Source → Stimulus → Artefact → Environnement → Réponse → Mesure de la réponse</em></p>
+          <ol><li>2 scénarios de performance (temps de réponse, débit sous charge)</li><li>2 scénarios de disponibilité (panne, reprise automatique)</li><li>1 scénario de modifiabilité (ajout d'un nouveau mode de paiement)</li><li>1 scénario de sécurité (tentative d'accès non autorisé)</li></ol>
+          <div class="ex-hint"><strong>Exemple :</strong> Disponibilité — Source : opérateur système / Stimulus : panne de la base de données principale / Artefact : module panier / Environnement : production, charge normale / Réponse : bascule sur réplica / Mesure : disponibilité ≥ 99,9%, temps de bascule &lt; 5s.</div>
+        </div>
+      </div>
+      <div class="ex-card" id="ex-log430-2">
+        <div class="ex-header" onclick="toggleEx('log430-2')"><span class="ex-num">Ex 2</span><span class="ex-title-text">Tactiques architecturales — Choisir et justifier les compromis</span><span class="ex-difficulty diff-medium">Moyen</span><button class="ex-check-btn" onclick="event.stopPropagation();markDone('log430-2','log430')">Complété</button><span class="ex-chevron">▶</span></div>
+        <div class="ex-body">
+          <p>Pour chacun des QAS de l'exercice 1 :</p>
+          <ol><li>Identifiez au moins 2 tactiques architecturales applicables (ex. performance → cache, load balancing, lazy loading).</li><li>Analysez les compromis : quelle tactique améliore la performance mais nuit à la modifiabilité ? À la cohérence ?</li><li>Choisissez une tactique principale avec justification en 3-5 phrases.</li></ol>
+          <div class="ex-hint"><strong>Rappel :</strong> Toute tactique a un coût. La réplication améliore la disponibilité mais complexifie la cohérence. Le cache améliore la performance mais crée des risques de données périmées.</div>
+        </div>
+      </div>
+      <div class="ex-card" id="ex-log430-3">
+        <div class="ex-header" onclick="toggleEx('log430-3')"><span class="ex-num">Ex 3</span><span class="ex-title-text">Documentation C4 — Système de gestion scolaire</span><span class="ex-difficulty diff-medium">Moyen</span><button class="ex-check-btn" onclick="event.stopPropagation();markDone('log430-3','log430')">Complété</button><span class="ex-chevron">▶</span></div>
+        <div class="ex-body">
+          <p>Documentez l'architecture d'un système scolaire (étudiants, cours, notes, horaires) avec le modèle C4 :</p>
+          <ol><li><strong>Niveau 1 — Contexte :</strong> acteurs externes et leurs interactions avec le système.</li><li><strong>Niveau 2 — Conteneurs :</strong> app web, API backend, base de données, service d'email.</li><li><strong>Niveau 3 — Composants :</strong> décomposer le conteneur API backend (contrôleurs, services, repositories).</li><li>Rédigez 2 ADR pour des décisions architecturales clés (ex : REST vs GraphQL, PostgreSQL vs MongoDB).</li></ol>
+          <div class="ex-hint"><strong>Outil :</strong> Structurizr DSL online ou draw.io avec formes C4. Exportez en PNG pour le livrable.</div>
+        </div>
+      </div>
+      <div class="ex-card" id="ex-log430-4">
+        <div class="ex-header" onclick="toggleEx('log430-4')"><span class="ex-num">Ex 4</span><span class="ex-title-text">Monolithe vs Microservices — Plateforme de streaming</span><span class="ex-difficulty diff-medium">Moyen</span><button class="ex-check-btn" onclick="event.stopPropagation();markDone('log430-4','log430')">Complété</button><span class="ex-chevron">▶</span></div>
+        <div class="ex-body">
+          <p>Startup de streaming vidéo : 100K utilisateurs au lancement, potentiellement 10M dans 2 ans.</p>
+          <ol><li>Architecturez la version monolithique en couches. Diagramme C4 niveau 2.</li><li>Architecturez la version microservices (≥ 4 services). Diagramme C4 niveau 2.</li><li>Comparez selon : déployabilité, scalabilité, testabilité, performance, complexité opérationnelle.</li><li>Recommandation pour le lancement — justifiez avec les QAS du contexte startup.</li></ol>
+        </div>
+      </div>
+      <div class="ex-card" id="ex-log430-5">
+        <div class="ex-header" onclick="toggleEx('log430-5')"><span class="ex-num">Ex 5</span><span class="ex-title-text">ADD — Conception d'un système de gestion hospitalière</span><span class="ex-difficulty diff-hard">Difficile</span><button class="ex-check-btn" onclick="event.stopPropagation();markDone('log430-5','log430')">Complété</button><span class="ex-chevron">▶</span></div>
+        <div class="ex-body">
+          <p>Appliquez la méthode ADD 3.0 sur un système de gestion d'hôpital (patients, prescriptions, personnel, plannings) :</p>
+          <ol><li><strong>Itération 1 :</strong> Choisissez le style architectural global — justifiez avec les QAS prioritaires.</li><li><strong>Itération 2 :</strong> Identifiez les composants principaux, leurs responsabilités, interfaces. Diagramme de composants.</li><li><strong>Itération 3 :</strong> Raffinez le module prescriptions médicales — adressez sécurité (accès rôles), disponibilité (critique), auditabilité.</li><li>Pour chaque itération : drivers architecturaux utilisés, décisions prises, vues mises à jour, ADR rédigé.</li></ol>
+          <div class="ex-hint"><strong>Durée estimée :</strong> 8-12h. Cet exercice simule un projet de lab LOG430 complet.</div>
+        </div>
+      </div>
+      <div class="ex-card" id="ex-log430-6">
+        <div class="ex-header" onclick="toggleEx('log430-6')"><span class="ex-num">Ex 6</span><span class="ex-title-text">ATAM — Évaluer votre architecture</span><span class="ex-difficulty diff-hard">Difficile</span><button class="ex-check-btn" onclick="event.stopPropagation();markDone('log430-6','log430')">Complété</button><span class="ex-chevron">▶</span></div>
+        <div class="ex-body">
+          <p>Simulez une évaluation ATAM sur l'architecture conçue à l'exercice 5 (ou celle de l'exercice 4) :</p>
+          <ol><li>Présentez l'architecture (vues C4 niveaux 1-2).</li><li>Construisez l'arbre d'utilité (utility tree) : QAS priorisés par impact (H/M/L) × difficulté (H/M/L).</li><li>Analysez les approches architecturales : identifiez points de sensibilité, tradeoffs, risques et non-risques.</li><li>Rapport de 1-2 pages synthétisant les résultats de l'évaluation avec recommandations.</li></ol>
+          <div class="ex-hint"><strong>Point de sensibilité :</strong> une décision qui affecte fortement un seul attribut de qualité. <strong>Tradeoff :</strong> une décision qui affecte positivement un attribut et négativement un autre.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section" id="log430-eval">
+    <div class="section-title"><div class="section-icon icon-eval">📝</div>Auto-évaluation</div>
+    <div class="eval-card"><h4>Critères de maîtrise</h4><ul><li>Vous rédigez des QAS complets (6 composantes) pour 5+ attributs de qualité différents.</li><li>Vous connaissez 3+ tactiques par attribut majeur (performance, disponibilité, sécurité, modifiabilité).</li><li>Vous produisez une documentation C4 complète (niveaux 1-3) pour un système modeste.</li><li>Vous menez les étapes clés d'un ATAM et identifiez risques, points de sensibilité et de compromis.</li><li>Vous justifiez le choix d'un style architectural en fonction des QAS du contexte.</li></ul></div>
+    <div class="eval-card"><h4>Questions d'examen typiques</h4><ul><li>Rédigez 3 scénarios QAS pour l'attribut "disponibilité".</li><li>Quelles tactiques utiliseriez-vous pour améliorer la modifiabilité ? Quels compromis impliquent-elles ?</li><li>Décrivez les étapes de la méthode ADD.</li><li>Expliquez la différence entre un point de sensibilité et un point de compromis dans l'ATAM.</li><li>Comparez les styles architecturaux Layered et Microservices pour un système de facturation.</li></ul></div>
+  </div>
+</div>
+
+</main>
+
+<script>
+const SK = 'log_autodidacte_v3';
+let S = {};
+function load(){try{const s=localStorage.getItem(SK);if(s)S=JSON.parse(s);}catch(e){}}
+function save(){try{localStorage.setItem(SK,JSON.stringify(S));}catch(e){}}
+
+function toggleTheme(){
+  const h=document.documentElement;
+  const d=h.getAttribute('data-theme')==='dark';
+  h.setAttribute('data-theme',d?'light':'dark');
+  document.getElementById('theme-toggle').textContent=d?'🌙 Sombre':'☀ Clair';
+  S.theme=d?'light':'dark';save();
+}
+
+function showCourse(c,btn){
+  document.querySelectorAll('.course-panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-course-btn').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('.nav-section-links').forEach(n=>n.classList.remove('open'));
+  document.getElementById('panel-'+c).classList.add('active');
+  btn.classList.add('active');
+  document.getElementById('nav-'+c).classList.add('open');
+  S.activeCourse=c;save();
+}
+
+function scrollSec(c,s){
+  const el=document.getElementById(c+'-'+s);
+  if(el)el.scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+function toggleObj(el,course){
+  const id=el.getAttribute('data-id');
+  if(!S.obj)S.obj={};
+  if(el.classList.contains('done')){el.classList.remove('done');delete S.obj[id];}
+  else{el.classList.add('done');S.obj[id]=true;}
+  updateProg(course);save();
+}
+
+function toggleEx(id){
+  const c=document.getElementById('ex-'+id);
+  c.classList.toggle('open');
+}
+
+function markDone(exId,course){
+  if(!S.ex)S.ex={};
+  const btn=document.querySelector('#ex-'+exId+' .ex-check-btn');
+  const card=document.getElementById('ex-'+exId);
+  if(btn.classList.contains('done')){
+    btn.classList.remove('done');btn.textContent='Complété';
+    card.classList.remove('done-ex');delete S.ex[exId];
+  } else {
+    btn.classList.add('done');btn.textContent='✓ Fait';
+    card.classList.add('done-ex');S.ex[exId]=true;
+  }
+  updateProg(course);save();
+}
+
+function updateProg(c){
+  const done=document.querySelectorAll('#panel-'+c+' .ex-check-btn.done').length;
+  const total=document.querySelectorAll('#panel-'+c+' .ex-check-btn').length;
+  const objDone=document.querySelectorAll('#panel-'+c+' .obj-check.done').length;
+  const pct=total>0?Math.round(done/total*100):0;
+  const bar=document.getElementById('prog-'+c);
+  const mini=document.getElementById('mini-'+c);
+  if(bar)bar.style.width=pct+'%';
+  if(mini)mini.style.width=pct+'%';
+  const d=document.getElementById('done-'+c);
+  const o=document.getElementById('obj-done-'+c);
+  if(d)d.textContent=done;
+  if(o)o.textContent=objDone;
+  const total2=document.querySelectorAll('.ex-check-btn').length;
+  const done2=document.querySelectorAll('.ex-check-btn.done').length;
+  document.getElementById('global-progress').textContent=done2+' / '+total2+' complétés';
+}
+
+function restore(){
+  load();
+  if(S.theme){document.documentElement.setAttribute('data-theme',S.theme);document.getElementById('theme-toggle').textContent=S.theme==='light'?'🌙 Sombre':'☀ Clair';}
+  if(S.obj){document.querySelectorAll('.obj-check').forEach(el=>{if(S.obj[el.getAttribute('data-id')])el.classList.add('done');});}
+  if(S.ex){Object.keys(S.ex).forEach(id=>{const btn=document.querySelector('#ex-'+id+' .ex-check-btn');const card=document.getElementById('ex-'+id);if(btn){btn.classList.add('done');btn.textContent='✓ Fait';}if(card)card.classList.add('done-ex');});}
+  if(S.activeCourse){const btn=document.querySelector('.nav-course-btn[onclick*="\''+S.activeCourse+'\'"]');if(btn)showCourse(S.activeCourse,btn);}
+  ['log121','log210','log240','log410','log430'].forEach(c=>updateProg(c));
+}
+restore();
+</script>
+</body>
+</html>

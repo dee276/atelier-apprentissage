@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Défis d'ingénierie & System Design — Parcours unique</title>
+<style>
+:root{
+  --bg:#0b1220;
+  --bg-panel:#11192b;
+  --bg-panel-2:#0e1524;
+  --line:#233150;
+  --text:#dbe4f5;
+  --text-dim:#8b9ac2;
+  --accent:#00ADD8;
+  --accent-2:#ffb454;
+  --ok:#3ddc97;
+  --danger:#ff6b6b;
+  --mono: "JetBrains Mono", "Fira Code", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  --sans: "Inter", "Segoe UI", system-ui, -apple-system, sans-serif;
+  --radius: 10px;
+}
+[data-theme="light"]{
+  --bg:#f4f6fb;--bg-panel:#ffffff;--bg-panel-2:#eef1f9;--line:#d7deef;
+  --text:#141b2e;--text-dim:#5b6786;--accent:#0090b0;--accent-2:#c9820a;--ok:#0e9e6a;--danger:#d94848;
+}
+*{box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{margin:0;background:var(--bg);color:var(--text);font-family:var(--sans);line-height:1.55;transition:background .25s ease,color .25s ease;}
+::selection{background:var(--accent);color:#04141a;}
+
+.topbar{position:sticky;top:0;z-index:50;display:flex;align-items:center;gap:14px;padding:10px 20px;background:color-mix(in srgb, var(--bg) 88%, transparent);backdrop-filter:blur(10px);border-bottom:1px solid var(--line);}
+.topbar .dot{width:9px;height:9px;border-radius:50%;background:var(--ok);box-shadow:0 0 8px var(--ok);flex:none;}
+.topbar .brand{font-family:var(--mono);font-size:13px;color:var(--text-dim);letter-spacing:.03em;}
+.topbar .spacer{flex:1;}
+.topbar .progress-wrap{display:flex;align-items:center;gap:8px;font-family:var(--mono);font-size:12px;color:var(--text-dim);}
+.topbar .bar{width:130px;height:6px;border-radius:4px;background:var(--bg-panel-2);border:1px solid var(--line);overflow:hidden;}
+.topbar .bar > span{display:block;height:100%;background:linear-gradient(90deg,var(--accent),var(--ok));width:0%;transition:width .4s ease;}
+.theme-btn{border:1px solid var(--line);background:var(--bg-panel);color:var(--text);border-radius:8px;padding:6px 10px;font-family:var(--mono);font-size:12px;cursor:pointer;}
+.theme-btn:hover{border-color:var(--accent);color:var(--accent);}
+
+.hero{max-width:920px;margin:0 auto;padding:60px 24px 20px;}
+.hero .eyebrow{font-family:var(--mono);font-size:12px;color:var(--accent);letter-spacing:.12em;text-transform:uppercase;display:flex;align-items:center;gap:10px;margin-bottom:18px;}
+.hero .eyebrow::before{content:"";width:22px;height:1px;background:var(--accent);}
+h1{font-weight:800;font-size:clamp(28px,4.2vw,42px);margin:0 0 14px;letter-spacing:-0.02em;line-height:1.1;}
+h1 span{color:var(--accent);}
+.hero p.lead{color:var(--text-dim);font-size:17px;max-width:640px;margin:0 0 26px;}
+.hero-meta{display:flex;flex-wrap:wrap;gap:10px;}
+.pill{font-family:var(--mono);font-size:12px;padding:6px 12px;border-radius:100px;border:1px solid var(--line);background:var(--bg-panel);color:var(--text-dim);}
+.pill b{color:var(--text);}
+
+.changes{max-width:920px;margin:8px auto 0;padding:0 24px;}
+.changes .box{background:var(--bg-panel);border:1px solid var(--line);border-radius:var(--radius);padding:18px 20px;}
+.changes .box h3{margin:0 0 12px;font-size:13px;font-family:var(--mono);color:var(--accent-2);text-transform:uppercase;letter-spacing:.08em;}
+.changes ul{margin:0;padding-left:18px;color:var(--text-dim);font-size:14px;display:grid;gap:6px;}
+.changes li b{color:var(--text);}
+
+.rule{max-width:920px;margin:26px auto 0;padding:0 24px;}
+.rule .card{display:flex;gap:14px;align-items:flex-start;background:color-mix(in srgb, var(--accent) 7%, transparent);border:1px solid var(--accent);border-radius:10px;padding:14px 18px;}
+.rule .card .ico{font-family:var(--mono);color:var(--accent);font-size:18px;flex:none;}
+.rule .card p{margin:0;font-size:14px;color:var(--text);}
+
+.timeline-nav{max-width:920px;margin:30px auto 0;padding:0 24px;display:flex;gap:6px;overflow-x:auto;padding-bottom:6px;}
+.timeline-nav a{flex:none;font-family:var(--mono);font-size:12px;text-decoration:none;color:var(--text-dim);border:1px solid var(--line);padding:7px 12px;border-radius:8px;white-space:nowrap;}
+.timeline-nav a:hover{color:var(--accent);border-color:var(--accent);}
+
+.phases{max-width:920px;margin:36px auto 60px;padding:0 24px;position:relative;}
+.phases::before{content:"";position:absolute;left:24px;top:10px;bottom:10px;width:2px;background:var(--line);}
+.phase{position:relative;border:1px solid var(--line);background:var(--bg-panel);border-radius:14px;margin-bottom:22px;overflow:hidden;margin-left:34px;}
+.phase::before{
+  content:attr(data-step);position:absolute;left:-34px;top:24px;width:26px;height:26px;
+  background:var(--bg);border:2px solid var(--accent);border-radius:50%;
+  display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:11px;color:var(--accent);
+}
+.phase-head{padding:22px 26px 18px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:flex-start;gap:16px;background:var(--bg-panel-2);}
+.phase-head .num{font-family:var(--mono);font-size:11px;color:var(--accent);letter-spacing:.1em;text-transform:uppercase;margin-bottom:6px;}
+.phase-head h2{margin:0 0 6px;font-size:20px;letter-spacing:-0.01em;}
+.phase-head .weeks{font-family:var(--mono);font-size:12px;color:var(--text-dim);}
+.phase-head .goal{color:var(--text-dim);font-size:14px;margin-top:8px;max-width:580px;}
+.phase-progress{text-align:right;flex:none;font-family:var(--mono);font-size:11px;color:var(--text-dim);min-width:70px;}
+.phase-progress .ring{width:44px;height:44px;border-radius:50%;background:conic-gradient(var(--accent) calc(var(--pct,0)*1%), var(--line) 0);display:flex;align-items:center;justify-content:center;margin:0 0 6px auto;}
+.phase-progress .ring::after{content:"";width:33px;height:33px;border-radius:50%;background:var(--bg-panel-2);}
+.phase-body{padding:22px 26px 26px;display:grid;gap:20px;}
+.block-title{font-family:var(--mono);font-size:11px;color:var(--accent-2);letter-spacing:.1em;text-transform:uppercase;margin:0 0 10px;display:flex;align-items:center;gap:8px;}
+.res-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+@media(max-width:640px){.res-grid{grid-template-columns:1fr;} .phases::before{left:14px;} .phase{margin-left:24px;} .phase::before{left:-24px;}}
+.res-card{border:1px solid var(--line);border-radius:8px;padding:10px 12px;background:var(--bg);font-size:13.5px;}
+.res-card .type{font-family:var(--mono);font-size:10.5px;color:var(--text-dim);text-transform:uppercase;letter-spacing:.06em;}
+.res-card a{color:var(--text);text-decoration:none;font-weight:600;}
+.res-card a:hover{color:var(--accent);text-decoration:underline;}
+.res-card .who{color:var(--text-dim);font-size:12.5px;margin-top:2px;}
+
+.checklist{list-style:none;margin:0;padding:0;display:grid;gap:8px;}
+.checklist li{display:flex;align-items:flex-start;gap:10px;border:1px solid var(--line);border-radius:8px;padding:10px 12px;background:var(--bg);font-size:14px;cursor:pointer;}
+.checklist li:hover{border-color:var(--accent);}
+.checklist input{margin-top:3px;accent-color:var(--accent);width:15px;height:15px;flex:none;cursor:pointer;}
+.checklist label{cursor:pointer;flex:1;}
+.checklist li.done{opacity:.55;}
+.checklist li.done label{text-decoration:line-through;}
+.tag{display:inline-block;font-family:var(--mono);font-size:10px;padding:1px 7px;border-radius:100px;border:1px solid var(--line);color:var(--text-dim);margin-left:8px;vertical-align:middle;}
+.tag.bonus{border-color:var(--accent-2);color:var(--accent-2);}
+
+.project-box{border:1px dashed var(--accent);border-radius:10px;padding:14px 16px;background:color-mix(in srgb, var(--accent) 6%, transparent);}
+.project-box .block-title{color:var(--accent);}
+.project-box p{margin:0;font-size:14px;color:var(--text);}
+.project-box p.detail{color:var(--text-dim);margin-top:6px;font-size:13.5px;}
+
+.bonus-box{border:1px dashed var(--accent-2);border-radius:10px;padding:14px 16px;background:color-mix(in srgb, var(--accent-2) 6%, transparent);}
+.bonus-box .block-title{color:var(--accent-2);}
+.bonus-box p{margin:0;font-size:13.5px;color:var(--text-dim);}
+
+footer{max-width:920px;margin:0 auto 60px;padding:0 24px;color:var(--text-dim);font-size:13px;border-top:1px solid var(--line);padding-top:24px;}
+footer a{color:var(--accent);}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <span class="dot"></span>
+  <span class="brand">dee@parcours ~ system-design-challenges.plan</span>
+  <div class="spacer"></div>
+  <div class="progress-wrap">
+    <span id="progress-label">0 / 0 étapes</span>
+    <div class="bar"><span id="progress-bar-fill"></span></div>
+  </div>
+  <button class="theme-btn" id="theme-toggle">☾ / ☀</button>
+</div>
+
+<section class="hero">
+  <div class="eyebrow">Parcours unique — ~8 mois, un seul chemin</div>
+  <h1>Défis d'ingénierie &amp; <span>System Design</span></h1>
+  <p class="lead">Version réorganisée de ton plan d'origine : une seule séquence à suivre du début à la fin, un seul langage principal, une seule initiative active à la fois. L'objectif est de finir le parcours, pas de choisir entre quatre.</p>
+  <div class="hero-meta">
+    <span class="pill">Durée : <b>~8 mois</b></span>
+    <span class="pill">Rythme : <b>8–10h / semaine</b></span>
+    <span class="pill">Langage principal : <b>Go</b></span>
+    <span class="pill">6 étapes séquentielles</span>
+  </div>
+</section>
+
+<div class="changes">
+  <div class="box">
+    <h3>Ce que j'ai changé par rapport à tes notes</h3>
+    <ul>
+      <li><b>Un seul parcours</b> au lieu de 4 scénarios à choisir — le choix lui-même coûtait de l'énergie avant même de commencer.</li>
+      <li><b>Go partout</b> au lieu de jongler entre Go/Python/Java/C++/Rust — un seul langage à approfondir maximise le retour sur ton temps.</li>
+      <li><b>Jamais deux défis en parallèle</b> — #100DaysOfCode et 90DaysOfDevOps ne se lancent plus en même temps ; ils se suivent.</li>
+      <li><b>Théorie et code fusionnés</b> — Designing Data-Intensive Applications se lit en toile de fond, chapitre par chapitre, pendant le projet qui l'illustre, plutôt que comme piste séparée.</li>
+      <li><b>Advent of Code et hackathons deviennent des bonus</b>, retirés du chemin critique — pas de pression de date, tu les fais si le calendrier tombe bien.</li>
+      <li><b>1BRC recentré sur Go seul</b> plutôt que Java/C++/C#, pour rester dans un seul langage.</li>
+    </ul>
+  </div>
+</div>
+
+<div class="rule">
+  <div class="card">
+    <span class="ico">▸</span>
+    <p>Règle simple pour éviter l'overwhelm : à chaque instant, une seule case "en cours". Termine une étape avant d'ouvrir la suivante, même si la suivante semble excitante.</p>
+  </div>
+</div>
+
+<nav class="timeline-nav">
+  <a href="#s1">1 · Fondations</a>
+  <a href="#s2">2 · DevOps &amp; infra</a>
+  <a href="#s3">3 · System Design appliqué</a>
+  <a href="#s4">4 · Performance</a>
+  <a href="#s5">5 · Études de cas réelles</a>
+  <a href="#s6">6 · Portfolio &amp; entretiens</a>
+</nav>
+
+<main class="phases">
+
+<!-- ETAPE 1 -->
+<article class="phase" id="s1" data-step="1">
+  <div class="phase-head">
+    <div>
+      <div class="num">Étape 1</div>
+      <h2>Fondations solides</h2>
+      <div class="weeks">Semaines 1 – 3</div>
+      <div class="goal">Réflexes de base avant tout le reste : tests, refactoring, lecture de fond démarrée. Volontairement courte — l'objectif est de reprendre l'élan, pas de s'installer ici.</div>
+    </div>
+    <div class="phase-progress"><div class="ring" data-ring="s1"></div><span data-pct-label="s1">0%</span></div>
+  </div>
+  <div class="phase-body">
+    <div>
+      <p class="block-title">📚 Ressource de fond (à lire tout le parcours)</p>
+      <div class="res-grid">
+        <div class="res-card"><div class="type">Livre</div><a href="https://dataintensive.net/" target="_blank">Designing Data-Intensive Applications</a><div class="who">Martin Kleppmann — commence les chapitres 1–2 cette semaine, continue en arrière-plan jusqu'à l'étape 3</div></div>
+        <div class="res-card"><div class="type">Newsletter — 15 min/jour</div><a href="https://bytebytego.com/" target="_blank">ByteByteGo</a><div class="who">Alex Xu — architectures réelles décortiquées, à garder en lecture légère tout le parcours</div></div>
+      </div>
+    </div>
+    <div>
+      <p class="block-title">✅ Exercices</p>
+      <ul class="checklist">
+        <li><input type="checkbox" id="s1-1"><label for="s1-1">Écrire 3 fonctions avec cycle strict Red → Green → Refactor</label></li>
+        <li><input type="checkbox" id="s1-2"><label for="s1-2">Reprendre un ancien projet Go et appliquer les principes SOLID (refactoring réel, pas théorique)</label></li>
+        <li><input type="checkbox" id="s1-3"><label for="s1-3">Atteindre 80%+ de couverture de tests sur un petit module existant</label></li>
+      </ul>
+    </div>
+    <div class="project-box">
+      <p class="block-title">🎯 Livrable</p>
+      <p>Un commit GitHub propre avec tests + README court expliquant le refactoring fait</p>
+      <p class="detail">Pas besoin de nouveauté ici — l'idée est de réactiver de bons réflexes avant d'attaquer des projets plus lourds.</p>
+    </div>
+  </div>
+</article>
+
+<!-- ETAPE 2 -->
+<article class="phase" id="s2" data-step="2">
+  <div class="phase-head">
+    <div>
+      <div class="num">Étape 2</div>
+      <h2>DevOps &amp; infrastructure</h2>
+      <div class="weeks">Semaines 4 – 12</div>
+      <div class="goal">Le socle infra (Linux, réseau, Docker, Kubernetes, Terraform, CI/CD) via un curriculum structuré, plus un premier vrai projet système : un load balancer.</div>
+    </div>
+    <div class="phase-progress"><div class="ring" data-ring="s2"></div><span data-pct-label="s2">0%</span></div>
+  </div>
+  <div class="phase-body">
+    <div>
+      <p class="block-title">📚 Curriculum</p>
+      <div class="res-grid">
+        <div class="res-card"><div class="type">GitHub — curriculum guidé</div><a href="https://github.com/TrainWithShubham/90DaysOfDevOps" target="_blank">90 Days of DevOps</a><div class="who">à suivre comme référence de contenu (Linux, réseau, Docker, K8s, Terraform, Ansible, CI/CD) — pas obligé de tenir 90 jours consécutifs, garde le rythme de 9 semaines ci-dessus</div></div>
+        <div class="res-card"><div class="type">GitHub — scénarios réels</div><a href="https://github.com/intelygenz/the-real-devops-challenge" target="_blank">The Real DevOps Challenge</a><div class="who">scénarios d'entreprise avec revue communautaire, à piocher une fois les bases du curriculum posées</div></div>
+      </div>
+    </div>
+    <div>
+      <p class="block-title">✅ Exercices</p>
+      <ul class="checklist">
+        <li><input type="checkbox" id="s2-1"><label for="s2-1">Suivre les modules Linux + réseau + Docker du curriculum (semaines 4–6)</label></li>
+        <li><input type="checkbox" id="s2-2"><label for="s2-2">Suivre les modules Kubernetes + Terraform + CI/CD du curriculum (semaines 7–9)</label></li>
+        <li><input type="checkbox" id="s2-3"><label for="s2-3">Résoudre 1 scénario de The Real DevOps Challenge et publier la solution</label></li>
+        <li><input type="checkbox" id="s2-4"><label for="s2-4">Lire les chapitres 3–5 de Designing Data-Intensive Applications en parallèle (rythme léger)</label></li>
+      </ul>
+    </div>
+    <div class="project-box">
+      <p class="block-title">🎯 Projet <span class="tag">portfolio</span></p>
+      <p>Load Balancer HTTP en Go : round-robin, health checks, retrait automatique des serveurs en panne</p>
+      <p class="detail">Ce projet fait le pont vers l'étape 3 (System Design) — il sert de premier bloc concret. Structure guidée disponible sur <a href="https://codingchallenges.fyi/" target="_blank">codingchallenges.fyi</a>.</p>
+    </div>
+  </div>
+</article>
+
+<!-- ETAPE 3 -->
+<article class="phase" id="s3" data-step="3">
+  <div class="phase-head">
+    <div>
+      <div class="num">Étape 3</div>
+      <h2>System Design appliqué</h2>
+      <div class="weeks">Semaines 13 – 22</div>
+      <div class="goal">Un projet toutes les deux semaines, chacun illustrant directement un chapitre de DDIA lu juste avant. Théorie et code avancent ensemble, jamais séparés.</div>
+    </div>
+    <div class="phase-progress"><div class="ring" data-ring="s3"></div><span data-pct-label="s3">0%</span></div>
+  </div>
+  <div class="phase-body">
+    <div>
+      <p class="block-title">📚 Références</p>
+      <div class="res-grid">
+        <div class="res-card"><div class="type">GitHub — gratuit</div><a href="https://github.com/donnemartin/system-design-primer" target="_blank">The System Design Primer</a><div class="who">Donne Martin — diagrammes + explications à consulter par bloc ci-dessous</div></div>
+        <div class="res-card"><div class="type">Guides guidés</div><a href="https://codingchallenges.fyi/" target="_blank">Coding Challenges (John Crickett)</a><div class="who">critères d'acceptation clairs pour chaque projet ci-dessous</div></div>
+      </div>
+    </div>
+    <div>
+      <p class="block-title">✅ Séquence (un bloc à la fois, ~2 semaines chacun)</p>
+      <ul class="checklist">
+        <li><input type="checkbox" id="s3-1"><label for="s3-1">Bloc 1 — Cache LRU en mémoire (sans librairie externe) + lecture DDIA sur le stockage</label></li>
+        <li><input type="checkbox" id="s3-2"><label for="s3-2">Bloc 2 — API Rate Limiter (token bucket) en middleware Go</label></li>
+        <li><input type="checkbox" id="s3-3"><label for="s3-3">Bloc 3 — Mini chat temps réel : WebSockets + file de messages (RabbitMQ ou Kafka), plusieurs instances</label></li>
+        <li><input type="checkbox" id="s3-4"><label for="s3-4">Bloc 4 — Distributed Key-Value Store : consistent hashing, distribution sur 3 nœuds, réplication simulée</label></li>
+        <li><input type="checkbox" id="s3-5"><label for="s3-5">Terminer la lecture de Designing Data-Intensive Applications (chapitres restants)</label></li>
+      </ul>
+    </div>
+    <div class="project-box">
+      <p class="block-title">🎯 Livrable</p>
+      <p>4 projets publiés sur GitHub, chacun avec un diagramme (Excalidraw) expliquant l'architecture et les trade-offs</p>
+      <p class="detail">Un diagramme par projet transforme "j'ai codé un truc" en "je comprends pourquoi c'est conçu ainsi" — c'est ce qui compte en entretien.</p>
+    </div>
+  </div>
+</article>
+
+<!-- ETAPE 4 -->
+<article class="phase" id="s4" data-step="4">
+  <div class="phase-head">
+    <div>
+      <div class="num">Étape 4</div>
+      <h2>Performance &amp; systèmes bas niveau</h2>
+      <div class="weeks">Semaines 23 – 27</div>
+      <div class="goal">Une seule compétition, un seul langage : pousser Go à ses limites sur un vrai problème de performance.</div>
+    </div>
+    <div class="phase-progress"><div class="ring" data-ring="s4"></div><span data-pct-label="s4">0%</span></div>
+  </div>
+  <div class="phase-body">
+    <div>
+      <p class="block-title">📚 Référence</p>
+      <div class="res-grid">
+        <div class="res-card"><div class="type">Compétition</div><a href="https://1brc.dev/" target="_blank">The One Billion Row Challenge</a><div class="who">agréger 1 milliard de lignes le plus vite possible — fais-le en Go uniquement, pas besoin de Java/C++/C#</div></div>
+      </div>
+    </div>
+    <div>
+      <p class="block-title">✅ Exercices</p>
+      <ul class="checklist">
+        <li><input type="checkbox" id="s4-1"><label for="s4-1">Implémentation naïve du 1BRC en Go (correcte avant rapide)</label></li>
+        <li><input type="checkbox" id="s4-2"><label for="s4-2">Optimiser : lecture par chunks, worker pool, réduction des allocations</label></li>
+        <li><input type="checkbox" id="s4-3"><label for="s4-3">Profiler avec pprof, identifier et corriger les 2 plus gros goulots</label></li>
+      </ul>
+    </div>
+    <div class="project-box">
+      <p class="block-title">🎯 Livrable</p>
+      <p>Solution 1BRC publiée avec un court article expliquant la démarche d'optimisation (avant/après avec chiffres)</p>
+      <p class="detail">Le chiffre avant/après vaut plus que le classement — c'est la preuve de raisonnement que les recruteurs cherchent.</p>
+    </div>
+  </div>
+</article>
+
+<!-- ETAPE 5 -->
+<article class="phase" id="s5" data-step="5">
+  <div class="phase-head">
+    <div>
+      <div class="num">Étape 5</div>
+      <h2>Études de cas réelles</h2>
+      <div class="weeks">Semaines 28 – 31</div>
+      <div class="goal">Passer de "je sais coder ces briques" à "je sais concevoir un système complet" — sur des cas connus des entretiens techniques.</div>
+    </div>
+    <div class="phase-progress"><div class="ring" data-ring="s5"></div><span data-pct-label="s5">0%</span></div>
+  </div>
+  <div class="phase-body">
+    <div>
+      <p class="block-title">📚 Références</p>
+      <div class="res-grid">
+        <div class="res-card"><div class="type">Exercice d'équipe / solo</div><a href="https://www.architecturalkatas.com/" target="_blank">Architectural Katas</a><div class="who">brief métier complexe → tu conçois l'architecture complète</div></div>
+        <div class="res-card"><div class="type">Outil</div><a href="https://excalidraw.com/" target="_blank">Excalidraw</a><div class="who">pour documenter chaque étude de cas visuellement</div></div>
+      </div>
+    </div>
+    <div>
+      <p class="block-title">✅ Exercices — 3 cas, pas plus</p>
+      <ul class="checklist">
+        <li><input type="checkbox" id="s5-1"><label for="s5-1">Étude de cas 1 : architecture de streaming vidéo à grande échelle (style YouTube/Netflix)</label></li>
+        <li><input type="checkbox" id="s5-2"><label for="s5-2">Étude de cas 2 : messagerie temps réel distribuée (style WhatsApp/Signal)</label></li>
+        <li><input type="checkbox" id="s5-3"><label for="s5-3">Étude de cas 3 : système à haute concurrence (style commandes Amazon ou dispatch Uber)</label></li>
+        <li><input type="checkbox" id="s5-4"><label for="s5-4">1 Architectural Kata complété avec diagramme et justification écrite</label></li>
+      </ul>
+    </div>
+    <div class="project-box">
+      <p class="block-title">🎯 Livrable</p>
+      <p>3 diagrammes d'architecture commentés + 1 kata, tous publiés</p>
+      <p class="detail">Trois cas bien maîtrisés valent plus que dix survolés — tu dois pouvoir les présenter en 5 minutes chacun sans notes.</p>
+    </div>
+  </div>
+</article>
+
+<!-- ETAPE 6 -->
+<article class="phase" id="s6" data-step="6">
+  <div class="phase-head">
+    <div>
+      <div class="num">Étape 6</div>
+      <h2>Portfolio &amp; préparation aux entretiens</h2>
+      <div class="weeks">Semaines 32 – 34</div>
+      <div class="goal">Transformer 8 mois de projets dispersés en portfolio cohérent, et se préparer activement aux entretiens System Design.</div>
+    </div>
+    <div class="phase-progress"><div class="ring" data-ring="s6"></div><span data-pct-label="s6">0%</span></div>
+  </div>
+  <div class="phase-body">
+    <div>
+      <p class="block-title">✅ Exercices</p>
+      <ul class="checklist">
+        <li><input type="checkbox" id="s6-1"><label for="s6-1">Nettoyer et uniformiser les README de tous les projets du parcours (7-8 dépôts)</label></li>
+        <li><input type="checkbox" id="s6-2"><label for="s6-2">Écrire 2 articles techniques (ex : le load balancer, l'optimisation 1BRC)</label></li>
+        <li><input type="checkbox" id="s6-3"><label for="s6-3">Préparer une présentation de 5 minutes pour chacune des 3 études de cas</label></li>
+        <li><input type="checkbox" id="s6-4"><label for="s6-4">Simuler 2 entretiens System Design (avec un pair ou en solo, chronométré)</label></li>
+      </ul>
+    </div>
+    <div class="project-box">
+      <p class="block-title">🎯 Livrable final</p>
+      <p>Portfolio GitHub organisé + 2 articles publiés + 3 études de cas prêtes à être présentées</p>
+      <p class="detail">C'est ce package complet, pas un projet isolé, qui fait la différence en entretien.</p>
+    </div>
+    <div class="bonus-box">
+      <p class="block-title">🎁 Bonus — hors chemin critique <span class="tag bonus">optionnel</span></p>
+      <p>Si le calendrier tombe en décembre : <a href="https://adventofcode.com/" target="_blank">Advent of Code</a> (25 jours, algorithmie). Si une opportunité se présente : un <a href="https://devpost.com/hackathons" target="_blank">hackathon cloud sur Devpost</a> filtré sur AWS/GCP/Azure/HashiCorp. Ni l'un ni l'autre n'est requis pour terminer ce parcours — à faire seulement si l'énergie et le timing s'y prêtent, sans repousser l'étape 6.</p>
+    </div>
+  </div>
+</article>
+
+</main>
+
+<footer>
+  Parcours réorganisé à partir de tes notes originales — la logique de fond (défis, System Design, DevOps) est conservée, la structure a été rendue séquentielle pour réduire la charge de décision. Progression stockée localement dans ce navigateur (localStorage), rien n'est envoyé nulle part.
+</footer>
+
+<script>
+(function(){
+  const THEME_KEY = "sysdesign-theme";
+  const savedTheme = localStorage.getItem(THEME_KEY);
+  if(savedTheme === "light") document.documentElement.setAttribute("data-theme", "light");
+
+  document.getElementById("theme-toggle").addEventListener("click", function(){
+    const cur = document.documentElement.getAttribute("data-theme") === "light" ? "light" : "dark";
+    const next = cur === "light" ? "dark" : "light";
+    if(next === "light"){ document.documentElement.setAttribute("data-theme","light"); }
+    else { document.documentElement.removeAttribute("data-theme"); }
+    localStorage.setItem(THEME_KEY, next);
+  });
+
+  const STORE_KEY = "sysdesign-progress";
+  let state = {};
+  try{ state = JSON.parse(localStorage.getItem(STORE_KEY) || "{}"); }catch(e){ state = {}; }
+
+  const checkboxes = Array.from(document.querySelectorAll('.checklist input[type="checkbox"]'));
+  function phaseOf(id){ return id.split("-")[0]; }
+
+  function updateAll(){
+    let totalChecked = 0;
+    const totals = {}, checked = {};
+    checkboxes.forEach(cb => {
+      const ph = phaseOf(cb.id);
+      totals[ph] = (totals[ph]||0) + 1;
+      if(cb.checked){ checked[ph] = (checked[ph]||0) + 1; totalChecked++; }
+      cb.closest("li").classList.toggle("done", cb.checked);
+    });
+    Object.keys(totals).forEach(ph => {
+      const pct = Math.round(100 * (checked[ph]||0) / totals[ph]);
+      const ring = document.querySelector('[data-ring="'+ph+'"]');
+      const label = document.querySelector('[data-pct-label="'+ph+'"]');
+      if(ring) ring.style.setProperty("--pct", pct);
+      if(label) label.textContent = pct + "%";
+    });
+    document.getElementById("progress-label").textContent = totalChecked + " / " + checkboxes.length + " étapes";
+    document.getElementById("progress-bar-fill").style.width = (checkboxes.length ? (100*totalChecked/checkboxes.length) : 0) + "%";
+  }
+
+  checkboxes.forEach(cb => {
+    cb.checked = !!state[cb.id];
+    cb.addEventListener("change", () => {
+      state[cb.id] = cb.checked;
+      localStorage.setItem(STORE_KEY, JSON.stringify(state));
+      updateAll();
+    });
+  });
+
+  updateAll();
+})();
+</script>
+
+</body>
+</html>

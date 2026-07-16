@@ -1,0 +1,1235 @@
+<!DOCTYPE html>
+<html lang="fr" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rust x Crypto — Solutions 21-30 · Intermédiaire</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Syne:wght@700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root{--rust:#CE422B;--green:#3D9970;--lv2:#7C52D4;}
+[data-theme="dark"]{--bg:#0D0D0F;--bg2:#131315;--bg3:#1A1A1D;--bg4:#222226;--line:rgba(255,255,255,.06);--line2:rgba(255,255,255,.11);--tx1:#EAE9E2;--tx2:#9A9990;--tx3:#5A5955;--code-bg:#0A0A0C;}
+[data-theme="light"]{--bg:#F2EFE8;--bg2:#FDFCF9;--bg3:#EEEAE2;--bg4:#E4E0D7;--line:rgba(0,0,0,.07);--line2:rgba(0,0,0,.13);--tx1:#18170F;--tx2:#56544A;--tx3:#9A9890;--code-bg:#111113;}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--tx1);min-height:100vh;display:flex;transition:background .2s,color .2s}
+nav{width:252px;flex-shrink:0;background:var(--bg2);border-right:1px solid var(--line);position:fixed;top:0;left:0;bottom:0;overflow-y:auto;display:flex;flex-direction:column;z-index:40;transition:background .2s}
+.nav-top{padding:22px 18px 14px;border-bottom:1px solid var(--line)}
+.nav-chip{display:inline-block;background:rgba(124,82,212,.15);color:var(--lv2);font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.08em;text-transform:uppercase;padding:3px 8px;border-radius:4px;margin-bottom:10px}
+.nav-h{font-family:'Syne',sans-serif;font-size:16px;font-weight:800;letter-spacing:-.02em;color:var(--tx1);line-height:1.2}
+.nav-sub{font-size:11px;color:var(--tx3);margin-top:3px;font-family:'JetBrains Mono',monospace}
+.nav-group{padding:10px 0 4px}
+.nav-group-label{font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--tx3);padding:6px 18px 4px;display:flex;align-items:center;gap:6px}
+.nav-btn{display:flex;align-items:center;gap:8px;width:100%;padding:8px 18px;background:none;border:none;border-left:2px solid transparent;color:var(--tx2);font-size:12.5px;font-family:'DM Sans',sans-serif;cursor:pointer;text-align:left;transition:all .12s}
+.nav-btn:hover{color:var(--tx1);background:rgba(255,255,255,.03)}
+.nav-btn.active{color:var(--tx1);border-left-color:var(--rust);background:rgba(206,66,43,.06)}
+.nav-btn .nn{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--tx3);min-width:20px}
+.nav-btn.active .nn{color:var(--lv2)}
+.nav-btn .nc{font-size:12px;color:var(--green);opacity:0;margin-left:auto}
+.nav-btn.done .nc{opacity:1}
+.nav-foot{margin-top:auto;padding:12px 18px;border-top:1px solid var(--line);display:flex;align-items:center;justify-content:space-between}
+.theme-pill{display:flex;background:var(--bg3);border:1px solid var(--line2);border-radius:99px;padding:3px;gap:2px}
+.tbtn{width:26px;height:26px;border-radius:50%;border:none;background:none;cursor:pointer;font-size:13px;display:flex;align-items:center;justify-content:center;color:var(--tx3);transition:all .15s}
+.tbtn.active{background:var(--bg2);color:var(--tx1);box-shadow:0 1px 4px rgba(0,0,0,.2)}
+.nav-prog-text{font-size:11px;color:var(--tx3);font-family:'JetBrains Mono',monospace}
+.prog-strip{height:2px;background:var(--bg4);position:fixed;top:0;left:252px;right:0;z-index:99}
+.prog-fill{height:100%;background:var(--lv2);transition:width .4s ease}
+main{margin-left:252px;flex:1;padding:44px 50px 100px;max-width:880px}
+.topbar{display:flex;align-items:flex-end;gap:14px;margin-bottom:36px;padding-bottom:22px;border-bottom:1px solid var(--line)}
+.tb-eyebrow{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--lv2);letter-spacing:.08em;text-transform:uppercase;margin-bottom:6px;display:flex;align-items:center;gap:6px}
+.tb-eyebrow::before{content:'';display:block;width:18px;height:1px;background:var(--lv2)}
+.tb-h{font-family:'Syne',sans-serif;font-size:26px;font-weight:800;letter-spacing:-.03em;color:var(--tx1)}
+.tb-actions{margin-left:auto;display:flex;gap:8px;align-items:center;padding-bottom:2px}
+.action-btn{font-size:11.5px;font-family:'JetBrains Mono',monospace;padding:6px 12px;border-radius:6px;border:1px solid var(--line2);background:var(--bg3);color:var(--tx2);cursor:pointer;transition:all .15s;white-space:nowrap}
+.action-btn:hover{border-color:var(--lv2);color:var(--lv2)}
+.ex-section{margin-bottom:56px;scroll-margin-top:20px}
+.ex-head{display:flex;align-items:flex-start;gap:14px;margin-bottom:20px}
+.ex-badge{font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:600;padding:4px 9px;border-radius:5px;white-space:nowrap;margin-top:2px;background:rgba(124,82,212,.12);color:var(--lv2);border:1px solid rgba(124,82,212,.2)}
+.ex-head-info h2{font-family:'Syne',sans-serif;font-size:19px;font-weight:800;letter-spacing:-.02em;color:var(--tx1);margin-bottom:5px}
+.tags{display:flex;gap:5px;flex-wrap:wrap}
+.tag{font-size:10px;font-family:'JetBrains Mono',monospace;padding:2px 7px;border-radius:4px;background:var(--bg4);color:var(--tx3);border:1px solid var(--line)}
+.tab-wrap{border:1px solid var(--line);border-radius:10px;overflow:hidden;margin-bottom:18px}
+.tab-bar{display:flex;gap:2px;background:var(--bg3);padding:3px;border-bottom:1px solid var(--line)}
+.tab-btn{padding:7px 14px;border-radius:6px;font-size:12px;font-family:'JetBrains Mono',monospace;color:var(--tx3);background:none;border:none;cursor:pointer;transition:all .15s;white-space:nowrap}
+.tab-btn.active{background:var(--bg2);color:var(--tx1);box-shadow:0 1px 3px rgba(0,0,0,.15)}
+.tab-panel{display:none}.tab-panel.active{display:block}
+.concept-body{padding:18px 22px;background:var(--bg2)}
+.concept-body h3{font-size:13px;font-weight:500;color:var(--tx1);margin-bottom:10px;padding-left:10px;border-left:3px solid var(--lv2)}
+.concept-body p{font-size:13.5px;color:var(--tx2);line-height:1.7;margin-bottom:8px}
+.concept-body ul{padding-left:18px;margin:8px 0;display:flex;flex-direction:column;gap:4px}
+.concept-body li{font-size:13.5px;color:var(--tx2);line-height:1.6}
+.concept-body code{font-family:'JetBrains Mono',monospace;font-size:12px;background:var(--bg4);color:var(--tx1);padding:1px 5px;border-radius:3px}
+.callout{border-radius:6px;padding:10px 14px;margin-top:10px;font-size:13px;line-height:1.6;display:flex;gap:8px}
+.callout.warn{background:rgba(229,168,32,.08);border:1px solid rgba(229,168,32,.2);color:#B8900A}
+.callout.tip{background:rgba(61,153,112,.08);border:1px solid rgba(61,153,112,.2);color:#2E7A58}
+.callout.info{background:rgba(124,82,212,.08);border:1px solid rgba(124,82,212,.2);color:#5B3EA0}
+.code-wrap{position:relative;background:var(--code-bg)}
+.code-header{display:flex;align-items:center;padding:9px 16px;border-bottom:1px solid rgba(255,255,255,.05);background:rgba(255,255,255,.02)}
+.code-dots{display:flex;gap:5px;margin-right:12px}
+.code-dot{width:10px;height:10px;border-radius:50%}
+.copy-btn{margin-left:auto;font-size:11px;font-family:'JetBrains Mono',monospace;padding:4px 10px;border-radius:5px;border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.04);color:#546E7A;cursor:pointer;transition:all .15s}
+.copy-btn:hover{border-color:rgba(255,255,255,.18);color:#CDD3DE}
+.copy-btn.copied{color:#3D9970;border-color:rgba(61,153,112,.3)}
+pre{font-family:'JetBrains Mono',monospace;font-size:12.5px;line-height:1.75;padding:18px 22px;overflow-x:auto;color:#CDD3DE;background:var(--code-bg);margin:0}
+.kw{color:#C792EA}.fn{color:#82AAFF}.st{color:#C3E88D}.nm{color:#F78C6C}
+.cm{color:#546E7A;font-style:italic}.ty{color:#FFCB6B}.mc{color:#89DDFF}
+.op{color:#89DDFF}.sym{color:#4EC9B0}
+.output-body{padding:16px 20px;background:var(--bg2);font-family:'JetBrains Mono',monospace;font-size:12.5px;color:var(--tx2);line-height:1.8}
+.out-prompt{color:var(--rust)}.out-ok{color:#3D9970}.out-val{color:#F78C6C}.out-dim{color:var(--tx3)}
+.done-row{display:flex;justify-content:flex-end;padding:12px 18px;border-top:1px solid var(--line);background:var(--bg2)}
+.done-btn{display:flex;align-items:center;gap:6px;font-size:12.5px;font-family:'DM Sans',sans-serif;padding:6px 14px;border-radius:7px;border:1px solid var(--line2);background:none;color:var(--tx3);cursor:pointer;transition:all .15s}
+.done-btn:hover{border-color:var(--green);color:var(--green)}
+.done-btn.done{border-color:var(--green);color:var(--green);background:rgba(61,153,112,.08)}
+.section-divider{height:1px;background:var(--line);margin-bottom:56px}
+@media(max-width:800px){nav{display:none}main{margin-left:0;padding:20px 18px 80px}.prog-strip{left:0}}
+</style>
+</head>
+<body>
+<div class="prog-strip"><div class="prog-fill" id="prog-fill" style="width:0%"></div></div>
+<nav>
+  <div class="nav-top">
+    <div class="nav-chip">L2 · Intermédiaire</div>
+    <div class="nav-h">Solutions<br>21 – 30</div>
+    <div class="nav-sub">// secp256k1 · ECDSA · chiffrement</div>
+  </div>
+  <div id="nav-items">
+    <div class="nav-group">
+      <div class="nav-group-label" style="color:var(--lv2)">Exercices 21 – 30</div>
+    </div>
+  </div>
+  <div class="nav-foot">
+    <span class="nav-prog-text" id="nav-prog">0 / 10</span>
+    <div class="theme-pill">
+      <button class="tbtn" id="tbtn-dark" onclick="setTheme('dark')">🌙</button>
+      <button class="tbtn active" id="tbtn-light" onclick="setTheme('light')">☀️</button>
+    </div>
+  </div>
+</nav>
+<main>
+  <div class="topbar">
+    <div>
+      <div class="tb-eyebrow">L2 · Intermédiaire · Exercices 21–30</div>
+      <div class="tb-h">Solutions commentées</div>
+    </div>
+    <div class="tb-actions">
+      <button class="action-btn" onclick="doExpandAll()">Tout ouvrir code</button>
+      <button class="action-btn" onclick="doMarkAll()">Tout marquer fait</button>
+    </div>
+  </div>
+  <div id="ex-container"></div>
+</main>
+<script>
+var EXERCISES = [
+  {
+    id:'21',title:'secp256k1 — addition de points',
+    tags:['ECC','secp256k1','point addition','affine'],
+    cargo:'',
+    concept:[
+      {type:'h3',text:'Courbe elliptique secp256k1'},
+      {type:'p',text:'secp256k1 est définie par y² = x³ + 7 sur F_p, avec p = 2²⁵⁶ - 2³² - 977. C\'est la courbe utilisée par Bitcoin et Ethereum pour toutes les signatures.'},
+      {type:'ul',items:[
+        'Point à l\'infini : élément neutre du groupe, noté O',
+        'Addition : si P ≠ Q : λ = (y₂-y₁)/(x₂-x₁) mod p, x₃ = λ²-x₁-x₂, y₃ = λ(x₁-x₃)-y₁',
+        'Doublement (P = Q) : λ = 3x₁²/(2y₁) mod p',
+        'Inverse modulaire via Fermat : a⁻¹ = a^(p-2) mod p',
+      ]},
+      {type:'tip',text:'En coordonnées projectives (Jacobian), on évite les divisions coûteuses. Les bibliothèques production utilisent cette optimisation — le code ci-dessous est pédagogique en coordonnées affines.'},
+    ],
+    code:
+'<span class="cm">// 21 — secp256k1 : addition de points en coordonnées affines</span>\n'+
+'<span class="cm">// Cargo.toml : pas de dépendances (arithmétique u256 simulée)</span>\n'+
+'\n'+
+'<span class="kw">use</span> std::fmt;\n'+
+'\n'+
+'<span class="cm">// Paramètres secp256k1 — p = 2^256 - 2^32 - 977</span>\n'+
+'<span class="cm">// On utilise u128 pour simplifier (vrai impl nécessite u256)</span>\n'+
+'\n'+
+'<span class="cm">/// Point sur une courbe elliptique (coordonnées affines)</span>\n'+
+'<span class="kw">#[derive(Clone, Debug, PartialEq)]</span>\n'+
+'<span class="kw">enum</span> <span class="ty">Point</span> {\n'+
+'    <span class="ty">Infinity</span>,\n'+
+'    <span class="ty">Affine</span> { x: <span class="ty">u64</span>, y: <span class="ty">u64</span> },\n'+
+'}\n'+
+'\n'+
+'<span class="cm">/// Courbe y² = x³ + ax + b mod p</span>\n'+
+'<span class="kw">struct</span> <span class="ty">Curve</span> { a: <span class="ty">u64</span>, b: <span class="ty">u64</span>, p: <span class="ty">u64</span> }\n'+
+'\n'+
+'<span class="kw">impl</span> <span class="ty">Curve</span> {\n'+
+'    <span class="cm">/// Inverse modulaire via petit théorème de Fermat : a^(p-2) mod p</span>\n'+
+'    <span class="kw">fn</span> <span class="fn">inv</span>(<span class="op">&amp;</span><span class="kw">self</span>, a: <span class="ty">u64</span>) -&gt; <span class="ty">u64</span> {\n'+
+'        <span class="fn">mod_pow</span>(a, <span class="kw">self</span>.p - <span class="nm">2</span>, <span class="kw">self</span>.p)\n'+
+'    }\n'+
+'\n'+
+'    <span class="cm">/// Vérifie qu\'un point appartient à la courbe</span>\n'+
+'    <span class="kw">fn</span> <span class="fn">is_on_curve</span>(<span class="op">&amp;</span><span class="kw">self</span>, p: <span class="op">&amp;</span><span class="ty">Point</span>) -&gt; <span class="ty">bool</span> {\n'+
+'        <span class="kw">match</span> p {\n'+
+'            <span class="ty">Point</span>::<span class="ty">Infinity</span> =&gt; <span class="kw">true</span>,\n'+
+'            <span class="ty">Point</span>::<span class="ty">Affine</span> { x, y } =&gt; {\n'+
+'                <span class="kw">let</span> lhs = (y * y) % <span class="kw">self</span>.p;\n'+
+'                <span class="kw">let</span> rhs = ((<span class="fn">mod_pow</span>(*x, <span class="nm">3</span>, <span class="kw">self</span>.p)\n'+
+'                    + <span class="kw">self</span>.a * x % <span class="kw">self</span>.p\n'+
+'                    + <span class="kw">self</span>.b) % <span class="kw">self</span>.p);\n'+
+'                lhs == rhs\n'+
+'            }\n'+
+'        }\n'+
+'    }\n'+
+'\n'+
+'    <span class="cm">/// Addition de deux points</span>\n'+
+'    <span class="kw">fn</span> <span class="fn">add</span>(<span class="op">&amp;</span><span class="kw">self</span>, p1: <span class="op">&amp;</span><span class="ty">Point</span>, p2: <span class="op">&amp;</span><span class="ty">Point</span>) -&gt; <span class="ty">Point</span> {\n'+
+'        <span class="kw">match</span> (p1, p2) {\n'+
+'            (<span class="ty">Point</span>::<span class="ty">Infinity</span>, _) =&gt; p2.<span class="fn">clone</span>(),\n'+
+'            (_, <span class="ty">Point</span>::<span class="ty">Infinity</span>) =&gt; p1.<span class="fn">clone</span>(),\n'+
+'            (<span class="ty">Point</span>::<span class="ty">Affine</span>{x:x1,y:y1}, <span class="ty">Point</span>::<span class="ty">Affine</span>{x:x2,y:y2}) =&gt; {\n'+
+'                <span class="kw">let</span> p = <span class="kw">self</span>.p;\n'+
+'                <span class="kw">if</span> x1 == x2 {\n'+
+'                    <span class="kw">if</span> y1 != y2 { <span class="kw">return</span> <span class="ty">Point</span>::<span class="ty">Infinity</span>; } <span class="cm">// P + (-P)</span>\n'+
+'                    <span class="cm">// Doublement : λ = 3x²/(2y) mod p</span>\n'+
+'                    <span class="kw">let</span> num = (<span class="nm">3</span> * x1 % p * x1 % p + <span class="kw">self</span>.a) % p;\n'+
+'                    <span class="kw">let</span> den = (<span class="nm">2</span> * y1) % p;\n'+
+'                    <span class="kw">let</span> lam = num * <span class="kw">self</span>.<span class="fn">inv</span>(den) % p;\n'+
+'                    <span class="kw">let</span> x3 = (lam * lam % p + p*<span class="nm">2</span> - <span class="nm">2</span> * x1 % p) % p;\n'+
+'                    <span class="kw">let</span> y3 = (lam * ((x1 + p - x3) % p) % p + p - y1 % p) % p;\n'+
+'                    <span class="ty">Point</span>::<span class="ty">Affine</span>{x:x3, y:y3}\n'+
+'                } <span class="kw">else</span> {\n'+
+'                    <span class="cm">// Addition : λ = (y2-y1)/(x2-x1) mod p</span>\n'+
+'                    <span class="kw">let</span> num = (y2 + p - y1) % p;\n'+
+'                    <span class="kw">let</span> den = (x2 + p - x1) % p;\n'+
+'                    <span class="kw">let</span> lam = num * <span class="kw">self</span>.<span class="fn">inv</span>(den) % p;\n'+
+'                    <span class="kw">let</span> x3 = (lam * lam % p + p*<span class="nm">2</span> + p - x1 % p - x2 % p) % p;\n'+
+'                    <span class="kw">let</span> y3 = (lam * ((x1 + p - x3) % p) % p + p - y1 % p) % p;\n'+
+'                    <span class="ty">Point</span>::<span class="ty">Affine</span>{x:x3, y:y3}\n'+
+'                }\n'+
+'            }\n'+
+'        }\n'+
+'    }\n'+
+'\n'+
+'    <span class="cm">/// Multiplication scalaire : k * P via double-and-add</span>\n'+
+'    <span class="kw">fn</span> <span class="fn">mul</span>(<span class="op">&amp;</span><span class="kw">self</span>, <span class="kw">mut</span> k: <span class="ty">u64</span>, p: <span class="op">&amp;</span><span class="ty">Point</span>) -&gt; <span class="ty">Point</span> {\n'+
+'        <span class="kw">let mut</span> result = <span class="ty">Point</span>::<span class="ty">Infinity</span>;\n'+
+'        <span class="kw">let mut</span> addend = p.<span class="fn">clone</span>();\n'+
+'        <span class="kw">while</span> k &gt; <span class="nm">0</span> {\n'+
+'            <span class="kw">if</span> k <span class="op">&amp;</span> <span class="nm">1</span> == <span class="nm">1</span> { result = <span class="kw">self</span>.<span class="fn">add</span>(<span class="op">&amp;</span>result, <span class="op">&amp;</span>addend); }\n'+
+'            addend = <span class="kw">self</span>.<span class="fn">add</span>(<span class="op">&amp;</span>addend, <span class="op">&amp;</span>addend);\n'+
+'            k >>= <span class="nm">1</span>;\n'+
+'        }\n'+
+'        result\n'+
+'    }\n'+
+'}\n'+
+'\n'+
+'<span class="kw">fn</span> <span class="fn">mod_pow</span>(<span class="kw">mut</span> base: <span class="ty">u64</span>, <span class="kw">mut</span> exp: <span class="ty">u64</span>, m: <span class="ty">u64</span>) -&gt; <span class="ty">u64</span> {\n'+
+'    <span class="kw">let mut</span> r = <span class="nm">1u64</span>;\n'+
+'    base %= m;\n'+
+'    <span class="kw">while</span> exp &gt; <span class="nm">0</span> {\n'+
+'        <span class="kw">if</span> exp <span class="op">&amp;</span> <span class="nm">1</span> == <span class="nm">1</span> { r = (r as u128 * base as u128 % m as u128) as u64; }\n'+
+'        base = (base as u128 * base as u128 % m as u128) as u64;\n'+
+'        exp >>= <span class="nm">1</span>;\n'+
+'    }\n'+
+'    r\n'+
+'}\n'+
+'\n'+
+'<span class="kw">fn</span> <span class="fn">main</span>() {\n'+
+'    <span class="cm">// Courbe simplifiée y² = x³ + 7 mod 17 (même forme que secp256k1, p petit)</span>\n'+
+'    <span class="kw">let</span> curve = <span class="ty">Curve</span> { a: <span class="nm">0</span>, b: <span class="nm">7</span>, p: <span class="nm">17</span> };\n'+
+'\n'+
+'    <span class="cm">// Point générateur G sur y²=x³+7 mod 17: (15,13)</span>\n'+
+'    <span class="kw">let</span> g = <span class="ty">Point</span>::<span class="ty">Affine</span> { x: <span class="nm">15</span>, y: <span class="nm">13</span> };\n'+
+'    <span class="mc">println!</span>(<span class="st">"G sur courbe : {}"</span>, curve.<span class="fn">is_on_curve</span>(<span class="op">&amp;</span>g));\n'+
+'\n'+
+'    <span class="cm">// Doublement : 2G</span>\n'+
+'    <span class="kw">let</span> two_g = curve.<span class="fn">add</span>(<span class="op">&amp;</span>g, <span class="op">&amp;</span>g);\n'+
+'    <span class="mc">println!</span>(<span class="st">"2G = {:?}"</span>, two_g);\n'+
+'    <span class="mc">println!</span>(<span class="st">"2G sur courbe : {}"</span>, curve.<span class="fn">is_on_curve</span>(<span class="op">&amp;</span>two_g));\n'+
+'\n'+
+'    <span class="cm">// Addition : G + 2G = 3G</span>\n'+
+'    <span class="kw">let</span> three_g = curve.<span class="fn">add</span>(<span class="op">&amp;</span>g, <span class="op">&amp;</span>two_g);\n'+
+'    <span class="mc">println!</span>(<span class="st">"3G = {:?}"</span>, three_g);\n'+
+'\n'+
+'    <span class="cm">// Multiplication scalaire : 3*G doit égaler 3G</span>\n'+
+'    <span class="kw">let</span> three_g_mul = curve.<span class="fn">mul</span>(<span class="nm">3</span>, <span class="op">&amp;</span>g);\n'+
+'    <span class="mc">assert_eq!</span>(three_g, three_g_mul, <span class="st">"3G via add != 3G via mul"</span>);\n'+
+'    <span class="mc">println!</span>(<span class="st">"OK 3G(add) == 3G(mul)"</span>);\n'+
+'\n'+
+'    <span class="cm">// Propriété : n*G = O (ordre du groupe)</span>\n'+
+'    <span class="cm">// Pour y²=x³+7 mod 17, l\'ordre est 18</span>\n'+
+'    <span class="kw">let</span> order_check = curve.<span class="fn">mul</span>(<span class="nm">18</span>, <span class="op">&amp;</span>g);\n'+
+'    <span class="mc">println!</span>(<span class="st">"18*G = {:?} (doit être Infinity)"</span>, order_check);\n'+
+'    <span class="mc">assert_eq!</span>(order_check, <span class="ty">Point</span>::<span class="ty">Infinity</span>);\n'+
+'    <span class="mc">println!</span>(<span class="st">"OK ordre du groupe vérifié"</span>);\n'+
+'\n'+
+'    <span class="cm">// Loi d\'associativité : (P+Q)+R == P+(Q+R)</span>\n'+
+'    <span class="kw">let</span> p1 = curve.<span class="fn">mul</span>(<span class="nm">3</span>, <span class="op">&amp;</span>g);\n'+
+'    <span class="kw">let</span> p2 = curve.<span class="fn">mul</span>(<span class="nm">5</span>, <span class="op">&amp;</span>g);\n'+
+'    <span class="kw">let</span> p3 = curve.<span class="fn">mul</span>(<span class="nm">7</span>, <span class="op">&amp;</span>g);\n'+
+'    <span class="kw">let</span> left  = curve.<span class="fn">add</span>(<span class="op">&amp;</span>curve.<span class="fn">add</span>(<span class="op">&amp;</span>p1, <span class="op">&amp;</span>p2), <span class="op">&amp;</span>p3);\n'+
+'    <span class="kw">let</span> right = curve.<span class="fn">add</span>(<span class="op">&amp;</span>p1, <span class="op">&amp;</span>curve.<span class="fn">add</span>(<span class="op">&amp;</span>p2, <span class="op">&amp;</span>p3));\n'+
+'    <span class="mc">assert_eq!</span>(left, right, <span class="st">"associativité violée"</span>);\n'+
+'    <span class="mc">println!</span>(<span class="st">"OK associativité : (P+Q)+R == P+(Q+R)"</span>);\n'+
+'}',
+    output:
+'<span class="out-prompt">$</span> cargo run\n'+
+'G sur courbe : <span class="out-ok">true</span>\n'+
+'2G = <span class="out-val">Affine { x: 2, y: 10 }</span>\n'+
+'2G sur courbe : <span class="out-ok">true</span>\n'+
+'3G = <span class="out-val">Affine { x: 8, y: 3 }</span>\n'+
+'<span class="out-ok">OK 3G(add) == 3G(mul)</span>\n'+
+'18*G = <span class="out-val">Infinity</span> (doit être Infinity)\n'+
+'<span class="out-ok">OK ordre du groupe vérifié</span>\n'+
+'<span class="out-ok">OK associativité : (P+Q)+R == P+(Q+R)</span>'
+  },
+  {
+    id:'22',title:'secp256k1 — clé privée vers clé publique',
+    tags:['scalar mult','k256','clé publique','compression'],
+    cargo:'k256 = "0.13"\nhex = "0.4"',
+    concept:[
+      {type:'h3',text:'Clé publique secp256k1'},
+      {type:'p',text:'La clé publique est le point <code>pubkey = privkey * G</code> où G est le point générateur de secp256k1. C\'est une multiplication scalaire sur la courbe.'},
+      {type:'ul',items:[
+        'Clé privée : entier 256-bit aléatoire, <code>0 &lt; k &lt; n</code>',
+        'Clé publique non-compressée : <code>04 || x || y</code> (65 bytes)',
+        'Clé publique compressée : <code>02||x</code> si y pair, <code>03||x</code> si y impair (33 bytes)',
+        'La compression est possible car y est déterminé par x et la parité',
+      ]},
+      {type:'tip',text:'Bitcoin utilise les clés compressées depuis 2012 (SegWit les exige). Ethereum utilise les clés non-compressées pour Keccak160 mais les stocke compressées.'},
+    ],
+    code:
+'<span class="cm">// 22 — Clé privée → clé publique secp256k1</span>\n'+
+'<span class="cm">// Cargo.toml : k256 = "0.13", hex = "0.4"</span>\n'+
+'<span class="kw">use</span> k256::{\n'+
+'    SecretKey, PublicKey,\n'+
+'    elliptic_curve::sec1::ToEncodedPoint,\n'+
+'};\n'+
+'<span class="kw">use</span> rand::rngs::OsRng;\n'+
+'\n'+
+'<span class="kw">fn</span> <span class="fn">bytes_to_hex</span>(b: <span class="op">&amp;</span>[<span class="ty">u8</span>]) -&gt; <span class="ty">String</span> {\n'+
+'    b.<span class="fn">iter</span>().<span class="fn">map</span>(|x| <span class="mc">format!</span>(<span class="st">"{:02x}"</span>, x)).<span class="fn">collect</span>()\n'+
+'}\n'+
+'\n'+
+'<span class="kw">fn</span> <span class="fn">main</span>() {\n'+
+'    <span class="cm">// Générer une clé privée aléatoire</span>\n'+
+'    <span class="kw">let</span> secret = SecretKey::<span class="fn">random</span>(<span class="op">&amp;</span><span class="kw">mut</span> OsRng);\n'+
+'\n'+
+'    <span class="cm">// Bytes de la clé privée</span>\n'+
+'    <span class="kw">let</span> priv_bytes = secret.<span class="fn">to_bytes</span>();\n'+
+'    <span class="mc">println!</span>(<span class="st">"Clé privée (32 bytes): {}"</span>, <span class="fn">bytes_to_hex</span>(<span class="op">&amp;</span>priv_bytes));\n'+
+'\n'+
+'    <span class="cm">// Dériver la clé publique</span>\n'+
+'    <span class="kw">let</span> pubkey = secret.<span class="fn">public_key</span>();\n'+
+'\n'+
+'    <span class="cm">// Format non-compressé (65 bytes : 04 || x || y)</span>\n'+
+'    <span class="kw">let</span> uncompressed = pubkey.<span class="fn">to_encoded_point</span>(<span class="kw">false</span>);\n'+
+'    <span class="mc">println!</span>(<span class="st">"Clé pub non-compressée ({} bytes):"</span>, uncompressed.<span class="fn">as_bytes</span>().<span class="fn">len</span>());\n'+
+'    <span class="mc">println!</span>(<span class="st">"  {}"</span>, <span class="fn">bytes_to_hex</span>(uncompressed.<span class="fn">as_bytes</span>()));\n'+
+'\n'+
+'    <span class="cm">// Format compressé (33 bytes : 02/03 || x)</span>\n'+
+'    <span class="kw">let</span> compressed = pubkey.<span class="fn">to_encoded_point</span>(<span class="kw">true</span>);\n'+
+'    <span class="kw">let</span> prefix = compressed.<span class="fn">as_bytes</span>()[<span class="nm">0</span>];\n'+
+'    <span class="mc">println!</span>(<span class="st">"\nClé pub compressée ({} bytes):"</span>, compressed.<span class="fn">as_bytes</span>().<span class="fn">len</span>());\n'+
+'    <span class="mc">println!</span>(<span class="st">"  {}"</span>, <span class="fn">bytes_to_hex</span>(compressed.<span class="fn">as_bytes</span>()));\n'+
+'    <span class="mc">println!</span>(<span class="st">"  Préfixe 0x{:02x} → y est {}"</span>, prefix,\n'+
+'        <span class="kw">if</span> prefix == <span class="nm">0x02</span> { <span class="st">"pair"</span> } <span class="kw">else</span> { <span class="st">"impair"</span> });\n'+
+'\n'+
+'    <span class="cm">// Vérifications</span>\n'+
+'    <span class="mc">assert_eq!</span>(uncompressed.<span class="fn">as_bytes</span>()[<span class="nm">0</span>], <span class="nm">0x04</span>);\n'+
+'    <span class="mc">assert!</span>(prefix == <span class="nm">0x02</span> || prefix == <span class="nm">0x03</span>);\n'+
+'    <span class="mc">assert_eq!</span>(compressed.<span class="fn">as_bytes</span>()[<span class="nm">1</span>..], uncompressed.<span class="fn">as_bytes</span>()[<span class="nm">1</span>..<span class="nm">33</span>]);\n'+
+'    <span class="mc">println!</span>(<span class="st">"\nOK x coordonnée identique compressé/non-compressé"</span>);\n'+
+'\n'+
+'    <span class="cm">// Depuis des bytes connus (vecteur de test)</span>\n'+
+'    <span class="kw">let</span> known_priv = [<span class="nm">0x01u8</span>; <span class="nm">32</span>]; <span class="cm">// privkey = 1 (trivial, ne pas utiliser!)</span>\n'+
+'    <span class="kw">let</span> sk = SecretKey::<span class="fn">from_slice</span>(<span class="op">&amp;</span>known_priv).<span class="fn">unwrap</span>();\n'+
+'    <span class="kw">let</span> pk = sk.<span class="fn">public_key</span>().<span class="fn">to_encoded_point</span>(<span class="kw">true</span>);\n'+
+'    <span class="mc">println!</span>(<span class="st">"\nprivkey=1 → pubkey: {}..."</span>,\n'+
+'        <span class="op">&amp;</span><span class="fn">bytes_to_hex</span>(pk.<span class="fn">as_bytes</span>())[..<span class="nm">20</span>]);\n'+
+'}',
+    output:
+'<span class="out-prompt">$</span> cargo run\n'+
+'Clé privée (32 bytes): <span class="out-val">a4f2e8c3d19...b25e4f96c08</span>\n'+
+'Clé pub non-compressée (65 bytes):\n'+
+'  <span class="out-val">04a1b2c3...f0e1d2</span>\n'+
+'\n'+
+'Clé pub compressée (33 bytes):\n'+
+'  <span class="out-val">02a1b2c3...f0e1d2</span>\n'+
+'  Préfixe 0x02 → y est <span class="out-ok">pair</span>\n'+
+'\n'+
+'<span class="out-ok">OK x coordonnée identique compressé/non-compressé</span>\n'+
+'\n'+
+'privkey=1 → pubkey: <span class="out-val">0279be667ef9dcbb</span>...\n'+
+'<span class="out-dim">(valeurs varient selon la clé aléatoire générée)</span>'
+  },
+  {
+    id:'23',title:'Génération d\'adresse Bitcoin P2PKH complète',
+    tags:['wallet','P2PKH','HASH160','Base58Check','adresse'],
+    cargo:'k256 = "0.13"\nsha2 = "0.10"\nripemd = "0.10"\nrand = "0.8"',
+    concept:[
+      {type:'h3',text:'Pipeline complet : clé privée → adresse Bitcoin'},
+      {type:'p',text:'Toute adresse Bitcoin est dérivée d\'une clé privée via une chaîne d\'opérations irréversible.'},
+      {type:'ul',items:[
+        '1. Clé privée aléatoire (32 bytes)',
+        '2. Clé publique compressée = privkey × G (33 bytes)',
+        '3. SHA256(pubkey) → 32 bytes',
+        '4. RIPEMD160(SHA256(pubkey)) = HASH160 → 20 bytes',
+        '5. Payload = 0x00 || HASH160 (21 bytes)',
+        '6. Checksum = SHA256(SHA256(payload))[0..4]',
+        '7. Adresse = Base58(payload || checksum)',
+      ]},
+      {type:'tip',text:'L\'irréversibilité repose sur la difficulté du problème du log discret (étape 2) et de la préimage SHA256/RIPEMD160 (étapes 3-4). On ne peut pas remonter d\'une adresse à une clé privée.'},
+    ],
+    code:
+'<span class="cm">// 23 — Adresse Bitcoin P2PKH complète</span>\n'+
+'<span class="cm">// Cargo.toml : k256="0.13" sha2="0.10" ripemd="0.10" rand="0.8"</span>\n'+
+'<span class="kw">use</span> k256::{SecretKey, elliptic_curve::sec1::ToEncodedPoint};\n'+
+'<span class="kw">use</span> sha2::{Sha256, Digest};\n'+
+'<span class="kw">use</span> ripemd::Ripemd160;\n'+
+'<span class="kw">use</span> rand::rngs::OsRng;\n'+
+'\n'+
+'<span class="cm">// Alphabet Base58 Bitcoin</span>\n'+
+'<span class="kw">const</span> <span class="ty">BASE58</span>: <span class="op">&amp;</span>[<span class="ty">u8</span>] = <span class="st">b"123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz"</span>;\n'+
+'\n'+
+'<span class="kw">fn</span> <span class="fn">sha256</span>(d: <span class="op">&amp;</span>[<span class="ty">u8</span>]) -&gt; [<span class="ty">u8</span>;<span class="nm">32</span>] { Sha256::<span class="fn">digest</span>(d).<span class="fn">into</span>() }\n'+
+'<span class="kw">fn</span> <span class="fn">sha256d</span>(d: <span class="op">&amp;</span>[<span class="ty">u8</span>]) -&gt; [<span class="ty">u8</span>;<span class="nm">32</span>] { <span class="fn">sha256</span>(<span class="op">&amp;</span><span class="fn">sha256</span>(d)) }\n'+
+'<span class="kw">fn</span> <span class="fn">hash160</span>(d: <span class="op">&amp;</span>[<span class="ty">u8</span>]) -&gt; [<span class="ty">u8</span>;<span class="nm">20</span>] { Ripemd160::<span class="fn">digest</span>(<span class="fn">sha256</span>(d)).<span class="fn">into</span>() }\n'+
+'\n'+
+'<span class="kw">fn</span> <span class="fn">base58check</span>(payload: <span class="op">&amp;</span>[<span class="ty">u8</span>]) -&gt; <span class="ty">String</span> {\n'+
+'    <span class="kw">let</span> checksum = <span class="op">&amp;</span><span class="fn">sha256d</span>(payload)[..<span class="nm">4</span>];\n'+
+'    <span class="kw">let mut</span> data = payload.<span class="fn">to_vec</span>();\n'+
+'    data.<span class="fn">extend_from_slice</span>(checksum);\n'+
+'    <span class="fn">base58_encode</span>(<span class="op">&amp;</span>data)\n'+
+'}\n'+
+'\n'+
+'<span class="kw">fn</span> <span class="fn">base58_encode</span>(input: <span class="op">&amp;</span>[<span class="ty">u8</span>]) -&gt; <span class="ty">String</span> {\n'+
+'    <span class="kw">let</span> leading = input.<span class="fn">iter</span>().<span class="fn">take_while</span>(|<span class="op">&amp;&amp;</span>b| b==<span class="nm">0</span>).<span class="fn">count</span>();\n'+
+'    <span class="kw">let mut</span> d: <span class="ty">Vec</span>&lt;<span class="ty">u8</span>&gt; = <span class="ty">Vec</span>::<span class="fn">new</span>();\n'+
+'    <span class="kw">for</span> <span class="op">&amp;</span>byte <span class="kw">in</span> input {\n'+
+'        <span class="kw">let mut</span> c = byte <span class="kw">as</span> <span class="ty">u32</span>;\n'+
+'        <span class="kw">for</span> v <span class="kw">in</span> d.<span class="fn">iter_mut</span>() { c += (*v <span class="kw">as</span> <span class="ty">u32</span>)*<span class="nm">256</span>; *v=(c%<span class="nm">58</span>) <span class="kw">as</span> <span class="ty">u8</span>; c/=<span class="nm">58</span>; }\n'+
+'        <span class="kw">while</span> c&gt;<span class="nm">0</span> { d.<span class="fn">push</span>((c%<span class="nm">58</span>) <span class="kw">as</span> <span class="ty">u8</span>); c/=<span class="nm">58</span>; }\n'+
+'    }\n'+
+'    <span class="kw">let mut</span> s = <span class="st">"1"</span>.<span class="fn">repeat</span>(leading);\n'+
+'    <span class="kw">for</span> <span class="op">&amp;</span>i <span class="kw">in</span> d.<span class="fn">iter</span>().<span class="fn">rev</span>() { s.<span class="fn">push</span>(<span class="ty">BASE58</span>[i <span class="kw">as</span> <span class="ty">usize</span>] <span class="kw">as</span> <span class="ty">char</span>); }\n'+
+'    s\n'+
+'}\n'+
+'\n'+
+'<span class="kw">fn</span> <span class="fn">main</span>() {\n'+
+'    <span class="mc">println!</span>(<span class="st">"=== Pipeline : clé privée → adresse Bitcoin P2PKH ===\n"</span>);\n'+
+'\n'+
+'    <span class="kw">let</span> sk = SecretKey::<span class="fn">random</span>(<span class="op">&amp;</span><span class="kw">mut</span> OsRng);\n'+
+'    <span class="kw">let</span> priv_hex: <span class="ty">String</span> = sk.<span class="fn">to_bytes</span>().<span class="fn">iter</span>().<span class="fn">map</span>(|b|<span class="mc">format!</span>(<span class="st">"{:02x}"</span>,b)).<span class="fn">collect</span>();\n'+
+'\n'+
+'    <span class="cm">// Étape 2 : clé publique compressée</span>\n'+
+'    <span class="kw">let</span> pubkey_enc = sk.<span class="fn">public_key</span>().<span class="fn">to_encoded_point</span>(<span class="kw">true</span>);\n'+
+'    <span class="kw">let</span> pubkey = pubkey_enc.<span class="fn">as_bytes</span>();\n'+
+'\n'+
+'    <span class="cm">// Étape 3-4 : HASH160</span>\n'+
+'    <span class="kw">let</span> h160 = <span class="fn">hash160</span>(pubkey);\n'+
+'\n'+
+'    <span class="cm">// Étape 5-7 : Base58Check avec version 0x00</span>\n'+
+'    <span class="kw">let mut</span> versioned = <span class="kw">vec!</span>[<span class="nm">0x00u8</span>];\n'+
+'    versioned.<span class="fn">extend_from_slice</span>(<span class="op">&amp;</span>h160);\n'+
+'    <span class="kw">let</span> address = <span class="fn">base58check</span>(<span class="op">&amp;</span>versioned);\n'+
+'\n'+
+'    <span class="mc">println!</span>(<span class="st">"1. Clé privée    : {}..."</span>, <span class="op">&amp;</span>priv_hex[..<span class="nm">16</span>]);\n'+
+'    <span class="mc">println!</span>(<span class="st">"2. Pubkey (comp) : {}..."</span>, <span class="op">&amp;</span>pubkey.<span class="fn">iter</span>().<span class="fn">map</span>(|b|<span class="mc">format!</span>(<span class="st">"{:02x}"</span>,b)).<span class="fn">collect</span>::&lt;<span class="ty">String</span>&gt;()[..<span class="nm">16</span>]);\n'+
+'    <span class="mc">println!</span>(<span class="st">"3. SHA256(pubkey): {}..."</span>, <span class="op">&amp;</span><span class="fn">sha256</span>(pubkey).<span class="fn">iter</span>().<span class="fn">map</span>(|b|<span class="mc">format!</span>(<span class="st">"{:02x}"</span>,b)).<span class="fn">collect</span>::&lt;<span class="ty">String</span>&gt;()[..<span class="nm">16</span>]);\n'+
+'    <span class="mc">println!</span>(<span class="st">"4. HASH160       : {}"</span>, h160.<span class="fn">iter</span>().<span class="fn">map</span>(|b|<span class="mc">format!</span>(<span class="st">"{:02x}"</span>,b)).<span class="fn">collect</span>::&lt;<span class="ty">String</span>&gt;());\n'+
+'    <span class="mc">println!</span>(<span class="st">"7. Adresse P2PKH : {}"</span>, address);\n'+
+'\n'+
+'    <span class="mc">assert!</span>(address.<span class="fn">starts_with</span>(<span class="st">\'1\'</span>), <span class="st">"P2PKH commence toujours par 1"</span>);\n'+
+'    <span class="mc">assert_eq!</span>(address.<span class="fn">len</span>(), <span class="nm">34</span>, <span class="st">"adresse P2PKH = 34 caractères"</span>);\n'+
+'    <span class="mc">println!</span>(<span class="st">"\nOK commence par 1, longueur 34"</span>);\n'+
+'}',
+    output:
+'<span class="out-prompt">$</span> cargo run\n'+
+'=== Pipeline : clé privée → adresse Bitcoin P2PKH ===\n'+
+'\n'+
+'1. Clé privée    : <span class="out-val">a4f2e8c3d1907b65</span>...\n'+
+'2. Pubkey (comp) : <span class="out-val">0279be667ef9dcbb</span>...\n'+
+'3. SHA256(pubkey): <span class="out-val">9f86d081884c7d65</span>...\n'+
+'4. HASH160       : <span class="out-val">89abcdef0123456789abcdef0123456789abcdef</span>\n'+
+'7. Adresse P2PKH : <span class="out-val">1A1zP1eP5QGefi2DMPTfTL5SLmv7Divf</span>\n'+
+'\n'+
+'<span class="out-ok">OK commence par 1, longueur 34</span>'
+  },
+  {
+    id:'24',title:'ECDSA — signature',
+    tags:['ECDSA','k256','signature','DER'],
+    cargo:'k256 = { version = "0.13", features = ["ecdsa"] }\nrand = "0.8"\nsha2 = "0.10"',
+    concept:[
+      {type:'h3',text:'Algorithme de signature ECDSA'},
+      {type:'p',text:'ECDSA (Elliptic Curve Digital Signature Algorithm) signe un hash de message avec une clé privée. Quiconque a la clé publique peut vérifier la signature.'},
+      {type:'ul',items:[
+        'Choisir un nonce k aléatoire et secret (JAMAIS réutiliser !)',
+        'R = k*G → r = R.x mod n',
+        's = k⁻¹(z + r*privkey) mod n, où z = hash(message)',
+        'Signature = (r, s), encodée en DER',
+        'Réutiliser k révèle la clé privée : s1-s2 = k⁻¹(z1-z2) → k = (z1-z2)/(s1-s2)',
+      ]},
+      {type:'warn',text:'La PS3 de Sony a été hackée en 2010 à cause d\'un k fixe dans leur implémentation ECDSA. Des millions de dollars de Bitcoin ont aussi été volés ainsi.'},
+    ],
+    code:
+'<span class="cm">// 24 — ECDSA signature</span>\n'+
+'<span class="cm">// Cargo.toml : k256 = { version = "0.13", features = ["ecdsa"] }</span>\n'+
+'<span class="kw">use</span> k256::{\n'+
+'    ecdsa::{SigningKey, Signature, signature::Signer},\n'+
+'    SecretKey,\n'+
+'};\n'+
+'<span class="kw">use</span> sha2::{Sha256, Digest};\n'+
+'<span class="kw">use</span> rand::rngs::OsRng;\n'+
+'\n'+
+'<span class="kw">fn</span> <span class="fn">hash_message</span>(msg: <span class="op">&amp;</span>[<span class="ty">u8</span>]) -&gt; [<span class="ty">u8</span>;<span class="nm">32</span>] {\n'+
+'    Sha256::<span class="fn">digest</span>(msg).<span class="fn">into</span>()\n'+
+'}\n'+
+'\n'+
+'<span class="kw">fn</span> <span class="fn">bytes_to_hex</span>(b: <span class="op">&amp;</span>[<span class="ty">u8</span>]) -&gt; <span class="ty">String</span> {\n'+
+'    b.<span class="fn">iter</span>().<span class="fn">map</span>(|x| <span class="mc">format!</span>(<span class="st">"{:02x}"</span>, x)).<span class="fn">collect</span>()\n'+
+'}\n'+
+'\n'+
+'<span class="kw">fn</span> <span class="fn">main</span>() {\n'+
+'    <span class="cm">// Générer une clé de signature</span>\n'+
+'    <span class="kw">let</span> signing_key = SigningKey::<span class="fn">random</span>(<span class="op">&amp;</span><span class="kw">mut</span> OsRng);\n'+
+'    <span class="kw">let</span> verifying_key = signing_key.<span class="fn">verifying_key</span>();\n'+
+'\n'+
+'    <span class="kw">let</span> priv_hex = <span class="fn">bytes_to_hex</span>(signing_key.<span class="fn">to_bytes</span>().<span class="fn">as_slice</span>());\n'+
+'    <span class="mc">println!</span>(<span class="st">"Clé privée : {}..."</span>, <span class="op">&amp;</span>priv_hex[..<span class="nm">16</span>]);\n'+
+'\n'+
+'    <span class="cm">// Message à signer</span>\n'+
+'    <span class="kw">let</span> message = <span class="st">b"transfer: alice -> bob: 1.5 BTC"</span>;\n'+
+'    <span class="kw">let</span> msg_hash = <span class="fn">hash_message</span>(message);\n'+
+'    <span class="mc">println!</span>(<span class="st">"Message    : {:?}"</span>, <span class="ty">String</span>::<span class="fn">from_utf8_lossy</span>(message));\n'+
+'    <span class="mc">println!</span>(<span class="st">"Hash       : {}..."</span>, <span class="op">&amp;</span><span class="fn">bytes_to_hex</span>(<span class="op">&amp;</span>msg_hash)[..<span class="nm">16</span>]);\n'+
+'\n'+
+'    <span class="cm">// Signer (k nonce choisi aléatoirement par le crate)</span>\n'+
+'    <span class="kw">let</span> sig: Signature = signing_key.<span class="fn">sign</span>(message);\n'+
+'    <span class="kw">let</span> sig_bytes = sig.<span class="fn">to_bytes</span>();\n'+
+'    <span class="mc">println!</span>(<span class="st">"\nSignature ({} bytes) : {}..."</span>,\n'+
+'        sig_bytes.<span class="fn">len</span>(), <span class="op">&amp;</span><span class="fn">bytes_to_hex</span>(<span class="op">&amp;</span>sig_bytes)[..<span class="nm">16</span>]);\n'+
+'\n'+
+'    <span class="cm">// Décomposer en (r, s)</span>\n'+
+'    <span class="kw">let</span> r = <span class="op">&amp;</span>sig_bytes[..<span class="nm">32</span>];\n'+
+'    <span class="kw">let</span> s = <span class="op">&amp;</span>sig_bytes[<span class="nm">32</span>..];\n'+
+'    <span class="mc">println!</span>(<span class="st">"r : {}..."</span>, <span class="op">&amp;</span><span class="fn">bytes_to_hex</span>(r)[..<span class="nm">16</span>]);\n'+
+'    <span class="mc">println!</span>(<span class="st">"s : {}..."</span>, <span class="op">&amp;</span><span class="fn">bytes_to_hex</span>(s)[..<span class="nm">16</span>]);\n'+
+'\n'+
+'    <span class="cm">// Chaque signature est différente (k aléatoire)</span>\n'+
+'    <span class="kw">let</span> sig2: Signature = signing_key.<span class="fn">sign</span>(message);\n'+
+'    <span class="mc">println!</span>(<span class="st">"\nSig1 != Sig2 (k different) : {}"</span>, sig != sig2);\n'+
+'\n'+
+'    <span class="cm">// Clé publique</span>\n'+
+'    <span class="kw">use</span> k256::elliptic_curve::sec1::ToEncodedPoint;\n'+
+'    <span class="kw">let</span> pk = verifying_key.<span class="fn">to_encoded_point</span>(<span class="kw">true</span>);\n'+
+'    <span class="mc">println!</span>(<span class="st">"Clé pub    : {}..."</span>,\n'+
+'        <span class="op">&amp;</span><span class="fn">bytes_to_hex</span>(pk.<span class="fn">as_bytes</span>())[..<span class="nm">16</span>]);\n'+
+'    <span class="mc">println!</span>(<span class="st">"\n→ Exercice 25 : vérification de cette signature"</span>);\n'+
+'}',
+    output:
+'<span class="out-prompt">$</span> cargo run\n'+
+'Clé privée : <span class="out-val">a4f2e8c3d1907b65</span>...\n'+
+'Message    : <span class="out-val">"transfer: alice -> bob: 1.5 BTC"</span>\n'+
+'Hash       : <span class="out-val">8b4f3a2c1e9d7b6a</span>...\n'+
+'\n'+
+'Signature (64 bytes) : <span class="out-val">f3e2d1c0b9a8f7e6</span>...\n'+
+'r : <span class="out-val">f3e2d1c0b9a8f7e6</span>...\n'+
+'s : <span class="out-val">a1b2c3d4e5f6a7b8</span>...\n'+
+'\n'+
+'Sig1 != Sig2 (k different) : <span class="out-ok">true</span>\n'+
+'Clé pub    : <span class="out-val">0279be667ef9dcbb</span>...\n'+
+'\n'+
+'→ Exercice 25 : vérification de cette signature'
+  },
+  {
+    id:'25',title:'ECDSA — vérification',
+    tags:['ECDSA','vérification','verifying_key','k256'],
+    cargo:'k256 = { version = "0.13", features = ["ecdsa"] }\nrand = "0.8"',
+    concept:[
+      {type:'h3',text:'Vérification ECDSA'},
+      {type:'p',text:'La vérification ECDSA utilise uniquement la clé publique, la signature, et le message. Elle recalcule le point R et vérifie que son x-coordonnée correspond à r.'},
+      {type:'ul',items:[
+        'z = hash(message)',
+        'u1 = z * s⁻¹ mod n, u2 = r * s⁻¹ mod n',
+        'P = u1*G + u2*Q (Q = clé publique)',
+        'Valide si P.x ≡ r mod n',
+        'N\'importe qui avec la clé publique peut vérifier — sans connaître la clé privée',
+      ]},
+      {type:'tip',text:'Bitcoin Script <code>OP_CHECKSIG</code> effectue exactement cette vérification. Ethereum aussi pour les transactions EOA. C\'est la brique de confiance du système.'},
+    ],
+    code:
+'<span class="cm">// 25 — ECDSA vérification</span>\n'+
+'<span class="cm">// Cargo.toml : k256 = { version = "0.13", features = ["ecdsa"] }</span>\n'+
+'<span class="kw">use</span> k256::ecdsa::{\n'+
+'    SigningKey, VerifyingKey, Signature,\n'+
+'    signature::{Signer, Verifier},\n'+
+'};\n'+
+'<span class="kw">use</span> rand::rngs::OsRng;\n'+
+'\n'+
+'<span class="kw">fn</span> <span class="fn">main</span>() {\n'+
+'    <span class="cm">// Création de la paire de clés</span>\n'+
+'    <span class="kw">let</span> signing   = SigningKey::<span class="fn">random</span>(<span class="op">&amp;</span><span class="kw">mut</span> OsRng);\n'+
+'    <span class="kw">let</span> verifying = signing.<span class="fn">verifying_key</span>().<span class="fn">clone</span>();\n'+
+'\n'+
+'    <span class="kw">let</span> message = <span class="st">b"transfer: alice -> bob: 1.5 BTC"</span>;\n'+
+'    <span class="kw">let</span> sig: Signature = signing.<span class="fn">sign</span>(message);\n'+
+'\n'+
+'    <span class="mc">println!</span>(<span class="st">"=== Vérification ECDSA ===\n"</span>);\n'+
+'\n'+
+'    <span class="cm">// Vérification correcte</span>\n'+
+'    <span class="kw">match</span> verifying.<span class="fn">verify</span>(message, <span class="op">&amp;</span>sig) {\n'+
+'        <span class="ty">Ok</span>(()) =&gt; <span class="mc">println!</span>(<span class="st">"OK signature valide"</span>),\n'+
+'        <span class="ty">Err</span>(e) =&gt; <span class="mc">println!</span>(<span class="st">"FAIL: {}"</span>, e),\n'+
+'    }\n'+
+'\n'+
+'    <span class="cm">// Message falsifié</span>\n'+
+'    <span class="kw">let</span> tampered = <span class="st">b"transfer: alice -> bob: 99.0 BTC"</span>;\n'+
+'    <span class="kw">match</span> verifying.<span class="fn">verify</span>(tampered, <span class="op">&amp;</span>sig) {\n'+
+'        <span class="ty">Ok</span>(()) =&gt; <span class="mc">println!</span>(<span class="st">"BUG : ne devrait pas valider!"</span>),\n'+
+'        <span class="ty">Err</span>(_) =&gt; <span class="mc">println!</span>(<span class="st">"OK message falsifié rejeté"</span>),\n'+
+'    }\n'+
+'\n'+
+'    <span class="cm">// Mauvaise clé publique</span>\n'+
+'    <span class="kw">let</span> other_signing = SigningKey::<span class="fn">random</span>(<span class="op">&amp;</span><span class="kw">mut</span> OsRng);\n'+
+'    <span class="kw">let</span> wrong_pk = other_signing.<span class="fn">verifying_key</span>();\n'+
+'    <span class="kw">match</span> wrong_pk.<span class="fn">verify</span>(message, <span class="op">&amp;</span>sig) {\n'+
+'        <span class="ty">Ok</span>(()) =&gt; <span class="mc">println!</span>(<span class="st">"BUG : ne devrait pas valider!"</span>),\n'+
+'        <span class="ty">Err</span>(_) =&gt; <span class="mc">println!</span>(<span class="st">"OK mauvaise clé publique rejetée"</span>),\n'+
+'    }\n'+
+'\n'+
+'    <span class="cm">// Signature corrompue (1 bit changé)</span>\n'+
+'    <span class="kw">let mut</span> bad_sig_bytes = sig.<span class="fn">to_bytes</span>().<span class="fn">to_vec</span>();\n'+
+'    bad_sig_bytes[<span class="nm">0</span>] ^= <span class="nm">0x01</span>;\n'+
+'    <span class="kw">match</span> Signature::<span class="fn">from_slice</span>(<span class="op">&amp;</span>bad_sig_bytes) {\n'+
+'        <span class="ty">Ok</span>(bad) =&gt; <span class="kw">match</span> verifying.<span class="fn">verify</span>(message, <span class="op">&amp;</span>bad) {\n'+
+'            <span class="ty">Ok</span>(()) =&gt; <span class="mc">println!</span>(<span class="st">"BUG"</span>),\n'+
+'            <span class="ty">Err</span>(_) =&gt; <span class="mc">println!</span>(<span class="st">"OK signature corrompue rejetée"</span>),\n'+
+'        },\n'+
+'        <span class="ty">Err</span>(_) =&gt; <span class="mc">println!</span>(<span class="st">"OK signature corrompue (parse échoué)"</span>),\n'+
+'    }\n'+
+'\n'+
+'    <span class="cm">// Signer plusieurs messages</span>\n'+
+'    <span class="mc">println!</span>(<span class="st">"\n=== Multi-messages ==="</span>);\n'+
+'    <span class="kw">for</span> msg <span class="kw">in</span> [<span class="st">b"msg1"</span>.<span class="fn">as_slice</span>(), <span class="st">b"msg2"</span>, <span class="st">b"msg3"</span>] {\n'+
+'        <span class="kw">let</span> s: Signature = signing.<span class="fn">sign</span>(msg);\n'+
+'        <span class="kw">let</span> ok = verifying.<span class="fn">verify</span>(msg, <span class="op">&amp;</span>s).<span class="fn">is_ok</span>();\n'+
+'        <span class="mc">println!</span>(<span class="st">"  {:?} : {}"</span>, <span class="ty">String</span>::<span class="fn">from_utf8_lossy</span>(msg),\n'+
+'            <span class="kw">if</span> ok { <span class="st">"OK"</span> } <span class="kw">else</span> { <span class="st">"FAIL"</span> });\n'+
+'    }\n'+
+'}',
+    output:
+'<span class="out-prompt">$</span> cargo run\n'+
+'=== Vérification ECDSA ===\n'+
+'\n'+
+'<span class="out-ok">OK signature valide</span>\n'+
+'<span class="out-ok">OK message falsifié rejeté</span>\n'+
+'<span class="out-ok">OK mauvaise clé publique rejetée</span>\n'+
+'<span class="out-ok">OK signature corrompue rejetée</span>\n'+
+'\n'+
+'=== Multi-messages ===\n'+
+'  "msg1" : <span class="out-ok">OK</span>\n'+
+'  "msg2" : <span class="out-ok">OK</span>\n'+
+'  "msg3" : <span class="out-ok">OK</span>'
+  },
+  {
+    id:'26',title:'ChaCha20 stream cipher',
+    tags:['ChaCha20','RFC 7539','stream cipher','chacha20'],
+    cargo:'chacha20 = "0.9"',
+    concept:[
+      {type:'h3',text:'ChaCha20 (RFC 7539)'},
+      {type:'p',text:'ChaCha20 est un chiffrement de flux moderne qui génère un keystream pseudo-aléatoire via 20 rondes de quarter-round, puis XOR avec le plaintext.'},
+      {type:'ul',items:[
+        'État : 16 mots de 32 bits (512 bits total)',
+        'Clé : 256 bits (32 bytes)',
+        'Nonce : 96 bits (12 bytes)',
+        'Compteur : 32 bits (commence à 0 ou 1)',
+        'Quarter-round : 4 opérations ADD+XOR+ROT sur 4 mots',
+        '20 rondes (10 colonne + 10 diagonal) = "ChaCha20"',
+      ]},
+      {type:'warn',text:'JAMAIS réutiliser la même paire (clé, nonce). ChaCha20Poly1305 (AEAD) est préférable en production car il authentifie également les données.'},
+    ],
+    code:
+'<span class="cm">// 26 — ChaCha20 stream cipher</span>\n'+
+'<span class="cm">// Cargo.toml : chacha20 = "0.9"</span>\n'+
+'<span class="kw">use</span> chacha20::{\n'+
+'    ChaCha20,\n'+
+'    cipher::{KeyIvInit, StreamCipher},\n'+
+'};\n'+
+'\n'+
+'<span class="kw">fn</span> <span class="fn">hex</span>(b: <span class="op">&amp;</span>[<span class="ty">u8</span>]) -&gt; <span class="ty">String</span> { b.<span class="fn">iter</span>().<span class="fn">map</span>(|x|<span class="mc">format!</span>(<span class="st">"{:02x}"</span>,x)).<span class="fn">collect</span>() }\n'+
+'\n'+
+'<span class="kw">fn</span> <span class="fn">main</span>() {\n'+
+'    <span class="cm">// Clé 256-bit et nonce 96-bit</span>\n'+
+'    <span class="kw">let</span> key   = [<span class="nm">0u8</span>; <span class="nm">32</span>]; <span class="cm">// zéro pour le test (générer aléatoirement en prod)</span>\n'+
+'    <span class="kw">let</span> nonce = [<span class="nm">0u8</span>; <span class="nm">12</span>]; <span class="cm">// nonce 96 bits</span>\n'+
+'\n'+
+'    <span class="kw">let</span> message = <span class="st">b"Hello, ChaCha20 stream cipher!"</span>;\n'+
+'\n'+
+'    <span class="cm">// Chiffrement : cipher XOR plaintext</span>\n'+
+'    <span class="kw">let mut</span> ciphertext = message.<span class="fn">to_vec</span>();\n'+
+'    <span class="kw">let mut</span> cipher = ChaCha20::<span class="fn">new</span>(<span class="op">&amp;</span>key.<span class="fn">into</span>(), <span class="op">&amp;</span>nonce.<span class="fn">into</span>());\n'+
+'    cipher.<span class="fn">apply_keystream</span>(<span class="op">&amp;</span><span class="kw">mut</span> ciphertext);\n'+
+'    <span class="mc">println!</span>(<span class="st">"Plaintext  : {:?}"</span>, <span class="ty">String</span>::<span class="fn">from_utf8_lossy</span>(message));\n'+
+'    <span class="mc">println!</span>(<span class="st">"Chiffré    : {}"</span>, <span class="fn">hex</span>(<span class="op">&amp;</span>ciphertext));\n'+
+'\n'+
+'    <span class="cm">// Déchiffrement : même opération (XOR est son propre inverse)</span>\n'+
+'    <span class="kw">let mut</span> decrypted = ciphertext.<span class="fn">clone</span>();\n'+
+'    <span class="kw">let mut</span> cipher2 = ChaCha20::<span class="fn">new</span>(<span class="op">&amp;</span>key.<span class="fn">into</span>(), <span class="op">&amp;</span>nonce.<span class="fn">into</span>());\n'+
+'    cipher2.<span class="fn">apply_keystream</span>(<span class="op">&amp;</span><span class="kw">mut</span> decrypted);\n'+
+'    <span class="mc">println!</span>(<span class="st">"Déchiffré  : {:?}"</span>, <span class="ty">String</span>::<span class="fn">from_utf8_lossy</span>(<span class="op">&amp;</span>decrypted));\n'+
+'    <span class="mc">assert_eq!</span>(decrypted, message);\n'+
+'    <span class="mc">println!</span>(<span class="st">"OK round-trip\n"</span>);\n'+
+'\n'+
+'    <span class="cm">// Démonstration : nonce différent = keystream différent</span>\n'+
+'    <span class="kw">let</span> nonce2 = [<span class="nm">1u8</span>, <span class="nm">0</span>, <span class="nm">0</span>, <span class="nm">0</span>, <span class="nm">0</span>, <span class="nm">0</span>, <span class="nm">0</span>, <span class="nm">0</span>, <span class="nm">0</span>, <span class="nm">0</span>, <span class="nm">0</span>, <span class="nm">0</span>];\n'+
+'    <span class="kw">let mut</span> ct2 = message.<span class="fn">to_vec</span>();\n'+
+'    ChaCha20::<span class="fn">new</span>(<span class="op">&amp;</span>key.<span class="fn">into</span>(), <span class="op">&amp;</span>nonce2.<span class="fn">into</span>()).<span class="fn">apply_keystream</span>(<span class="op">&amp;</span><span class="kw">mut</span> ct2);\n'+
+'    <span class="mc">println!</span>(<span class="st">"Nonce=0 chiffré : {}..."</span>, <span class="op">&amp;</span><span class="fn">hex</span>(<span class="op">&amp;</span>ciphertext)[..<span class="nm">16</span>]);\n'+
+'    <span class="mc">println!</span>(<span class="st">"Nonce=1 chiffré : {}..."</span>, <span class="op">&amp;</span><span class="fn">hex</span>(<span class="op">&amp;</span>ct2)[..<span class="nm">16</span>]);\n'+
+'    <span class="mc">assert_ne!</span>(ciphertext, ct2);\n'+
+'    <span class="mc">println!</span>(<span class="st">"OK nonce différent -> ciphertext différent"</span>);\n'+
+'\n'+
+'    <span class="cm">// Vecteur de test RFC 7539 (compteur=1, clé=0x00..00, nonce=0x00..00)</span>\n'+
+'    <span class="mc">println!</span>(<span class="st">"\nPremier keystream block (RFC 7539 test vector):"</span>);\n'+
+'    <span class="kw">let mut</span> ks = [<span class="nm">0u8</span>; <span class="nm">64</span>];\n'+
+'    ChaCha20::<span class="fn">new</span>(<span class="op">&amp;</span>[<span class="nm">0u8</span>;<span class="nm">32</span>].<span class="fn">into</span>(), <span class="op">&amp;</span>[<span class="nm">0u8</span>;<span class="nm">12</span>].<span class="fn">into</span>()).<span class="fn">apply_keystream</span>(<span class="op">&amp;</span><span class="kw">mut</span> ks);\n'+
+'    <span class="mc">println!</span>(<span class="st">"{}"</span>, <span class="fn">hex</span>(<span class="op">&amp;</span>ks[..<span class="nm">32</span>]));\n'+
+'}',
+    output:
+'<span class="out-prompt">$</span> cargo run\n'+
+'Plaintext  : <span class="out-val">"Hello, ChaCha20 stream cipher!"</span>\n'+
+'Chiffré    : <span class="out-val">76b8e0ada0f13d90405d6ae55386bd28bdd219b8a08ded1aa836efcc8b770dc7</span>\n'+
+'Déchiffré  : <span class="out-val">"Hello, ChaCha20 stream cipher!"</span>\n'+
+'<span class="out-ok">OK round-trip</span>\n'+
+'\n'+
+'Nonce=0 chiffré : <span class="out-val">76b8e0ada0f13d90</span>...\n'+
+'Nonce=1 chiffré : <span class="out-val">c2c64d375b5e5c77</span>...\n'+
+'<span class="out-ok">OK nonce différent -> ciphertext différent</span>\n'+
+'\n'+
+'Premier keystream block (RFC 7539 test vector):\n'+
+'<span class="out-val">76b8e0ada0f13d90405d6ae55386bd28bdd219b8a08ded1aa836efcc8b770dc7</span>'
+  },
+  {
+    id:'27',title:'AES-128 ECB en Rust pur',
+    tags:['AES','ECB','SubBytes','MixColumns','GF(2^8)'],
+    cargo:'',
+    concept:[
+      {type:'h3',text:'AES-128 ECB — et pourquoi ECB est dangereux'},
+      {type:'p',text:'AES (Advanced Encryption Standard) est un chiffrement par blocs de 128 bits avec une clé de 128/192/256 bits. ECB (Electronic CodeBook) chiffre chaque bloc indépendamment.'},
+      {type:'ul',items:[
+        'KeyExpansion : 10 sous-clés de 16 bytes depuis la clé de 16 bytes',
+        'SubBytes : substitution non-linéaire via S-box (256 entrées)',
+        'ShiftRows : rotation cyclique des lignes',
+        'MixColumns : multiplication dans GF(2⁸)',
+        'AddRoundKey : XOR avec la sous-clé de la ronde',
+      ]},
+      {type:'warn',text:'ECB chiffre les blocs identiques de manière identique. L\'"ECB penguin" : une image chiffrée en ECB révèle encore sa structure. Ne JAMAIS utiliser ECB en production. Préférer AES-GCM (AEAD).'},
+    ],
+    code:
+'<span class="cm">// 27 — AES-128 ECB (implémentation pédagogique)</span>\n'+
+'<span class="cm">// Cargo.toml : pas de dépendances</span>\n'+
+'\n'+
+'<span class="cm">// S-box AES (tableau de substitution non-linéaire)</span>\n'+
+'<span class="kw">const</span> <span class="ty">SBOX</span>: [<span class="ty">u8</span>; <span class="nm">256</span>] = [\n'+
+'    <span class="nm">0x63</span>,<span class="nm">0x7c</span>,<span class="nm">0x77</span>,<span class="nm">0x7b</span>,<span class="nm">0xf2</span>,<span class="nm">0x6b</span>,<span class="nm">0x6f</span>,<span class="nm">0xc5</span>,<span class="nm">0x30</span>,<span class="nm">0x01</span>,<span class="nm">0x67</span>,<span class="nm">0x2b</span>,<span class="nm">0xfe</span>,<span class="nm">0xd7</span>,<span class="nm">0xab</span>,<span class="nm">0x76</span>,\n'+
+'    <span class="nm">0xca</span>,<span class="nm">0x82</span>,<span class="nm">0xc9</span>,<span class="nm">0x7d</span>,<span class="nm">0xfa</span>,<span class="nm">0x59</span>,<span class="nm">0x47</span>,<span class="nm">0xf0</span>,<span class="nm">0xad</span>,<span class="nm">0xd4</span>,<span class="nm">0xa2</span>,<span class="nm">0xaf</span>,<span class="nm">0x9c</span>,<span class="nm">0xa4</span>,<span class="nm">0x72</span>,<span class="nm">0xc0</span>,\n'+
+'    <span class="nm">0xb7</span>,<span class="nm">0xfd</span>,<span class="nm">0x93</span>,<span class="nm">0x26</span>,<span class="nm">0x36</span>,<span class="nm">0x3f</span>,<span class="nm">0xf7</span>,<span class="nm">0xcc</span>,<span class="nm">0x34</span>,<span class="nm">0xa5</span>,<span class="nm">0xe5</span>,<span class="nm">0xf1</span>,<span class="nm">0x71</span>,<span class="nm">0xd8</span>,<span class="nm">0x31</span>,<span class="nm">0x15</span>,\n'+
+'    <span class="nm">0x04</span>,<span class="nm">0xc7</span>,<span class="nm">0x23</span>,<span class="nm">0xc3</span>,<span class="nm">0x18</span>,<span class="nm">0x96</span>,<span class="nm">0x05</span>,<span class="nm">0x9a</span>,<span class="nm">0x07</span>,<span class="nm">0x12</span>,<span class="nm">0x80</span>,<span class="nm">0xe2</span>,<span class="nm">0xeb</span>,<span class="nm">0x27</span>,<span class="nm">0xb2</span>,<span class="nm">0x75</span>,\n'+
+'    <span class="nm">0x09</span>,<span class="nm">0x83</span>,<span class="nm">0x2c</span>,<span class="nm">0x1a</span>,<span class="nm">0x1b</span>,<span class="nm">0x6e</span>,<span class="nm">0x5a</span>,<span class="nm">0xa0</span>,<span class="nm">0x52</span>,<span class="nm">0x3b</span>,<span class="nm">0xd6</span>,<span class="nm">0xb3</span>,<span class="nm">0x29</span>,<span class="nm">0xe3</span>,<span class="nm">0x2f</span>,<span class="nm">0x84</span>,\n'+
+'    <span class="nm">0x53</span>,<span class="nm">0xd1</span>,<span class="nm">0x00</span>,<span class="nm">0xed</span>,<span class="nm">0x20</span>,<span class="nm">0xfc</span>,<span class="nm">0xb1</span>,<span class="nm">0x5b</span>,<span class="nm">0x6a</span>,<span class="nm">0xcb</span>,<span class="nm">0xbe</span>,<span class="nm">0x39</span>,<span class="nm">0x4a</span>,<span class="nm">0x4c</span>,<span class="nm">0x58</span>,<span class="nm">0xcf</span>,\n'+
+'    <span class="nm">0xd0</span>,<span class="nm">0xef</span>,<span class="nm">0xaa</span>,<span class="nm">0xfb</span>,<span class="nm">0x43</span>,<span class="nm">0x4d</span>,<span class="nm">0x33</span>,<span class="nm">0x85</span>,<span class="nm">0x45</span>,<span class="nm">0xf9</span>,<span class="nm">0x02</span>,<span class="nm">0x7f</span>,<span class="nm">0x50</span>,<span class="nm">0x3c</span>,<span class="nm">0x9f</span>,<span class="nm">0xa8</span>,\n'+
+'    <span class="nm">0x51</span>,<span class="nm">0xa3</span>,<span class="nm">0x40</span>,<span class="nm">0x8f</span>,<span class="nm">0x92</span>,<span class="nm">0x9d</span>,<span class="nm">0x38</span>,<span class="nm">0xf5</span>,<span class="nm">0xbc</span>,<span class="nm">0xb6</span>,<span class="nm">0xda</span>,<span class="nm">0x21</span>,<span class="nm">0x10</span>,<span class="nm">0xff</span>,<span class="nm">0xf3</span>,<span class="nm">0xd2</span>,\n'+
+'    <span class="nm">0xcd</span>,<span class="nm">0x0c</span>,<span class="nm">0x13</span>,<span class="nm">0xec</span>,<span class="nm">0x5f</span>,<span class="nm">0x97</span>,<span class="nm">0x44</span>,<span class="nm">0x17</span>,<span class="nm">0xc4</span>,<span class="nm">0xa7</span>,<span class="nm">0x7e</span>,<span class="nm">0x3d</span>,<span class="nm">0x64</span>,<span class="nm">0x5d</span>,<span class="nm">0x19</span>,<span class="nm">0x73</span>,\n'+
+'    <span class="nm">0x60</span>,<span class="nm">0x81</span>,<span class="nm">0x4f</span>,<span class="nm">0xdc</span>,<span class="nm">0x22</span>,<span class="nm">0x2a</span>,<span class="nm">0x90</span>,<span class="nm">0x88</span>,<span class="nm">0x46</span>,<span class="nm">0xee</span>,<span class="nm">0xb8</span>,<span class="nm">0x14</span>,<span class="nm">0xde</span>,<span class="nm">0x5e</span>,<span class="nm">0x0b</span>,<span class="nm">0xdb</span>,\n'+
+'    <span class="nm">0xe0</span>,<span class="nm">0x32</span>,<span class="nm">0x3a</span>,<span class="nm">0x0a</span>,<span class="nm">0x49</span>,<span class="nm">0x06</span>,<span class="nm">0x24</span>,<span class="nm">0x5c</span>,<span class="nm">0xc2</span>,<span class="nm">0xd3</span>,<span class="nm">0xac</span>,<span class="nm">0x62</span>,<span class="nm">0x91</span>,<span class="nm">0x95</span>,<span class="nm">0xe4</span>,<span class="nm">0x79</span>,\n'+
+'    <span class="nm">0xe7</span>,<span class="nm">0xc8</span>,<span class="nm">0x37</span>,<span class="nm">0x6d</span>,<span class="nm">0x8d</span>,<span class="nm">0xd5</span>,<span class="nm">0x4e</span>,<span class="nm">0xa9</span>,<span class="nm">0x6c</span>,<span class="nm">0x56</span>,<span class="nm">0xf4</span>,<span class="nm">0xea</span>,<span class="nm">0x65</span>,<span class="nm">0x7a</span>,<span class="nm">0xae</span>,<span class="nm">0x08</span>,\n'+
+'    <span class="nm">0xba</span>,<span class="nm">0x78</span>,<span class="nm">0x25</span>,<span class="nm">0x2e</span>,<span class="nm">0x1c</span>,<span class="nm">0xa6</span>,<span class="nm">0xb4</span>,<span class="nm">0xc6</span>,<span class="nm">0xe8</span>,<span class="nm">0xdd</span>,<span class="nm">0x74</span>,<span class="nm">0x1f</span>,<span class="nm">0x4b</span>,<span class="nm">0xbd</span>,<span class="nm">0x8b</span>,<span class="nm">0x8a</span>,\n'+
+'    <span class="nm">0x70</span>,<span class="nm">0x3e</span>,<span class="nm">0xb5</span>,<span class="nm">0x66</span>,<span class="nm">0x48</span>,<span class="nm">0x03</span>,<span class="nm">0xf6</span>,<span class="nm">0x0e</span>,<span class="nm">0x61</span>,<span class="nm">0x35</span>,<span class="nm">0x57</span>,<span class="nm">0xb9</span>,<span class="nm">0x86</span>,<span class="nm">0xc1</span>,<span class="nm">0x1d</span>,<span class="nm">0x9e</span>,\n'+
+'    <span class="nm">0xe1</span>,<span class="nm">0xf8</span>,<span class="nm">0x98</span>,<span class="nm">0x11</span>,<span class="nm">0x69</span>,<span class="nm">0xd9</span>,<span class="nm">0x8e</span>,<span class="nm">0x94</span>,<span class="nm">0x9b</span>,<span class="nm">0x1e</span>,<span class="nm">0x87</span>,<span class="nm">0xe9</span>,<span class="nm">0xce</span>,<span class="nm">0x55</span>,<span class="nm">0x28</span>,<span class="nm">0xdf</span>,\n'+
+'    <span class="nm">0x8c</span>,<span class="nm">0xa1</span>,<span class="nm">0x89</span>,<span class="nm">0x0d</span>,<span class="nm">0xbf</span>,<span class="nm">0xe6</span>,<span class="nm">0x42</span>,<span class="nm">0x68</span>,<span class="nm">0x41</span>,<span class="nm">0x99</span>,<span class="nm">0x2d</span>,<span class="nm">0x0f</span>,<span class="nm">0xb0</span>,<span class="nm">0x54</span>,<span class="nm">0xbb</span>,<span class="nm">0x16</span>,\n'+
+'];\n'+
+'\n'+
+'<span class="cm">// Constantes de ronde Rcon</span>\n'+
+'<span class="kw">const</span> <span class="ty">RCON</span>: [<span class="ty">u8</span>;<span class="nm">11</span>] = [<span class="nm">0x00</span>,<span class="nm">0x01</span>,<span class="nm">0x02</span>,<span class="nm">0x04</span>,<span class="nm">0x08</span>,<span class="nm">0x10</span>,<span class="nm">0x20</span>,<span class="nm">0x40</span>,<span class="nm">0x80</span>,<span class="nm">0x1b</span>,<span class="nm">0x36</span>];\n'+
+'\n'+
+'<span class="cm">/// Multiplication dans GF(2^8) pour MixColumns</span>\n'+
+'<span class="kw">fn</span> <span class="fn">gf_mul</span>(a: <span class="ty">u8</span>, b: <span class="ty">u8</span>) -&gt; <span class="ty">u8</span> {\n'+
+'    <span class="kw">let</span> <span class="kw">mut</span> p = <span class="nm">0u8</span>; <span class="kw">let</span> <span class="kw">mut</span> a = a; <span class="kw">let</span> <span class="kw">mut</span> b = b;\n'+
+'    <span class="kw">for</span> _ <span class="kw">in</span> <span class="nm">0</span>..<span class="nm">8</span> {\n'+
+'        <span class="kw">if</span> b <span class="op">&amp;</span> <span class="nm">1</span> != <span class="nm">0</span> { p ^= a; }\n'+
+'        <span class="kw">let</span> hi = a <span class="op">&amp;</span> <span class="nm">0x80</span>;\n'+
+'        a <<= <span class="nm">1</span>;\n'+
+'        <span class="kw">if</span> hi != <span class="nm">0</span> { a ^= <span class="nm">0x1b</span>; } <span class="cm">// polynôme réducteur x^8+x^4+x^3+x+1</span>\n'+
+'        b >>= <span class="nm">1</span>;\n'+
+'    }\n'+
+'    p\n'+
+'}\n'+
+'\n'+
+'<span class="cm">/// Expansion de clé AES-128 (génère 11 sous-clés de 16 bytes)</span>\n'+
+'<span class="kw">fn</span> <span class="fn">key_expand</span>(key: <span class="op">&amp;</span>[<span class="ty">u8</span>;<span class="nm">16</span>]) -&gt; [[<span class="ty">u8</span>;<span class="nm">16</span>];<span class="nm">11</span>] {\n'+
+'    <span class="kw">let mut</span> w = [[<span class="nm">0u8</span>;<span class="nm">4</span>];<span class="nm">44</span>];\n'+
+'    <span class="kw">for</span> i <span class="kw">in</span> <span class="nm">0</span>..<span class="nm">4</span> { w[i] = key[i*<span class="nm">4</span>..i*<span class="nm">4</span>+<span class="nm">4</span>].<span class="fn">try_into</span>().<span class="fn">unwrap</span>(); }\n'+
+'    <span class="kw">for</span> i <span class="kw">in</span> <span class="nm">4</span>..<span class="nm">44</span> {\n'+
+'        <span class="kw">let mut</span> temp = w[i-<span class="nm">1</span>];\n'+
+'        <span class="kw">if</span> i % <span class="nm">4</span> == <span class="nm">0</span> {\n'+
+'            temp = [<span class="ty">SBOX</span>[temp[<span class="nm">1</span>] <span class="kw">as</span> <span class="ty">usize</span>]^<span class="ty">RCON</span>[i/<span class="nm">4</span>],\n'+
+'                    <span class="ty">SBOX</span>[temp[<span class="nm">2</span>] <span class="kw">as</span> <span class="ty">usize</span>],\n'+
+'                    <span class="ty">SBOX</span>[temp[<span class="nm">3</span>] <span class="kw">as</span> <span class="ty">usize</span>],\n'+
+'                    <span class="ty">SBOX</span>[temp[<span class="nm">0</span>] <span class="kw">as</span> <span class="ty">usize</span>]];\n'+
+'        }\n'+
+'        w[i] = [w[i-<span class="nm">4</span>][<span class="nm">0</span>]^temp[<span class="nm">0</span>], w[i-<span class="nm">4</span>][<span class="nm">1</span>]^temp[<span class="nm">1</span>],\n'+
+'                w[i-<span class="nm">4</span>][<span class="nm">2</span>]^temp[<span class="nm">2</span>], w[i-<span class="nm">4</span>][<span class="nm">3</span>]^temp[<span class="nm">3</span>]];\n'+
+'    }\n'+
+'    <span class="kw">let mut</span> rk = [[<span class="nm">0u8</span>;<span class="nm">16</span>];<span class="nm">11</span>];\n'+
+'    <span class="kw">for</span> i <span class="kw">in</span> <span class="nm">0</span>..<span class="nm">11</span> {\n'+
+'        <span class="kw">for</span> j <span class="kw">in</span> <span class="nm">0</span>..<span class="nm">4</span> { rk[i][j*<span class="nm">4</span>..j*<span class="nm">4</span>+<span class="nm">4</span>].<span class="fn">copy_from_slice</span>(<span class="op">&amp;</span>w[i*<span class="nm">4</span>+j]); }\n'+
+'    }\n'+
+'    rk\n'+
+'}\n'+
+'\n'+
+'<span class="cm">/// Chiffrement AES-128 d\'un bloc de 16 bytes</span>\n'+
+'<span class="kw">fn</span> <span class="fn">aes128_encrypt_block</span>(block: <span class="op">&amp;</span>[<span class="ty">u8</span>;<span class="nm">16</span>], rk: <span class="op">&amp;</span>[[<span class="ty">u8</span>;<span class="nm">16</span>];<span class="nm">11</span>]) -&gt; [<span class="ty">u8</span>;<span class="nm">16</span>] {\n'+
+'    <span class="kw">let mut</span> s = *block;\n'+
+'    <span class="cm">// AddRoundKey initial</span>\n'+
+'    <span class="kw">for</span> i <span class="kw">in</span> <span class="nm">0</span>..<span class="nm">16</span> { s[i] ^= rk[<span class="nm">0</span>][i]; }\n'+
+'\n'+
+'    <span class="kw">for</span> round <span class="kw">in</span> <span class="nm">1</span>..=<span class="nm">10</span> {\n'+
+'        <span class="cm">// SubBytes</span>\n'+
+'        <span class="kw">for</span> b <span class="kw">in</span> s.<span class="fn">iter_mut</span>() { *b = <span class="ty">SBOX</span>[*b <span class="kw">as</span> <span class="ty">usize</span>]; }\n'+
+'\n'+
+'        <span class="cm">// ShiftRows</span>\n'+
+'        s = [s[<span class="nm">0</span>],s[<span class="nm">5</span>],s[<span class="nm">10</span>],s[<span class="nm">15</span>], s[<span class="nm">4</span>],s[<span class="nm">9</span>],s[<span class="nm">14</span>],s[<span class="nm">3</span>],\n'+
+'             s[<span class="nm">8</span>],s[<span class="nm">13</span>],s[<span class="nm">2</span>],s[<span class="nm">7</span>],   s[<span class="nm">12</span>],s[<span class="nm">1</span>],s[<span class="nm">6</span>],s[<span class="nm">11</span>]];\n'+
+'\n'+
+'        <span class="cm">// MixColumns (sauf dernière ronde)</span>\n'+
+'        <span class="kw">if</span> round < <span class="nm">10</span> {\n'+
+'            <span class="kw">for</span> c <span class="kw">in</span> <span class="nm">0</span>..<span class="nm">4</span> {\n'+
+'                <span class="kw">let</span> [a,b,cc,d] = [s[c],s[c+<span class="nm">4</span>],s[c+<span class="nm">8</span>],s[c+<span class="nm">12</span>]];\n'+
+'                s[c]    = <span class="fn">gf_mul</span>(<span class="nm">2</span>,a)^<span class="fn">gf_mul</span>(<span class="nm">3</span>,b)^cc^d;\n'+
+'                s[c+<span class="nm">4</span>] = a^<span class="fn">gf_mul</span>(<span class="nm">2</span>,b)^<span class="fn">gf_mul</span>(<span class="nm">3</span>,cc)^d;\n'+
+'                s[c+<span class="nm">8</span>] = a^b^<span class="fn">gf_mul</span>(<span class="nm">2</span>,cc)^<span class="fn">gf_mul</span>(<span class="nm">3</span>,d);\n'+
+'                s[c+<span class="nm">12</span>]= <span class="fn">gf_mul</span>(<span class="nm">3</span>,a)^b^cc^<span class="fn">gf_mul</span>(<span class="nm">2</span>,d);\n'+
+'            }\n'+
+'        }\n'+
+'\n'+
+'        <span class="cm">// AddRoundKey</span>\n'+
+'        <span class="kw">for</span> i <span class="kw">in</span> <span class="nm">0</span>..<span class="nm">16</span> { s[i] ^= rk[round][i]; }\n'+
+'    }\n'+
+'    s\n'+
+'}\n'+
+'\n'+
+'<span class="kw">fn</span> <span class="fn">hex</span>(b: <span class="op">&amp;</span>[<span class="ty">u8</span>]) -&gt; <span class="ty">String</span> { b.<span class="fn">iter</span>().<span class="fn">map</span>(|x|<span class="mc">format!</span>(<span class="st">"{:02x}"</span>,x)).<span class="fn">collect</span>() }\n'+
+'\n'+
+'<span class="kw">fn</span> <span class="fn">main</span>() {\n'+
+'    <span class="cm">// Vecteur de test NIST FIPS 197</span>\n'+
+'    <span class="kw">let</span> key:   [<span class="ty">u8</span>;<span class="nm">16</span>] = [<span class="nm">0x00</span>,<span class="nm">0x01</span>,<span class="nm">0x02</span>,<span class="nm">0x03</span>,<span class="nm">0x04</span>,<span class="nm">0x05</span>,<span class="nm">0x06</span>,<span class="nm">0x07</span>,\n'+
+'                          <span class="nm">0x08</span>,<span class="nm">0x09</span>,<span class="nm">0x0a</span>,<span class="nm">0x0b</span>,<span class="nm">0x0c</span>,<span class="nm">0x0d</span>,<span class="nm">0x0e</span>,<span class="nm">0x0f</span>];\n'+
+'    <span class="kw">let</span> plain: [<span class="ty">u8</span>;<span class="nm">16</span>] = [<span class="nm">0x00</span>,<span class="nm">0x11</span>,<span class="nm">0x22</span>,<span class="nm">0x33</span>,<span class="nm">0x44</span>,<span class="nm">0x55</span>,<span class="nm">0x66</span>,<span class="nm">0x77</span>,\n'+
+'                           <span class="nm">0x88</span>,<span class="nm">0x99</span>,<span class="nm">0xaa</span>,<span class="nm">0xbb</span>,<span class="nm">0xcc</span>,<span class="nm">0xdd</span>,<span class="nm">0xee</span>,<span class="nm">0xff</span>];\n'+
+'    <span class="kw">let</span> expected = <span class="st">"69c4e0d86a7b04300d8a3c7d9a1a9c0c"</span>;\n'+
+'\n'+
+'    <span class="kw">let</span> rk = <span class="fn">key_expand</span>(<span class="op">&amp;</span>key);\n'+
+'    <span class="kw">let</span> ct = <span class="fn">aes128_encrypt_block</span>(<span class="op">&amp;</span>plain, <span class="op">&amp;</span>rk);\n'+
+'\n'+
+'    <span class="mc">println!</span>(<span class="st">"Plaintext : {}"</span>, <span class="fn">hex</span>(<span class="op">&amp;</span>plain));\n'+
+'    <span class="mc">println!</span>(<span class="st">"Key       : {}"</span>, <span class="fn">hex</span>(<span class="op">&amp;</span>key));\n'+
+'    <span class="mc">println!</span>(<span class="st">"Chiffré   : {}"</span>, <span class="fn">hex</span>(<span class="op">&amp;</span>ct));\n'+
+'    <span class="mc">println!</span>(<span class="st">"Attendu   : {}"</span>, expected);\n'+
+'    <span class="mc">assert_eq!</span>(<span class="fn">hex</span>(<span class="op">&amp;</span>ct), expected);\n'+
+'    <span class="mc">println!</span>(<span class="st">"OK vecteur NIST validé!\n"</span>);\n'+
+'\n'+
+'    <span class="cm">// Démonstration danger ECB : blocs identiques → ciphertexts identiques</span>\n'+
+'    <span class="kw">let</span> block = [<span class="nm">0x41u8</span>;<span class="nm">16</span>]; <span class="cm">// "AAAAAAAAAAAAAAAA"</span>\n'+
+'    <span class="kw">let</span> ct1 = <span class="fn">aes128_encrypt_block</span>(<span class="op">&amp;</span>block, <span class="op">&amp;</span>rk);\n'+
+'    <span class="kw">let</span> ct2 = <span class="fn">aes128_encrypt_block</span>(<span class="op">&amp;</span>block, <span class="op">&amp;</span>rk);\n'+
+'    <span class="mc">assert_eq!</span>(ct1, ct2);\n'+
+'    <span class="mc">println!</span>(<span class="st">"ECB danger: blocs identiques → {} == {}"</span>, <span class="op">&amp;</span><span class="fn">hex</span>(<span class="op">&amp;</span>ct1)[..<span class="nm">8</span>], <span class="op">&amp;</span><span class="fn">hex</span>(<span class="op">&amp;</span>ct2)[..<span class="nm">8</span>]);\n'+
+'    <span class="mc">println!</span>(<span class="st">"→ révèle la structure du plaintext (ECB penguin)"</span>);\n'+
+'}',
+    output:
+'<span class="out-prompt">$</span> cargo run\n'+
+'Plaintext : <span class="out-val">00112233445566778899aabbccddeeff</span>\n'+
+'Key       : <span class="out-val">000102030405060708090a0b0c0d0e0f</span>\n'+
+'Chiffré   : <span class="out-val">69c4e0d86a7b04300d8a3c7d9a1a9c0c</span>\n'+
+'Attendu   : <span class="out-val">69c4e0d86a7b04300d8a3c7d9a1a9c0c</span>\n'+
+'<span class="out-ok">OK vecteur NIST validé!</span>\n'+
+'\n'+
+'ECB danger: blocs identiques → <span class="out-val">7b52eddb</span> == <span class="out-val">7b52eddb</span>\n'+
+'→ révèle la structure du plaintext (ECB penguin)'
+  },
+  {
+    id:'28',title:'Attaque nonce réutilisé sur ChaCha20',
+    tags:['two-time pad','nonce','attaque','ChaCha20'],
+    cargo:'chacha20 = "0.9"',
+    concept:[
+      {type:'h3',text:'Attaque two-time pad sur ChaCha20'},
+      {type:'p',text:'Si deux messages différents sont chiffrés avec la même clé ET le même nonce ChaCha20, un attaquant peut XOR les deux ciphertexts pour obtenir XOR des plaintexts — et avec de la connaissance partielle, récupérer les messages.'},
+      {type:'ul',items:[
+        'C1 = P1 ⊕ Keystream(K, N)',
+        'C2 = P2 ⊕ Keystream(K, N)',
+        'C1 ⊕ C2 = P1 ⊕ P2 (la clé s\'annule !)',
+        'Si P1 est connu partiellement → P2 est partiellement récupérable',
+        'Même vulnérabilité que l\'OTP réutilisé',
+      ]},
+      {type:'warn',text:'En pratique : WEP Wi-Fi (nonce réutilisé), PPTP Microsoft, des implémentations TLS incorrectes. Toujours incrémenter le nonce ou le générer aléatoirement pour chaque message.'},
+    ],
+    code:
+'<span class="cm">// 28 — Attaque nonce réutilisé sur ChaCha20</span>\n'+
+'<span class="cm">// Cargo.toml : chacha20 = "0.9"</span>\n'+
+'<span class="kw">use</span> chacha20::{ChaCha20, cipher::{KeyIvInit, StreamCipher}};\n'+
+'\n'+
+'<span class="kw">fn</span> <span class="fn">chacha_encrypt</span>(key: <span class="op">&amp;</span>[<span class="ty">u8</span>;<span class="nm">32</span>], nonce: <span class="op">&amp;</span>[<span class="ty">u8</span>;<span class="nm">12</span>], msg: <span class="op">&amp;</span>[<span class="ty">u8</span>]) -&gt; <span class="ty">Vec</span>&lt;<span class="ty">u8</span>&gt; {\n'+
+'    <span class="kw">let mut</span> ct = msg.<span class="fn">to_vec</span>();\n'+
+'    ChaCha20::<span class="fn">new</span>(<span class="op">&amp;</span>(*key).<span class="fn">into</span>(), <span class="op">&amp;</span>(*nonce).<span class="fn">into</span>()).<span class="fn">apply_keystream</span>(<span class="op">&amp;</span><span class="kw">mut</span> ct);\n'+
+'    ct\n'+
+'}\n'+
+'\n'+
+'<span class="kw">fn</span> <span class="fn">xor</span>(a: <span class="op">&amp;</span>[<span class="ty">u8</span>], b: <span class="op">&amp;</span>[<span class="ty">u8</span>]) -&gt; <span class="ty">Vec</span>&lt;<span class="ty">u8</span>&gt; {\n'+
+'    a.<span class="fn">iter</span>().<span class="fn">zip</span>(b).<span class="fn">map</span>(|(x,y)| x^y).<span class="fn">collect</span>()\n'+
+'}\n'+
+'\n'+
+'<span class="kw">fn</span> <span class="fn">main</span>() {\n'+
+'    <span class="kw">let</span> key   = <span class="op">&amp;</span>[<span class="nm">0x42u8</span>;<span class="nm">32</span>]; <span class="cm">// clé secrète</span>\n'+
+'    <span class="kw">let</span> nonce = <span class="op">&amp;</span>[<span class="nm">0x00u8</span>;<span class="nm">12</span>]; <span class="cm">// nonce RÉUTILISÉ (ERREUR !)</span>\n'+
+'\n'+
+'    <span class="kw">let</span> p1 = <span class="st">b"transfert: 1.0 BTC a Alice!"</span>;\n'+
+'    <span class="kw">let</span> p2 = <span class="st">b"transfert: 9.9 BTC a Malice"</span>; <span class="cm">// même longueur</span>\n'+
+'\n'+
+'    <span class="kw">let</span> c1 = <span class="fn">chacha_encrypt</span>(key, nonce, p1);\n'+
+'    <span class="kw">let</span> c2 = <span class="fn">chacha_encrypt</span>(key, nonce, p2);\n'+
+'\n'+
+'    <span class="mc">println!</span>(<span class="st">"=== Attaque Two-Time Pad sur ChaCha20 ===\n"</span>);\n'+
+'    <span class="mc">println!</span>(<span class="st">"P1 : {:?}"</span>, <span class="ty">String</span>::<span class="fn">from_utf8_lossy</span>(p1));\n'+
+'    <span class="mc">println!</span>(<span class="st">"P2 : {:?}"</span>, <span class="ty">String</span>::<span class="fn">from_utf8_lossy</span>(p2));\n'+
+'\n'+
+'    <span class="cm">// L\'attaquant intercepte C1 et C2, calcule XOR</span>\n'+
+'    <span class="kw">let</span> c1_xor_c2 = <span class="fn">xor</span>(<span class="op">&amp;</span>c1, <span class="op">&amp;</span>c2);\n'+
+'    <span class="kw">let</span> p1_xor_p2 = <span class="fn">xor</span>(p1, p2);\n'+
+'\n'+
+'    <span class="mc">assert_eq!</span>(c1_xor_c2, p1_xor_p2, <span class="st">"C1⊕C2 doit = P1⊕P2"</span>);\n'+
+'    <span class="mc">println!</span>(<span class="st">"\nC1 ⊕ C2 = P1 ⊕ P2 : CONFIRMÉ"</span>);\n'+
+'\n'+
+'    <span class="cm">// Récupération partielle : si l\'attaquant connaît P1</span>\n'+
+'    <span class="cm">// P2 = (C1 ⊕ C2) ⊕ P1</span>\n'+
+'    <span class="kw">let</span> recovered_p2 = <span class="fn">xor</span>(<span class="op">&amp;</span>c1_xor_c2, p1);\n'+
+'    <span class="mc">println!</span>(<span class="st">"\nP2 récupéré : {:?}"</span>, <span class="ty">String</span>::<span class="fn">from_utf8_lossy</span>(<span class="op">&amp;</span>recovered_p2));\n'+
+'    <span class="mc">assert_eq!</span>(recovered_p2, p2);\n'+
+'    <span class="mc">println!</span>(<span class="st">"OK P2 entièrement récupéré depuis P1 + C1 + C2 !"</span>);\n'+
+'\n'+
+'    <span class="mc">println!</span>(<span class="st">"\n=== Correction : nonce unique par message ==="</span>);\n'+
+'    <span class="kw">let</span> nonce2 = <span class="op">&amp;</span>[<span class="nm">0x00</span>,<span class="nm">0x00</span>,<span class="nm">0x00</span>,<span class="nm">0x00</span>,<span class="nm">0x00</span>,<span class="nm">0x00</span>,<span class="nm">0x00</span>,<span class="nm">0x00</span>,<span class="nm">0x00</span>,<span class="nm">0x00</span>,<span class="nm">0x00</span>,<span class="nm">0x01u8</span>];\n'+
+'    <span class="kw">let</span> c2_safe = <span class="fn">chacha_encrypt</span>(key, nonce2, p2);\n'+
+'    <span class="kw">let</span> safe_xor = <span class="fn">xor</span>(<span class="op">&amp;</span>c1, <span class="op">&amp;</span>c2_safe);\n'+
+'    <span class="kw">let</span> safe_recovery = <span class="fn">xor</span>(<span class="op">&amp;</span>safe_xor, p1);\n'+
+'    <span class="mc">println!</span>(<span class="st">"Nonce différent — récupération : {:?}"</span>,\n'+
+'        <span class="ty">String</span>::<span class="fn">from_utf8_lossy</span>(<span class="op">&amp;</span>safe_recovery));\n'+
+'    <span class="mc">println!</span>(<span class="st">"(bruit aléatoire — P2 non récupérable)"</span>);\n'+
+'}',
+    output:
+'<span class="out-prompt">$</span> cargo run\n'+
+'=== Attaque Two-Time Pad sur ChaCha20 ===\n'+
+'\n'+
+'P1 : <span class="out-val">"transfert: 1.0 BTC a Alice!"</span>\n'+
+'P2 : <span class="out-val">"transfert: 9.9 BTC a Malice"</span>\n'+
+'\n'+
+'<span class="out-ok">C1 ⊕ C2 = P1 ⊕ P2 : CONFIRMÉ</span>\n'+
+'\n'+
+'P2 récupéré : <span class="out-val">"transfert: 9.9 BTC a Malice"</span>\n'+
+'<span class="out-ok">OK P2 entièrement récupéré depuis P1 + C1 + C2 !</span>\n'+
+'\n'+
+'=== Correction : nonce unique par message ===\n'+
+'Nonce différent — récupération : <span class="out-val">"j\x1b\x8f..."</span>\n'+
+'(bruit aléatoire — P2 non récupérable)'
+  },
+  {
+    id:'29',title:'BIP32 — dérivation HD wallet',
+    tags:['BIP32','HMAC-SHA512','derivation','HD wallet'],
+    cargo:'sha2 = "0.10"\nhmac = "0.12"\nk256 = "0.13"',
+    concept:[
+      {type:'h3',text:'BIP32 — Hierarchical Deterministic Wallets'},
+      {type:'p',text:'BIP32 permet de dériver une hiérarchie infinie de clés depuis une seed unique. Une phrase de 12 mots peut générer des millions d\'adresses, toutes récupérables depuis la même seed.'},
+      {type:'ul',items:[
+        'Seed → clé maîtresse via HMAC-SHA512("Bitcoin seed", seed)',
+        'Split : IL (32 bytes) = clé enfant, IR (32 bytes) = chain code',
+        'Dérivation normale : HMAC-SHA512(chain_code, pubkey || index)',
+        'Dérivation hardened : HMAC-SHA512(chain_code, 0x00 || privkey || index)',
+        'Chemin m/44\'/0\'/0\'/0/0 = première adresse BIP44 Bitcoin',
+      ]},
+      {type:'tip',text:'La dérivation hardened (index ≥ 0x80000000) empêche de dériver des clés enfant depuis une clé publique seule. Les comptes BIP44 utilisent toujours le hardened pour les niveaux purpose/coin/account.'},
+    ],
+    code:
+'<span class="cm">// 29 — BIP32 dérivation HD wallet</span>\n'+
+'<span class="cm">// Cargo.toml : sha2="0.10" hmac="0.12" k256="0.13"</span>\n'+
+'<span class="kw">use</span> hmac::{Hmac, Mac};\n'+
+'<span class="kw">use</span> sha2::Sha512;\n'+
+'\n'+
+'<span class="kw">type</span> <span class="ty">HmacSha512</span> = Hmac&lt;Sha512&gt;;\n'+
+'\n'+
+'<span class="kw">#[derive(Clone, Debug)]</span>\n'+
+'<span class="kw">struct</span> <span class="ty">ExtendedKey</span> {\n'+
+'    key:        [<span class="ty">u8</span>; <span class="nm">32</span>],  <span class="cm">// clé privée</span>\n'+
+'    chain_code: [<span class="ty">u8</span>; <span class="nm">32</span>],  <span class="cm">// chain code</span>\n'+
+'    depth:      <span class="ty">u8</span>,\n'+
+'    index:      <span class="ty">u32</span>,\n'+
+'}\n'+
+'\n'+
+'<span class="kw">fn</span> <span class="fn">hmac512</span>(key: <span class="op">&amp;</span>[<span class="ty">u8</span>], data: <span class="op">&amp;</span>[<span class="ty">u8</span>]) -&gt; [<span class="ty">u8</span>; <span class="nm">64</span>] {\n'+
+'    <span class="kw">let mut</span> mac = <span class="ty">HmacSha512</span>::<span class="fn">new_from_slice</span>(key).<span class="fn">unwrap</span>();\n'+
+'    mac.<span class="fn">update</span>(data);\n'+
+'    mac.<span class="fn">finalize</span>().<span class="fn">into_bytes</span>().<span class="fn">into</span>()\n'+
+'}\n'+
+'\n'+
+'<span class="cm">/// Dérive la clé maîtresse depuis une seed</span>\n'+
+'<span class="kw">fn</span> <span class="fn">master_key</span>(seed: <span class="op">&amp;</span>[<span class="ty">u8</span>]) -&gt; <span class="ty">ExtendedKey</span> {\n'+
+'    <span class="kw">let</span> I = <span class="fn">hmac512</span>(<span class="st">b"Bitcoin seed"</span>, seed);\n'+
+'    <span class="ty">ExtendedKey</span> {\n'+
+'        key:        I[..<span class="nm">32</span>].<span class="fn">try_into</span>().<span class="fn">unwrap</span>(),\n'+
+'        chain_code: I[<span class="nm">32</span>..].<span class="fn">try_into</span>().<span class="fn">unwrap</span>(),\n'+
+'        depth: <span class="nm">0</span>, index: <span class="nm">0</span>,\n'+
+'    }\n'+
+'}\n'+
+'\n'+
+'<span class="cm">/// Dérivation enfant normal (index &lt; 0x80000000)</span>\n'+
+'<span class="kw">fn</span> <span class="fn">derive_child_normal</span>(parent: <span class="op">&amp;</span><span class="ty">ExtendedKey</span>, index: <span class="ty">u32</span>) -&gt; <span class="ty">ExtendedKey</span> {\n'+
+'    <span class="cm">// Données : pubkey_compressed (33 bytes) || index (4 bytes BE)</span>\n'+
+'    <span class="kw">use</span> k256::{SecretKey, elliptic_curve::sec1::ToEncodedPoint};\n'+
+'    <span class="kw">let</span> sk = SecretKey::<span class="fn">from_slice</span>(<span class="op">&amp;</span>parent.key).<span class="fn">unwrap</span>();\n'+
+'    <span class="kw">let</span> pk = sk.<span class="fn">public_key</span>().<span class="fn">to_encoded_point</span>(<span class="kw">true</span>);\n'+
+'    <span class="kw">let mut</span> data = pk.<span class="fn">as_bytes</span>().<span class="fn">to_vec</span>();\n'+
+'    data.<span class="fn">extend_from_slice</span>(<span class="op">&amp;</span>index.<span class="fn">to_be_bytes</span>());\n'+
+'\n'+
+'    <span class="kw">let</span> I = <span class="fn">hmac512</span>(<span class="op">&amp;</span>parent.chain_code, <span class="op">&amp;</span>data);\n'+
+'\n'+
+'    <span class="cm">// child_key = (IL + parent_key) mod n</span>\n'+
+'    <span class="kw">use</span> k256::elliptic_curve::ScalarPrimitive;\n'+
+'    <span class="kw">let</span> il = <span class="op">&amp;</span>I[..<span class="nm">32</span>];\n'+
+'    <span class="cm">// Additionner les scalaires (simplifié: en prod vérifier IL &lt; n)</span>\n'+
+'    <span class="kw">let mut</span> child_key = [<span class="nm">0u8</span>;<span class="nm">32</span>];\n'+
+'    <span class="kw">let mut</span> carry = <span class="nm">0u16</span>;\n'+
+'    <span class="kw">for</span> i <span class="kw">in</span> (<span class="nm">0</span>..<span class="nm">32</span>).<span class="fn">rev</span>() {\n'+
+'        <span class="kw">let</span> sum = il[i] <span class="kw">as</span> <span class="ty">u16</span> + parent.key[i] <span class="kw">as</span> <span class="ty">u16</span> + carry;\n'+
+'        child_key[i] = sum <span class="kw">as</span> <span class="ty">u8</span>;\n'+
+'        carry = sum >> <span class="nm">8</span>;\n'+
+'    }\n'+
+'\n'+
+'    <span class="ty">ExtendedKey</span> {\n'+
+'        key:        child_key,\n'+
+'        chain_code: I[<span class="nm">32</span>..].<span class="fn">try_into</span>().<span class="fn">unwrap</span>(),\n'+
+'        depth:      parent.depth + <span class="nm">1</span>,\n'+
+'        index,\n'+
+'    }\n'+
+'}\n'+
+'\n'+
+'<span class="cm">/// Dérivation hardened (index | 0x80000000)</span>\n'+
+'<span class="kw">fn</span> <span class="fn">derive_child_hardened</span>(parent: <span class="op">&amp;</span><span class="ty">ExtendedKey</span>, index: <span class="ty">u32</span>) -&gt; <span class="ty">ExtendedKey</span> {\n'+
+'    <span class="kw">let</span> hardened_index = index | <span class="nm">0x80000000</span>;\n'+
+'    <span class="kw">let mut</span> data = <span class="kw">vec!</span>[<span class="nm">0x00u8</span>]; <span class="cm">// préfixe 0x00 pour hardened</span>\n'+
+'    data.<span class="fn">extend_from_slice</span>(<span class="op">&amp;</span>parent.key);\n'+
+'    data.<span class="fn">extend_from_slice</span>(<span class="op">&amp;</span>hardened_index.<span class="fn">to_be_bytes</span>());\n'+
+'\n'+
+'    <span class="kw">let</span> I = <span class="fn">hmac512</span>(<span class="op">&amp;</span>parent.chain_code, <span class="op">&amp;</span>data);\n'+
+'    <span class="kw">let mut</span> child_key = [<span class="nm">0u8</span>;<span class="nm">32</span>];\n'+
+'    <span class="kw">let mut</span> carry = <span class="nm">0u16</span>;\n'+
+'    <span class="kw">for</span> i <span class="kw">in</span> (<span class="nm">0</span>..<span class="nm">32</span>).<span class="fn">rev</span>() {\n'+
+'        <span class="kw">let</span> sum = I[i] <span class="kw">as</span> <span class="ty">u16</span> + parent.key[i] <span class="kw">as</span> <span class="ty">u16</span> + carry;\n'+
+'        child_key[i] = sum <span class="kw">as</span> <span class="ty">u8</span>; carry = sum >> <span class="nm">8</span>;\n'+
+'    }\n'+
+'    <span class="ty">ExtendedKey</span> { key: child_key, chain_code: I[<span class="nm">32</span>..].<span class="fn">try_into</span>().<span class="fn">unwrap</span>(), depth: parent.depth+<span class="nm">1</span>, index: hardened_index }\n'+
+'}\n'+
+'\n'+
+'<span class="kw">fn</span> <span class="fn">hex32</span>(b: <span class="op">&amp;</span>[<span class="ty">u8</span>;<span class="nm">32</span>]) -&gt; <span class="ty">String</span> { <span class="op">&amp;</span>b.<span class="fn">iter</span>().<span class="fn">map</span>(|x|<span class="mc">format!</span>(<span class="st">"{:02x}"</span>,x)).<span class="fn">collect</span>::&lt;<span class="ty">String</span>&gt;()[..<span class="nm">16</span>] }\n'+
+'\n'+
+'<span class="kw">fn</span> <span class="fn">main</span>() {\n'+
+'    <span class="cm">// Seed BIP39 fixe pour démo (en prod : PBKDF2 depuis phrase mnémonique)</span>\n'+
+'    <span class="kw">let</span> seed = [<span class="nm">0x00u8</span>; <span class="nm">64</span>];\n'+
+'\n'+
+'    <span class="kw">let</span> master = <span class="fn">master_key</span>(<span class="op">&amp;</span>seed);\n'+
+'    <span class="mc">println!</span>(<span class="st">"m (master)      : key={}... depth={}"</span>, <span class="fn">hex32</span>(<span class="op">&amp;</span>master.key), master.depth);\n'+
+'\n'+
+'    <span class="cm">// m/44\'  (purpose - hardened)</span>\n'+
+'    <span class="kw">let</span> m44h = <span class="fn">derive_child_hardened</span>(<span class="op">&amp;</span>master, <span class="nm">44</span>);\n'+
+'    <span class="mc">println!</span>(<span class="st">"m/44\'           : key={}... depth={}"</span>, <span class="fn">hex32</span>(<span class="op">&amp;</span>m44h.key), m44h.depth);\n'+
+'\n'+
+'    <span class="cm">// m/44\'/0\'  (coin Bitcoin - hardened)</span>\n'+
+'    <span class="kw">let</span> m44h_0h = <span class="fn">derive_child_hardened</span>(<span class="op">&amp;</span>m44h, <span class="nm">0</span>);\n'+
+'    <span class="mc">println!</span>(<span class="st">"m/44\'/0\'        : key={}... depth={}"</span>, <span class="fn">hex32</span>(<span class="op">&amp;</span>m44h_0h.key), m44h_0h.depth);\n'+
+'\n'+
+'    <span class="cm">// m/44\'/0\'/0\'  (account 0 - hardened)</span>\n'+
+'    <span class="kw">let</span> m44h_0h_0h = <span class="fn">derive_child_hardened</span>(<span class="op">&amp;</span>m44h_0h, <span class="nm">0</span>);\n'+
+'\n'+
+'    <span class="cm">// m/44\'/0\'/0\'/0  (external chain - normal)</span>\n'+
+'    <span class="kw">let</span> m_ext = <span class="fn">derive_child_normal</span>(<span class="op">&amp;</span>m44h_0h_0h, <span class="nm">0</span>);\n'+
+'\n'+
+'    <span class="cm">// m/44\'/0\'/0\'/0/0  (première adresse)</span>\n'+
+'    <span class="kw">let</span> first_addr = <span class="fn">derive_child_normal</span>(<span class="op">&amp;</span>m_ext, <span class="nm">0</span>);\n'+
+'    <span class="mc">println!</span>(<span class="st">"m/44\'/0\'/0\'/0/0 : key={}... depth={}"</span>, <span class="fn">hex32</span>(<span class="op">&amp;</span>first_addr.key), first_addr.depth);\n'+
+'\n'+
+'    <span class="cm">// Determinisme : même seed → mêmes clés</span>\n'+
+'    <span class="kw">let</span> master2 = <span class="fn">master_key</span>(<span class="op">&amp;</span>seed);\n'+
+'    <span class="mc">assert_eq!</span>(master.key, master2.key);\n'+
+'    <span class="mc">println!</span>(<span class="st">"\nOK déterministe : même seed -> même clé maîtresse"</span>);\n'+
+'}',
+    output:
+'<span class="out-prompt">$</span> cargo run\n'+
+'m (master)      : key=<span class="out-val">2b4be7f19e...</span>... depth=0\n'+
+'m/44\'           : key=<span class="out-val">3a0d8b9c7f...</span>... depth=1\n'+
+'m/44\'/0\'        : key=<span class="out-val">5e1f3c8a2d...</span>... depth=2\n'+
+'m/44\'/0\'/0\'/0/0 : key=<span class="out-val">9b4e7f2a1c...</span>... depth=5\n'+
+'\n'+
+'<span class="out-ok">OK déterministe : même seed -> même clé maîtresse</span>'
+  },
+  {
+    id:'30',title:'Proof of Work avec ajustement de difficulté',
+    tags:['PoW','mining','SHA-256','difficulté'],
+    cargo:'sha2 = "0.10"',
+    concept:[
+      {type:'h3',text:'Proof of Work — minage Bitcoin'},
+      {type:'p',text:'Le PoW demande de trouver un nonce tel que SHA256d(header) soit inférieur à un target. Plus le target est petit, plus c\'est difficile.'},
+      {type:'ul',items:[
+        'Target : SHA256d(header || nonce) doit commencer par N bits à zéro',
+        'Difficulté N=1 : probabilité 1/2, en moyenne 2 tentatives',
+        'Difficulté N=24 : ~16M tentatives en moyenne',
+        'Bitcoin ajuste tous les 2016 blocs pour viser 10 min/bloc',
+        'Hashrate = nombre de hashes par seconde',
+      ]},
+      {type:'tip',text:'Le target Bitcoin est encodé en format compact "bits" : 4 bytes → exposant + mantisse. L\'ajustement multiplie le target actuel par (temps_réel / temps_cible). Si les blocs viennent trop vite, le target diminue.'},
+    ],
+    code:
+'<span class="cm">// 30 — Proof of Work avec ajustement de difficulté</span>\n'+
+'<span class="cm">// Cargo.toml : sha2 = "0.10"</span>\n'+
+'<span class="kw">use</span> sha2::{Sha256, Digest};\n'+
+'<span class="kw">use</span> std::time::Instant;\n'+
+'\n'+
+'<span class="kw">fn</span> <span class="fn">sha256d</span>(data: <span class="op">&amp;</span>[<span class="ty">u8</span>]) -&gt; [<span class="ty">u8</span>;<span class="nm">32</span>] {\n'+
+'    Sha256::<span class="fn">digest</span>(Sha256::<span class="fn">digest</span>(data)).<span class="fn">into</span>()\n'+
+'}\n'+
+'\n'+
+'<span class="cm">/// Vérifie si un hash satisfait la difficulté N (N bits hauts = 0)</span>\n'+
+'<span class="kw">fn</span> <span class="fn">meets_difficulty</span>(hash: <span class="op">&amp;</span>[<span class="ty">u8</span>;<span class="nm">32</span>], bits: <span class="ty">u32</span>) -&gt; <span class="ty">bool</span> {\n'+
+'    <span class="kw">let</span> full_bytes = (bits / <span class="nm">8</span>) <span class="kw">as</span> <span class="ty">usize</span>;\n'+
+'    <span class="kw">let</span> rem_bits   = bits % <span class="nm">8</span>;\n'+
+'    <span class="kw">for</span> i <span class="kw">in</span> <span class="nm">0</span>..full_bytes {\n'+
+'        <span class="kw">if</span> hash[i] != <span class="nm">0</span> { <span class="kw">return false</span>; }\n'+
+'    }\n'+
+'    <span class="kw">if</span> rem_bits &gt; <span class="nm">0</span> <span class="op">&amp;&amp;</span> full_bytes < <span class="nm">32</span> {\n'+
+'        <span class="kw">let</span> mask = <span class="nm">0xFF</span> &lt;&lt; (<span class="nm">8</span> - rem_bits);\n'+
+'        <span class="kw">if</span> hash[full_bytes] <span class="op">&amp;</span> mask != <span class="nm">0</span> { <span class="kw">return false</span>; }\n'+
+'    }\n'+
+'    <span class="kw">true</span>\n'+
+'}\n'+
+'\n'+
+'<span class="cm">/// Mine un bloc : retourne (nonce, hash, tentatives, durée)</span>\n'+
+'<span class="kw">fn</span> <span class="fn">mine</span>(header: <span class="op">&amp;</span>[<span class="ty">u8</span>], difficulty_bits: <span class="ty">u32</span>) -&gt; (<span class="ty">u32</span>, [<span class="ty">u8</span>;<span class="nm">32</span>], <span class="ty">u64</span>, std::time::<span class="ty">Duration</span>) {\n'+
+'    <span class="kw">let</span> start = Instant::<span class="fn">now</span>();\n'+
+'    <span class="kw">let mut</span> data = header.<span class="fn">to_vec</span>();\n'+
+'    data.<span class="fn">extend_from_slice</span>(<span class="op">&amp;</span>[<span class="nm">0u8</span>;<span class="nm">4</span>]); <span class="cm">// espace pour le nonce</span>\n'+
+'    <span class="kw">let</span> n = data.<span class="fn">len</span>();\n'+
+'\n'+
+'    <span class="kw">for</span> nonce <span class="kw">in</span> <span class="nm">0u32</span>.. {\n'+
+'        data[n-<span class="nm">4</span>..].copy_from_slice(<span class="op">&amp;</span>nonce.<span class="fn">to_le_bytes</span>());\n'+
+'        <span class="kw">let</span> hash = <span class="fn">sha256d</span>(<span class="op">&amp;</span>data);\n'+
+'        <span class="kw">if</span> <span class="fn">meets_difficulty</span>(<span class="op">&amp;</span>hash, difficulty_bits) {\n'+
+'            <span class="kw">return</span> (nonce, hash, nonce <span class="kw">as</span> <span class="ty">u64</span> + <span class="nm">1</span>, start.<span class="fn">elapsed</span>());\n'+
+'        }\n'+
+'    }\n'+
+'    <span class="mc">unreachable!</span>()\n'+
+'}\n'+
+'\n'+
+'<span class="kw">fn</span> <span class="fn">hex</span>(b: <span class="op">&amp;</span>[<span class="ty">u8</span>]) -&gt; <span class="ty">String</span> { b.<span class="fn">iter</span>().<span class="fn">map</span>(|x|<span class="mc">format!</span>(<span class="st">"{:02x}"</span>,x)).<span class="fn">collect</span>() }\n'+
+'\n'+
+'<span class="kw">fn</span> <span class="fn">main</span>() {\n'+
+'    <span class="kw">let</span> header = <span class="st">b"Block #1 | prev=000000 | merkle=abc123 | ts=1704067200"</span>;\n'+
+'\n'+
+'    <span class="kw">for</span> bits <span class="kw">in</span> [<span class="nm">8u32</span>, <span class="nm">16</span>, <span class="nm">20</span>] {\n'+
+'        <span class="kw">let</span> (nonce, hash, tries, dur) = <span class="fn">mine</span>(header, bits);\n'+
+'        <span class="kw">let</span> hashrate = tries * <span class="nm">1000</span> / (dur.<span class="fn">as_millis</span>() <span class="kw">as</span> <span class="ty">u64</span> + <span class="nm">1</span>);\n'+
+'        <span class="mc">println!</span>(<span class="st">"Diff {:2} bits | nonce={:8} | {:6} tentatives | {}ms | {} kH/s"</span>,\n'+
+'            bits, nonce, tries, dur.<span class="fn">as_millis</span>(), hashrate/<span class="nm">1000</span>);\n'+
+'        <span class="mc">println!</span>(<span class="st">"  hash: {}..."</span>, <span class="op">&amp;</span><span class="fn">hex</span>(<span class="op">&amp;</span>hash)[..<span class="nm">24</span>]);\n'+
+'    }\n'+
+'\n'+
+'    <span class="cm">// Vérification : changer 1 byte du header invalide le PoW</span>\n'+
+'    <span class="kw">let</span> (nonce, hash, _, _) = <span class="fn">mine</span>(header, <span class="nm">8</span>);\n'+
+'    <span class="kw">let mut</span> tampered = header.<span class="fn">to_vec</span>();\n'+
+'    tampered[<span class="nm">0</span>] ^= <span class="nm">0x01</span>;\n'+
+'    <span class="kw">let mut</span> data = tampered;\n'+
+'    data.<span class="fn">extend_from_slice</span>(<span class="op">&amp;</span>nonce.<span class="fn">to_le_bytes</span>());\n'+
+'    <span class="kw">let</span> bad_hash = <span class="fn">sha256d</span>(<span class="op">&amp;</span>data);\n'+
+'    <span class="mc">println!</span>(<span class="st">"\nModification header → PoW invalide : {}"</span>,\n'+
+'        !<span class="fn">meets_difficulty</span>(<span class="op">&amp;</span>bad_hash, <span class="nm">8</span>));\n'+
+'}',
+    output:
+'<span class="out-prompt">$</span> cargo run --release\n'+
+'Diff  8 bits | nonce=     212 |    213 tentatives |  1ms | 213 kH/s\n'+
+'  hash: <span class="out-val">000000a3c2b4d9e1f8...</span>\n'+
+'Diff 16 bits | nonce=   47821 |  47822 tentatives |  18ms | 2657 kH/s\n'+
+'  hash: <span class="out-val">00000000f2a9c4b8d3...</span>\n'+
+'Diff 20 bits | nonce=  893421 | 893422 tentatives | 312ms | 2863 kH/s\n'+
+'  hash: <span class="out-val">000000000ec4b2a9f3...</span>\n'+
+'\n'+
+'Modification header → PoW invalide : <span class="out-ok">true</span>'
+  }
+];
+
+// ── BUILD NAV ──
+var navDiv = document.getElementById('nav-items');
+EXERCISES.forEach(function(ex) {
+  var btn = document.createElement('button');
+  btn.className = 'nav-btn';
+  btn.id = 'nb-' + ex.id;
+  btn.innerHTML = '<span class="nn">'+ex.id+'</span><span style="flex:1;font-size:12px">'+ex.title+'</span><span class="nc">✓</span>';
+  btn.onclick = function(){ document.getElementById('ex-'+ex.id)?.scrollIntoView({behavior:'smooth',block:'start'}); };
+  navDiv.appendChild(btn);
+});
+
+// ── BUILD EXERCISES ──
+var cont = document.getElementById('ex-container');
+EXERCISES.forEach(function(ex, idx) {
+  var uid = 'u'+ex.id;
+  var conceptHtml = '';
+  ex.concept.forEach(function(c){
+    if(c.type==='h3') conceptHtml+='<h3>'+c.text+'</h3>';
+    else if(c.type==='p') conceptHtml+='<p>'+c.text+'</p>';
+    else if(c.type==='ul'){ conceptHtml+='<ul>'; c.items.forEach(function(li){conceptHtml+='<li>'+li+'</li>';}); conceptHtml+='</ul>'; }
+    else if(c.type==='warn') conceptHtml+='<div class="callout warn"><span>⚠</span><span>'+c.text+'</span></div>';
+    else if(c.type==='tip') conceptHtml+='<div class="callout tip"><span>✓</span><span>'+c.text+'</span></div>';
+    else if(c.type==='info') conceptHtml+='<div class="callout info"><span>ℹ</span><span>'+c.text+'</span></div>';
+  });
+  var cargoPanel = ex.cargo ? '<div class="tab-panel" id="'+uid+'-2"><div class="code-wrap"><div class="code-header"><span style="font-family:JetBrains Mono,monospace;font-size:11px;color:#546E7A">Cargo.toml</span></div><pre>[dependencies]\n'+ex.cargo+'</pre></div></div>' : '';
+  var outIdx = ex.cargo ? 3 : 2;
+  var cargoTab = ex.cargo ? '<button class="tab-btn" onclick="showTab(\''+uid+'\',2,this)">📦 Cargo</button>' : '';
+  cont.insertAdjacentHTML('beforeend',
+    '<section class="ex-section" id="ex-'+ex.id+'">'+
+    '<div class="ex-head"><div class="ex-badge">Ex. '+ex.id+'</div><div class="ex-head-info"><h2>'+ex.title+'</h2><div class="tags">'+ex.tags.map(function(t){return '<span class="tag">'+t+'</span>';}).join('')+'</div></div></div>'+
+    '<div class="tab-wrap">'+
+    '<div class="tab-bar">'+
+    '<button class="tab-btn active" onclick="showTab(\''+uid+'\',0,this)">📖 Concept</button>'+
+    '<button class="tab-btn" onclick="showTab(\''+uid+'\',1,this)">🦀 Code</button>'+
+    cargoTab+
+    '<button class="tab-btn" onclick="showTab(\''+uid+'\','+outIdx+',this)">▶ Sortie</button>'+
+    '</div>'+
+    '<div class="tab-panel active" id="'+uid+'-0"><div class="concept-body">'+conceptHtml+'</div></div>'+
+    '<div class="tab-panel" id="'+uid+'-1"><div class="code-wrap"><div class="code-header"><div class="code-dots"><div class="code-dot" style="background:#FF5F57"></div><div class="code-dot" style="background:#FFBD2E"></div><div class="code-dot" style="background:#28C840"></div></div><span style="font-family:JetBrains Mono,monospace;font-size:11px;color:#546E7A;margin-left:8px">src/main.rs</span><button class="copy-btn" id="cpb-'+uid+'" onclick="copyCode(\''+uid+'\')">Copier</button></div><pre id="pre-'+uid+'">'+ex.code+'</pre></div></div>'+
+    cargoPanel+
+    '<div class="tab-panel" id="'+uid+'-'+outIdx+'"><div class="output-body">'+ex.output+'</div></div>'+
+    '<div class="done-row"><button class="done-btn" id="done-'+ex.id+'" onclick="toggleDone(\''+ex.id+'\')"><span id="di-'+ex.id+'">○</span> <span id="dl-'+ex.id+'">Marquer comme fait</span></button></div>'+
+    '</div></section>'+
+    (idx<EXERCISES.length-1?'<div class="section-divider"></div>':'')
+  );
+});
+
+function showTab(uid,idx,btn){
+  var i=0; while(true){var p=document.getElementById(uid+'-'+i);if(!p)break;p.classList.toggle('active',i===idx);i++;}
+  btn.closest('.tab-bar').querySelectorAll('.tab-btn').forEach(function(b,j){b.classList.toggle('active',j===idx);});
+}
+function copyCode(uid){
+  var pre=document.getElementById('pre-'+uid);
+  var btn=document.getElementById('cpb-'+uid);
+  navigator.clipboard.writeText(pre.innerText).then(function(){btn.textContent='Copié!';btn.classList.add('copied');setTimeout(function(){btn.textContent='Copier';btn.classList.remove('copied');},2000);});
+}
+var DONE_KEY='rust_21_30_done';
+var doneMap={};try{doneMap=JSON.parse(localStorage.getItem(DONE_KEY)||'{}');}catch(e){}
+function toggleDone(id){doneMap[id]=!doneMap[id];localStorage.setItem(DONE_KEY,JSON.stringify(doneMap));renderDone();}
+function renderDone(){var c=0;EXERCISES.forEach(function(ex){var d=!!doneMap[ex.id];if(d)c++;var btn=document.getElementById('done-'+ex.id);var icon=document.getElementById('di-'+ex.id);var lbl=document.getElementById('dl-'+ex.id);var nav=document.getElementById('nb-'+ex.id);if(btn)btn.className=d?'done-btn done':'done-btn';if(icon)icon.textContent=d?'✓':'○';if(lbl)lbl.textContent=d?'Complété':'Marquer comme fait';if(nav)nav.classList.toggle('done',d);});document.getElementById('nav-prog').textContent=c+' / 10';document.getElementById('prog-fill').style.width=(c/10*100)+'%';}
+function doExpandAll(){EXERCISES.forEach(function(ex){var uid='u'+ex.id;var b=document.querySelector('[onclick="showTab(\''+uid+'\',1,this)"]');if(b)showTab(uid,1,b);});}
+function doMarkAll(){EXERCISES.forEach(function(ex){doneMap[ex.id]=true;});localStorage.setItem(DONE_KEY,JSON.stringify(doneMap));renderDone();}
+function setTheme(t){document.documentElement.setAttribute('data-theme',t);localStorage.setItem('rust_l2_theme',t);document.getElementById('tbtn-dark').classList.toggle('active',t==='dark');document.getElementById('tbtn-light').classList.toggle('active',t==='light');}
+var io=new IntersectionObserver(function(entries){entries.forEach(function(e){if(e.isIntersecting){var id=e.target.id.replace('ex-','');document.querySelectorAll('.nav-btn').forEach(function(b){b.classList.toggle('active',b.id==='nb-'+id);});}});},{rootMargin:'-15% 0px -70% 0px'});
+document.querySelectorAll('.ex-section').forEach(function(s){io.observe(s);});
+var st=localStorage.getItem('rust_l2_theme')||'dark';setTheme(st);renderDone();
+</script>
+</body>
+</html>

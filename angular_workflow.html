@@ -1,0 +1,1418 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Angular Dev Workflow</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;600;700&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0a0f;
+    --surface: #111118;
+    --surface2: #16161f;
+    --border: #1e1e2e;
+    --accent: #c3002f;
+    --accent-dim: #7a0020;
+    --accent-pale: #3a0010;
+    --amber: #d4823a;
+    --green: #3a8b5c;
+    --blue: #3a6b8b;
+    --purple: #6b3a8b;
+    --text: #e8e8f0;
+    --text-muted: #6a6a82;
+    --text-dim: #3a3a52;
+  }
+
+  :root.light {
+    --bg: #f5f4f0;
+    --surface: #ffffff;
+    --surface2: #eeecea;
+    --border: #d8d4cc;
+    --accent: #a8002a;
+    --accent-dim: #e8b4c0;
+    --accent-pale: #fceef1;
+    --amber: #b86a20;
+    --green: #2a6e44;
+    --blue: #2a5070;
+    --purple: #562a70;
+    --text: #1a1a24;
+    --text-muted: #6a6070;
+    --text-dim: #aaa4a0;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Syne', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+    transition: background 0.25s, color 0.25s;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(var(--border) 1px, transparent 1px),
+      linear-gradient(90deg, var(--border) 1px, transparent 1px);
+    background-size: 40px 40px;
+    opacity: 0.3;
+    pointer-events: none;
+    z-index: 0;
+    transition: opacity 0.25s;
+  }
+  :root.light body::before { opacity: 0.15; }
+
+  .container {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 0 24px 80px;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* THEME TOGGLE */
+  .theme-toggle {
+    position: fixed;
+    top: 16px;
+    right: 20px;
+    z-index: 200;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: var(--text-muted);
+    letter-spacing: 1px;
+    cursor: pointer;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    padding: 6px 12px;
+    transition: border-color 0.2s, color 0.2s, background 0.25s;
+    user-select: none;
+  }
+  .theme-toggle:hover { border-color: var(--accent); color: var(--accent); }
+  .theme-toggle-icon { font-size: 13px; transition: transform 0.4s ease; }
+  .theme-toggle:hover .theme-toggle-icon { transform: rotate(20deg); }
+
+  /* HEADER */
+  header {
+    padding: 60px 0 48px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 48px;
+  }
+
+  .header-tag {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--accent);
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    margin-bottom: 16px;
+  }
+
+  h1 {
+    font-size: clamp(36px, 5vw, 64px);
+    font-weight: 800;
+    line-height: 1;
+    letter-spacing: -2px;
+    color: var(--text);
+  }
+  h1 span { color: var(--accent); }
+
+  .header-sub {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    color: var(--text-muted);
+    margin-top: 16px;
+    letter-spacing: 0.5px;
+  }
+
+  .header-meta { display: flex; gap: 24px; margin-top: 28px; flex-wrap: wrap; }
+
+  .badge {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    padding: 4px 10px;
+    border: 1px solid;
+    letter-spacing: 1px;
+  }
+  .badge-red { border-color: var(--accent-dim); color: var(--accent); background: var(--accent-pale); }
+  .badge-amber { border-color: #6b4a1a; color: var(--amber); background: rgba(212,130,58,0.07); }
+  .badge-blue { border-color: #1a3a5a; color: var(--blue); background: rgba(58,107,139,0.07); }
+  :root.light .badge-amber { border-color: #d4b090; }
+  :root.light .badge-blue { border-color: #90b4d0; }
+
+  /* PROGRESS BAR */
+  .progress-bar {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: var(--bg);
+    border-bottom: 1px solid var(--border);
+    padding: 12px 24px;
+    margin: 0 -24px 48px;
+    transition: background 0.25s;
+  }
+
+  .progress-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: var(--text-muted);
+    letter-spacing: 2px;
+    margin-bottom: 6px;
+    display: flex;
+    justify-content: space-between;
+  }
+
+  .progress-track { height: 2px; background: var(--border); position: relative; }
+  .progress-fill {
+    height: 100%;
+    background: var(--accent);
+    width: 0%;
+    transition: width 0.3s ease;
+    box-shadow: 0 0 8px var(--accent);
+  }
+
+  /* CONTROLS */
+  .controls { display: flex; gap: 12px; margin-bottom: 24px; align-items: center; flex-wrap: wrap; }
+
+  .ctrl-btn {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    padding: 6px 14px;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--text-muted);
+    cursor: pointer;
+    letter-spacing: 1px;
+    transition: all 0.2s;
+  }
+  .ctrl-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+  /* PHASES */
+  .phase { margin-bottom: 12px; }
+
+  .phase-header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 20px 24px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    cursor: pointer;
+    user-select: none;
+    transition: border-color 0.2s, background 0.2s;
+    position: relative;
+    overflow: hidden;
+  }
+  .phase-header::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    width: 3px;
+    background: var(--phase-color, var(--accent));
+  }
+  .phase-header:hover { border-color: var(--phase-color, var(--accent)); background: var(--surface2); }
+
+  .phase-num { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--text-muted); letter-spacing: 2px; min-width: 40px; }
+  .phase-title { font-size: 15px; font-weight: 700; color: var(--text); flex: 1; letter-spacing: 0.3px; }
+  .phase-count { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--text-muted); }
+  .phase-chevron { font-size: 12px; color: var(--text-dim); transition: transform 0.3s; }
+  .phase.open .phase-chevron { transform: rotate(180deg); }
+
+  .phase-body { display: none; border: 1px solid var(--border); border-top: none; background: var(--surface); }
+  .phase.open .phase-body { display: block; }
+
+  /* STEPS */
+  .step {
+    display: grid;
+    grid-template-columns: 56px 1fr;
+    border-bottom: 1px solid var(--border);
+    transition: background 0.15s;
+  }
+  .step:last-child { border-bottom: none; }
+  .step:hover { background: var(--surface2); }
+
+  .step-gutter {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px 0;
+    border-right: 1px solid var(--border);
+    gap: 8px;
+  }
+
+  .step-checkbox {
+    width: 18px; height: 18px;
+    border: 1px solid var(--text-dim);
+    background: transparent;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    flex-shrink: 0;
+  }
+  .step-checkbox:hover { border-color: var(--phase-color, var(--accent)); }
+  .step-checkbox.checked { background: var(--phase-color, var(--accent)); border-color: var(--phase-color, var(--accent)); }
+  .step-checkbox.checked::after { content: '✓'; color: white; font-size: 11px; font-weight: 700; }
+
+  .step-number { font-family: 'JetBrains Mono', monospace; font-size: 9px; color: var(--text-dim); letter-spacing: 1px; }
+
+  .step-content { padding: 20px 24px; }
+  .step-title { font-size: 14px; font-weight: 700; color: var(--text); margin-bottom: 6px; }
+  .step-desc { font-size: 13px; color: var(--text-muted); line-height: 1.6; margin-bottom: 10px; }
+
+  .step-code {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    padding: 10px 14px;
+    color: #a8b8c8;
+    line-height: 1.7;
+    overflow-x: auto;
+    transition: background 0.25s, color 0.25s;
+  }
+  :root.light .step-code { color: #2a3a4a; background: #f0eeea; }
+  .step-code .cmd { color: #e8c87a; }
+  .step-code .flag { color: #8bb8e8; }
+  .step-code .comment { color: var(--text-dim); }
+  .step-code .str { color: #88c888; }
+  .step-code .kw { color: #cc88cc; }
+  .step-code .dec { color: #e88888; }
+  :root.light .step-code .cmd { color: #8b4a00; }
+  :root.light .step-code .flag { color: #2a5080; }
+  :root.light .step-code .str { color: #2a6e44; }
+  :root.light .step-code .kw { color: #6a2a8b; }
+  :root.light .step-code .dec { color: #a02020; }
+  :root.light .step-code .comment { color: #aaa4a0; }
+
+  .step-tags { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 10px; }
+  .tag { font-family: 'JetBrains Mono', monospace; font-size: 10px; padding: 2px 8px; border: 1px solid var(--border); color: var(--text-dim); letter-spacing: 0.5px; }
+  .tag-critical { border-color: var(--accent-dim); color: var(--accent); background: var(--accent-pale); }
+  .tag-tip { border-color: #1a4b30; color: var(--green); background: rgba(58,139,92,0.05); }
+  :root.light .tag-tip { border-color: #90c4a8; }
+
+  .tip-block {
+    background: rgba(58,139,92,0.05);
+    border-left: 2px solid var(--green);
+    padding: 10px 14px;
+    margin-top: 10px;
+    font-size: 12px;
+    color: #5a9b72;
+    line-height: 1.6;
+    font-family: 'JetBrains Mono', monospace;
+  }
+  :root.light .tip-block { background: rgba(42,110,68,0.07); color: #2a6e44; }
+
+  .warn-block {
+    background: rgba(212,130,58,0.05);
+    border-left: 2px solid var(--amber);
+    padding: 10px 14px;
+    margin-top: 10px;
+    font-size: 12px;
+    color: #b87040;
+    line-height: 1.6;
+    font-family: 'JetBrains Mono', monospace;
+  }
+  :root.light .warn-block { background: rgba(184,106,32,0.07); color: #8b5010; }
+
+  /* SUMMARY */
+  .summary { margin-top: 56px; padding: 32px; border: 1px solid var(--border); background: var(--surface); }
+  .summary-title { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--accent); letter-spacing: 3px; text-transform: uppercase; margin-bottom: 20px; }
+  .summary-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px; }
+  .stat-box { padding: 16px; border: 1px solid var(--border); background: var(--bg); }
+  .stat-num { font-family: 'JetBrains Mono', monospace; font-size: 32px; font-weight: 700; color: var(--text); line-height: 1; }
+  .stat-num span { color: var(--accent); }
+  .stat-label { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--text-muted); letter-spacing: 1px; margin-top: 6px; }
+
+  ::-webkit-scrollbar { width: 4px; height: 4px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: var(--border); }
+
+  @media (max-width: 600px) {
+    .step { grid-template-columns: 44px 1fr; }
+    h1 { letter-spacing: -1px; }
+    .theme-toggle { top: 10px; right: 10px; }
+  }
+</style>
+</head>
+<body>
+
+<button class="theme-toggle" onclick="toggleTheme()" id="theme-btn">
+  <span class="theme-toggle-icon" id="theme-icon">☀</span>
+  <span id="theme-label">LIGHT</span>
+</button>
+
+<div class="container">
+
+  <header>
+    <div class="header-tag">// workflow guide</div>
+    <h1><span>Angular</span><br>Dev Workflow</h1>
+    <div class="header-sub">$ ordre d'exécution · meilleures pratiques · pitfalls</div>
+    <div class="header-meta">
+      <span class="badge badge-red">Angular 17+</span>
+      <span class="badge badge-amber">TypeScript 5.x</span>
+      <span class="badge badge-blue">Standalone Components</span>
+    </div>
+  </header>
+
+  <div class="progress-bar">
+    <div class="progress-label">
+      <span>PROGRESSION</span>
+      <span id="progress-text">0 / 0 étapes complétées</span>
+    </div>
+    <div class="progress-track">
+      <div class="progress-fill" id="progress-fill"></div>
+    </div>
+  </div>
+
+  <div class="controls">
+    <button class="ctrl-btn" onclick="expandAll()">TOUT OUVRIR</button>
+    <button class="ctrl-btn" onclick="collapseAll()">TOUT FERMER</button>
+    <button class="ctrl-btn" onclick="resetChecks()">RESET</button>
+  </div>
+
+  <div id="phases"></div>
+
+  <div class="summary">
+    <div class="summary-title">// résumé du workflow</div>
+    <div class="summary-grid">
+      <div class="stat-box">
+        <div class="stat-num" id="stat-total">0</div>
+        <div class="stat-label">ÉTAPES TOTALES</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-num" id="stat-done">0</div>
+        <div class="stat-label">COMPLÉTÉES</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-num">10</div>
+        <div class="stat-label">PHASES</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-num"><span>SoC</span></div>
+        <div class="stat-label">SEPARATION OF CONCERNS</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+const PHASES = [
+  {
+    title: "Conception & Architecture",
+    color: "#c3002f",
+    steps: [
+      {
+        title: "Définir l'architecture de l'application",
+        desc: "Identifier les grandes zones fonctionnelles, les features, les données partagées et les flux utilisateurs. Angular est un framework opinionated — l'architecture se pense avant d'ouvrir VS Code.",
+        code: `<span class="comment">// Questions à répondre avant de commencer</span>
+<span class="comment">// 1. Features principales → modules / feature routes</span>
+<span class="comment">// 2. Données partagées → state management (Signal, NgRx, Akita)</span>
+<span class="comment">// 3. Auth → Guards + Interceptors</span>
+<span class="comment">// 4. API → REST ou GraphQL ?</span>
+<span class="comment">// 5. Standalone components ou NgModules ?</span>
+<span class="comment">//    → Angular 17+ : Standalone par défaut (recommandé)</span>`,
+        tags: ["critical"],
+        tip: "→ Angular 17+ : toujours partir en mode standalone. NgModules = legacy."
+      },
+      {
+        title: "Définir la structure de dossiers",
+        desc: "La convention Angular recommande une structure feature-based. Éviter une structure technique (tous les services ensemble, tous les composants ensemble).",
+        code: `src/
+  app/
+    core/              <span class="comment">// singletons : auth, interceptors, guards</span>
+      auth/
+      interceptors/
+      guards/
+    shared/            <span class="comment">// composants, pipes, directives réutilisables</span>
+      components/
+      pipes/
+      directives/
+    features/          <span class="comment">// domaines métier (lazy-loaded)</span>
+      dashboard/
+        dashboard.component.ts
+        dashboard.routes.ts
+        dashboard.service.ts
+      posts/
+        posts.component.ts
+        posts.routes.ts
+    app.routes.ts      <span class="comment">// routes racine</span>
+    app.config.ts      <span class="comment">// configuration app</span>`,
+        tags: ["critical"]
+      },
+      {
+        title: "Planifier le data model (interfaces TypeScript)",
+        desc: "Définir toutes les interfaces TypeScript qui modélisent les données de l'API et de l'état local. C'est l'équivalent du schéma DB en Rails.",
+        code: `<span class="comment">// src/app/core/models/post.model.ts</span>
+<span class="kw">export interface</span> Post {
+  id:          number;
+  title:       string;
+  body:        string;
+  published:   boolean;
+  publishedAt: string | null;
+  author:      User;
+  tags:        Tag[];
+  createdAt:   string;
+}
+
+<span class="kw">export interface</span> CreatePostDto {
+  title:  string;
+  body:   string;
+  tagIds: number[];
+}
+
+<span class="kw">export interface</span> PaginatedResponse&lt;T&gt; {
+  data:       T[];
+  total:      number;
+  page:       number;
+  perPage:    number;
+}`,
+        tags: ["critical"],
+        tip: "→ Séparer les interfaces de réponse API (Post) des DTOs d'envoi (CreatePostDto)."
+      }
+    ]
+  },
+  {
+    title: "Setup du Projet",
+    color: "#d4823a",
+    steps: [
+      {
+        title: "Créer le projet Angular",
+        desc: "Utiliser Angular CLI. Choisir dès le départ : standalone, routing, et le format de style.",
+        code: `<span class="comment"># Installer CLI globalement</span>
+<span class="cmd">npm install</span> <span class="flag">-g</span> @angular/cli
+
+<span class="comment"># Créer le projet (Angular 17+)</span>
+<span class="cmd">ng new</span> my-app <span class="flag">--standalone --routing --style=scss</span>
+<span class="cmd">cd</span> my-app
+
+<span class="comment"># Vérifier la version</span>
+<span class="cmd">ng version</span>
+
+<span class="comment"># Premier commit</span>
+<span class="cmd">git init && git add . && git commit -m</span> <span class="str">"feat: init Angular project"</span>`,
+        tags: ["critical"],
+        tip: "→ --standalone est le défaut Angular 17+. Si omis, vérifier angular.json."
+      },
+      {
+        title: "Configurer ESLint + Prettier",
+        desc: "Enforcer le style dès le premier jour. Angular CLI inclut maintenant ESLint en option.",
+        code: `<span class="comment"># Ajouter ESLint</span>
+<span class="cmd">ng add</span> @angular-eslint/schematics
+
+<span class="comment"># Ajouter Prettier</span>
+<span class="cmd">npm install</span> <span class="flag">--save-dev</span> prettier eslint-config-prettier
+
+<span class="comment">// .prettierrc</span>
+{
+  <span class="str">"singleQuote"</span>: true,
+  <span class="str">"semi"</span>: true,
+  <span class="str">"printWidth"</span>: 100,
+  <span class="str">"tabWidth"</span>: 2
+}
+
+<span class="comment"># Vérifier</span>
+<span class="cmd">npm run lint</span>`,
+        tags: ["critical"]
+      },
+      {
+        title: "Configurer les environments",
+        desc: "Créer les fichiers d'environnement pour dev et production. Ne jamais hardcoder les URLs d'API.",
+        code: `<span class="comment"># Générer les fichiers d'environment</span>
+<span class="cmd">ng generate environments</span>
+
+<span class="comment">// src/environments/environment.ts</span>
+<span class="kw">export const</span> environment = {
+  production: <span class="flag">false</span>,
+  apiUrl: <span class="str">'http://localhost:3000/api'</span>,
+  appName: <span class="str">'My App (DEV)'</span>
+};
+
+<span class="comment">// src/environments/environment.prod.ts</span>
+<span class="kw">export const</span> environment = {
+  production: <span class="flag">true</span>,
+  apiUrl: <span class="str">'https://api.monapp.com'</span>,
+  appName: <span class="str">'My App'</span>
+};`,
+        tags: ["critical"],
+        warn: "⚠ Ne jamais committer de clés API dans environment.ts — utiliser des variables CI/CD."
+      },
+      {
+        title: "Configurer le proxy de développement",
+        desc: "Éviter les problèmes CORS en dev en proxifiant les appels API vers le backend.",
+        code: `<span class="comment">// proxy.conf.json</span>
+{
+  <span class="str">"/api"</span>: {
+    <span class="str">"target"</span>: <span class="str">"http://localhost:3000"</span>,
+    <span class="str">"secure"</span>: <span class="flag">false</span>,
+    <span class="str">"changeOrigin"</span>: <span class="flag">true</span>,
+    <span class="str">"logLevel"</span>: <span class="str">"debug"</span>
+  }
+}
+
+<span class="comment">// angular.json → projects → architect → serve → options</span>
+<span class="str">"proxyConfig"</span>: <span class="str">"proxy.conf.json"</span>
+
+<span class="comment"># Démarrer avec proxy</span>
+<span class="cmd">ng serve</span> <span class="flag">--proxy-config</span> proxy.conf.json`,
+        tags: ["tip"]
+      },
+      {
+        title: "Installer les dépendances essentielles",
+        desc: "Ajouter les librairies de base avant de commencer à coder les features.",
+        code: `<span class="comment"># UI</span>
+<span class="cmd">ng add</span> @angular/material     <span class="comment"># Material Design (optionnel)</span>
+<span class="cmd">npm i</span> tailwindcss            <span class="comment"># ou Tailwind CSS</span>
+
+<span class="comment"># State management</span>
+<span class="cmd">npm i</span> @ngrx/store @ngrx/effects @ngrx/entity  <span class="comment"># si NgRx</span>
+<span class="comment"># ou Signals (natif Angular 17+) — recommandé</span>
+
+<span class="comment"># Utils</span>
+<span class="cmd">npm i</span> date-fns               <span class="comment"># dates</span>
+<span class="cmd">npm i</span> zod                    <span class="comment"># validation runtime</span>
+
+<span class="comment"># Dev</span>
+<span class="cmd">npm i</span> <span class="flag">-D</span> @testing-library/angular jest`,
+        tags: ["tip"]
+      }
+    ]
+  },
+  {
+    title: "Routing & Lazy Loading",
+    color: "#3a6b8b",
+    steps: [
+      {
+        title: "Configurer les routes racine",
+        desc: "Définir la structure de navigation principale avec lazy loading pour chaque feature. Le lazy loading est non-négociable pour la performance.",
+        code: `<span class="comment">// src/app/app.routes.ts</span>
+<span class="kw">import</span> { Routes } <span class="kw">from</span> <span class="str">'@angular/router'</span>;
+
+<span class="kw">export const</span> routes: Routes = [
+  {
+    path: <span class="str">''</span>,
+    redirectTo: <span class="str">'dashboard'</span>,
+    pathMatch: <span class="str">'full'</span>
+  },
+  {
+    path: <span class="str">'dashboard'</span>,
+    loadComponent: () => <span class="kw">import</span>(<span class="str">'./features/dashboard/dashboard.component'</span>)
+      .then(m => m.DashboardComponent)
+  },
+  {
+    path: <span class="str">'posts'</span>,
+    loadChildren: () => <span class="kw">import</span>(<span class="str">'./features/posts/posts.routes'</span>)
+      .then(m => m.postsRoutes)
+  },
+  {
+    path: <span class="str">'auth'</span>,
+    loadChildren: () => <span class="kw">import</span>(<span class="str">'./features/auth/auth.routes'</span>)
+      .then(m => m.authRoutes),
+    canActivate: [publicGuard]  <span class="comment">// déjà connecté → redirect</span>
+  },
+  { path: <span class="str">'**'</span>, loadComponent: () => <span class="kw">import</span>(<span class="str">'./shared/components/not-found.component'</span>).then(m => m.NotFoundComponent) }
+];`,
+        tags: ["critical"],
+        tip: "→ loadComponent pour un seul composant, loadChildren pour un sous-module de routes."
+      },
+      {
+        title: "Routes imbriquées par feature",
+        desc: "Chaque feature a ses propres routes dans un fichier dédié. Facilite la navigation et l'organisation.",
+        code: `<span class="comment">// src/app/features/posts/posts.routes.ts</span>
+<span class="kw">import</span> { Routes } <span class="kw">from</span> <span class="str">'@angular/router'</span>;
+<span class="kw">import</span> { authGuard } <span class="kw">from</span> <span class="str">'../../core/guards/auth.guard'</span>;
+
+<span class="kw">export const</span> postsRoutes: Routes = [
+  {
+    path: <span class="str">''</span>,
+    loadComponent: () => <span class="kw">import</span>(<span class="str">'./post-list/post-list.component'</span>)
+      .then(m => m.PostListComponent)
+  },
+  {
+    path: <span class="str">':id'</span>,
+    loadComponent: () => <span class="kw">import</span>(<span class="str">'./post-detail/post-detail.component'</span>)
+      .then(m => m.PostDetailComponent),
+    resolve: { post: postResolver }  <span class="comment">// data avant render</span>
+  },
+  {
+    path: <span class="str">'new'</span>,
+    loadComponent: () => <span class="kw">import</span>(<span class="str">'./post-form/post-form.component'</span>)
+      .then(m => m.PostFormComponent),
+    canActivate: [authGuard]
+  }
+];`,
+        tags: ["critical"]
+      },
+      {
+        title: "Guards et Resolvers",
+        desc: "Guards = contrôle d'accès aux routes. Resolvers = pré-chargement des données avant l'affichage du composant.",
+        code: `<span class="comment">// src/app/core/guards/auth.guard.ts</span>
+<span class="kw">import</span> { inject } <span class="kw">from</span> <span class="str">'@angular/core'</span>;
+<span class="kw">import</span> { CanActivateFn, Router } <span class="kw">from</span> <span class="str">'@angular/router'</span>;
+<span class="kw">import</span> { AuthService } <span class="kw">from</span> <span class="str">'../auth/auth.service'</span>;
+
+<span class="kw">export const</span> authGuard: CanActivateFn = () => {
+  <span class="kw">const</span> auth   = inject(AuthService);
+  <span class="kw">const</span> router = inject(Router);
+  <span class="kw">return</span> auth.isAuthenticated() || router.createUrlTree([<span class="str">'/auth/login'</span>]);
+};
+
+<span class="comment">// src/app/features/posts/post.resolver.ts</span>
+<span class="kw">export const</span> postResolver: ResolveFn&lt;Post&gt; = (route) => {
+  <span class="kw">return</span> inject(PostsService).getById(+route.paramMap.get(<span class="str">'id'</span>)!);
+};`,
+        tags: ["critical"],
+        tip: "→ Angular 14+ : functional guards (CanActivateFn) remplacent les classes guard."
+      }
+    ]
+  },
+  {
+    title: "Services & HTTP",
+    color: "#6b3a8b",
+    steps: [
+      {
+        title: "Configurer HttpClient",
+        desc: "Fournir HttpClient au niveau de l'application. Angular 17+ utilise provideHttpClient().",
+        code: `<span class="comment">// src/app/app.config.ts</span>
+<span class="kw">import</span> { ApplicationConfig } <span class="kw">from</span> <span class="str">'@angular/core'</span>;
+<span class="kw">import</span> { provideRouter, withComponentInputBinding } <span class="kw">from</span> <span class="str">'@angular/router'</span>;
+<span class="kw">import</span> { provideHttpClient, withInterceptors } <span class="kw">from</span> <span class="str">'@angular/common/http'</span>;
+<span class="kw">import</span> { routes } <span class="kw">from</span> <span class="str">'./app.routes'</span>;
+<span class="kw">import</span> { authInterceptor } <span class="kw">from</span> <span class="str">'./core/interceptors/auth.interceptor'</span>;
+
+<span class="kw">export const</span> appConfig: ApplicationConfig = {
+  providers: [
+    provideRouter(routes, withComponentInputBinding()),
+    provideHttpClient(withInterceptors([authInterceptor])),
+  ]
+};`,
+        tags: ["critical"]
+      },
+      {
+        title: "Créer un service API typé",
+        desc: "Un service par resource. Retourner des Observables. Centraliser la gestion des URLs dans le service.",
+        code: `<span class="comment">// src/app/features/posts/posts.service.ts</span>
+<span class="dec">@Injectable</span>({ providedIn: <span class="str">'root'</span> })
+<span class="kw">export class</span> PostsService {
+  <span class="kw">private</span> http   = inject(HttpClient);
+  <span class="kw">private</span> apiUrl = <span class="str">\`\${environment.apiUrl}/posts\`</span>;
+
+  getAll(params?: HttpParams): Observable&lt;PaginatedResponse&lt;Post&gt;&gt; {
+    <span class="kw">return</span> this.http.get&lt;PaginatedResponse&lt;Post&gt;&gt;(this.apiUrl, { params });
+  }
+
+  getById(id: number): Observable&lt;Post&gt; {
+    <span class="kw">return</span> this.http.get&lt;Post&gt;(<span class="str">\`\${this.apiUrl}/\${id}\`</span>);
+  }
+
+  create(dto: CreatePostDto): Observable&lt;Post&gt; {
+    <span class="kw">return</span> this.http.post&lt;Post&gt;(this.apiUrl, dto);
+  }
+
+  update(id: number, dto: Partial&lt;CreatePostDto&gt;): Observable&lt;Post&gt; {
+    <span class="kw">return</span> this.http.patch&lt;Post&gt;(<span class="str">\`\${this.apiUrl}/\${id}\`</span>, dto);
+  }
+
+  delete(id: number): Observable&lt;void&gt; {
+    <span class="kw">return</span> this.http.delete&lt;void&gt;(<span class="str">\`\${this.apiUrl}/\${id}\`</span>);
+  }
+}`,
+        tags: ["critical"]
+      },
+      {
+        title: "Interceptors : Auth + Error handling",
+        desc: "Ajouter automatiquement le JWT token à chaque requête et gérer les erreurs HTTP globalement.",
+        code: `<span class="comment">// src/app/core/interceptors/auth.interceptor.ts</span>
+<span class="kw">export const</span> authInterceptor: HttpInterceptorFn = (req, next) => {
+  <span class="kw">const</span> token = inject(AuthService).getToken();
+  <span class="kw">if</span> (!token) <span class="kw">return</span> next(req);
+
+  <span class="kw">return</span> next(req.clone({
+    setHeaders: { Authorization: <span class="str">\`Bearer \${token}\`</span> }
+  })).pipe(
+    catchError((err: HttpErrorResponse) => {
+      <span class="kw">if</span> (err.status === 401) inject(AuthService).logout();
+      <span class="kw">if</span> (err.status === 403) inject(Router).navigate([<span class="str">'/forbidden'</span>]);
+      <span class="kw">return</span> throwError(() => err);
+    })
+  );
+};`,
+        tags: ["critical"],
+        tip: "→ Angular 15+ : functional interceptors (HttpInterceptorFn) — plus besoin de classes."
+      },
+      {
+        title: "Gestion d'erreurs centralisée",
+        desc: "Implémenter un ErrorHandler global pour capturer et logger les erreurs non gérées.",
+        code: `<span class="comment">// src/app/core/handlers/global-error.handler.ts</span>
+<span class="dec">@Injectable</span>()
+<span class="kw">export class</span> GlobalErrorHandler <span class="kw">implements</span> ErrorHandler {
+  <span class="kw">private</span> router = inject(Router);
+
+  handleError(error: unknown): void {
+    console.error(<span class="str">'[GlobalError]'</span>, error);
+    <span class="comment">// Envoyer à Sentry / LogRocket en prod</span>
+    <span class="kw">if</span> (error <span class="kw">instanceof</span> HttpErrorResponse && error.status === 500) {
+      this.router.navigate([<span class="str">'/error'</span>]);
+    }
+  }
+}
+
+<span class="comment">// app.config.ts — providers</span>
+{ provide: ErrorHandler, useClass: GlobalErrorHandler }`,
+        tags: ["tip"]
+      }
+    ]
+  },
+  {
+    title: "State Management (Signals)",
+    color: "#5a7a3a",
+    steps: [
+      {
+        title: "Choisir la stratégie de state",
+        desc: "Angular 17+ avec Signals couvre la majorité des besoins sans NgRx. NgRx reste pertinent pour les apps complexes avec beaucoup d'effets secondaires.",
+        code: `<span class="comment">// Quand utiliser quoi :</span>
+<span class="comment">// Signals (natif)    → state local + shared simple</span>
+<span class="comment">// NgRx Signals Store → state complexe, time-travel debug</span>
+<span class="comment">// Akita / Elf        → alternative légère à NgRx</span>
+
+<span class="comment">// Règle simple :</span>
+<span class="comment">// Données locales au composant     → signal()</span>
+<span class="comment">// Données partagées entre features → service + signal()</span>
+<span class="comment">// Auth state                       → service + BehaviorSubject ou signal</span>
+<span class="comment">// État global complexe             → NgRx</span>`,
+        tags: ["tip"]
+      },
+      {
+        title: "State avec Signals (Angular 17+)",
+        desc: "Créer un store léger avec signal(), computed() et effect(). Simple, performant, sans boilerplate.",
+        code: `<span class="comment">// src/app/features/posts/posts.store.ts</span>
+<span class="dec">@Injectable</span>({ providedIn: <span class="str">'root'</span> })
+<span class="kw">export class</span> PostsStore {
+  <span class="kw">private</span> postsService = inject(PostsService);
+
+  <span class="comment">// State</span>
+  posts     = signal&lt;Post[]&gt;([]);
+  loading   = signal(<span class="flag">false</span>);
+  error     = signal&lt;string | null&gt;(null);
+  searchQuery = signal(<span class="str">''</span>);
+
+  <span class="comment">// Computed (dérivé automatiquement)</span>
+  filteredPosts = computed(() =>
+    this.posts().filter(p =>
+      p.title.toLowerCase().includes(this.searchQuery().toLowerCase())
+    )
+  );
+  publishedCount = computed(() => this.posts().filter(p => p.published).length);
+
+  loadPosts() {
+    this.loading.set(<span class="flag">true</span>);
+    this.postsService.getAll().subscribe({
+      next:  posts => { this.posts.set(posts.data); this.loading.set(<span class="flag">false</span>); },
+      error: err   => { this.error.set(err.message); this.loading.set(<span class="flag">false</span>); }
+    });
+  }
+}`,
+        tags: ["critical"],
+        tip: "→ computed() se recalcule automatiquement quand les signals dépendants changent. Pas de subscribe."
+      },
+      {
+        title: "Utiliser le store dans les composants",
+        desc: "Injecter le store, lire les signals directement dans le template. Angular re-render automatiquement quand un signal change.",
+        code: `<span class="comment">// post-list.component.ts</span>
+<span class="dec">@Component</span>({
+  template: <span class="str">\`
+    @if (store.loading()) {
+      &lt;app-spinner /&gt;
+    } @else {
+      &lt;input [value]="store.searchQuery()"
+             (input)="store.searchQuery.set($event.target.value)" /&gt;
+      &lt;p&gt;{{ store.publishedCount() }} posts publiés&lt;/p&gt;
+      @for (post of store.filteredPosts(); track post.id) {
+        &lt;app-post-card [post]="post" /&gt;
+      }
+    }
+  \`</span>
+})
+<span class="kw">export class</span> PostListComponent {
+  store = inject(PostsStore);
+
+  ngOnInit() { this.store.loadPosts(); }
+}`,
+        tags: ["critical"],
+        tip: "→ @if, @for, @switch : nouvelle syntaxe de control flow Angular 17+ (remplace *ngIf, *ngFor)."
+      }
+    ]
+  },
+  {
+    title: "Composants",
+    color: "#3a5a8b",
+    steps: [
+      {
+        title: "Anatomie d'un Standalone Component",
+        desc: "Angular 17+ : chaque composant importe directement ses dépendances. Plus de NgModule à maintenir.",
+        code: `<span class="dec">@Component</span>({
+  selector:    <span class="str">'app-post-card'</span>,
+  standalone:  <span class="flag">true</span>,
+  imports:     [CommonModule, RouterLink, DatePipe],  <span class="comment">// imports directs</span>
+  templateUrl: <span class="str">'./post-card.component.html'</span>,
+  styleUrl:    <span class="str">'./post-card.component.scss'</span>,
+  changeDetection: ChangeDetectionStrategy.OnPush   <span class="comment">// toujours</span>
+})
+<span class="kw">export class</span> PostCardComponent {
+  <span class="comment">// Inputs modernes (Angular 17+)</span>
+  post     = input.required&lt;Post&gt;();
+  compact  = input(<span class="flag">false</span>);
+
+  <span class="comment">// Outputs</span>
+  deleted  = output&lt;number&gt;();
+
+  <span class="comment">// Computed depuis l'input</span>
+  excerpt  = computed(() => this.post().body.slice(0, 150) + <span class="str">'...'</span>);
+}`,
+        tags: ["critical"],
+        warn: "⚠ Toujours utiliser ChangeDetectionStrategy.OnPush — performance critique."
+      },
+      {
+        title: "Smart vs Presentational Components",
+        desc: "Smart (containers) : accèdent au store/service, orchestrent. Presentational (dumb) : reçoivent des inputs, émettent des outputs, aucune connaissance du store.",
+        code: `<span class="comment">// ✅ Smart component — connaît le store</span>
+<span class="kw">export class</span> PostListComponent {  <span class="comment">// features/posts/</span>
+  store = inject(PostsStore);
+  onDelete(id: number) { this.store.deletePost(id); }
+}
+
+<span class="comment">// ✅ Presentational component — aucune dépendance externe</span>
+<span class="kw">export class</span> PostCardComponent {  <span class="comment">// shared/components/</span>
+  post    = input.required&lt;Post&gt;();
+  deleted = output&lt;number&gt;();
+  <span class="comment">// Pas de inject(PostsStore) ici !</span>
+}
+
+<span class="comment">// ❌ Anti-pattern : presentational qui injecte le store</span>
+<span class="kw">export class</span> PostCardComponent {
+  store = inject(PostsStore);  <span class="comment">// ← couplage inutile, non réutilisable</span>
+}`,
+        tags: ["critical"],
+        tip: "→ Les presentational components sont réutilisables et testables isolément."
+      },
+      {
+        title: "Formulaires Reactifs (ReactiveForms)",
+        desc: "Toujours préférer les Reactive Forms aux Template-driven Forms pour les formulaires non triviaux. Meilleure testabilité et contrôle.",
+        code: `<span class="kw">export class</span> PostFormComponent {
+  <span class="kw">private</span> fb = inject(FormBuilder);
+
+  form = this.fb.group({
+    title: [<span class="str">''</span>, [Validators.required, Validators.minLength(3), Validators.maxLength(200)]],
+    body:  [<span class="str">''</span>, Validators.required],
+    tags:  [[] <span class="kw">as</span> number[]]
+  });
+
+  <span class="comment">// Accès typé aux controls</span>
+  get titleControl() { <span class="kw">return</span> this.form.controls.title; }
+
+  submit() {
+    <span class="kw">if</span> (this.form.invalid) { this.form.markAllAsTouched(); <span class="kw">return</span>; }
+    this.store.createPost(this.form.getRawValue() <span class="kw">as</span> CreatePostDto);
+  }
+}`,
+        tags: ["critical"],
+        warn: "⚠ Toujours appeler markAllAsTouched() avant de valider — affiche tous les messages d'erreur."
+      },
+      {
+        title: "Pipes personnalisées",
+        desc: "Créer des pipes pour les transformations de données réutilisables dans les templates.",
+        code: `<span class="comment">// src/app/shared/pipes/truncate.pipe.ts</span>
+<span class="dec">@Pipe</span>({ name: <span class="str">'truncate'</span>, standalone: <span class="flag">true</span>, pure: <span class="flag">true</span> })
+<span class="kw">export class</span> TruncatePipe <span class="kw">implements</span> PipeTransform {
+  transform(value: string, limit = 100, ellipsis = <span class="str">'...'</span>): string {
+    <span class="kw">return</span> value.length > limit ? value.slice(0, limit) + ellipsis : value;
+  }
+}
+
+<span class="comment">// Utilisation dans le template</span>
+<span class="comment">// {{ post.body | truncate:150 }}</span>
+<span class="comment">// {{ post.body | truncate:80:'…' }}</span>`,
+        tags: ["tip"],
+        tip: "→ pure: true (défaut) = pipe recalculée seulement si la valeur change. Toujours préférer pure."
+      }
+    ]
+  },
+  {
+    title: "Authentification",
+    color: "#7a5a3a",
+    steps: [
+      {
+        title: "Service d'authentification avec JWT",
+        desc: "Centraliser toute la logique d'auth dans un service dédié. Stocker le token de façon sécurisée.",
+        code: `<span class="dec">@Injectable</span>({ providedIn: <span class="str">'root'</span> })
+<span class="kw">export class</span> AuthService {
+  <span class="kw">private</span> http        = inject(HttpClient);
+  <span class="kw">private</span> router      = inject(Router);
+  <span class="kw">private</span> currentUser = signal&lt;User | null&gt;(null);
+
+  isAuthenticated = computed(() => !!this.currentUser());
+  user            = this.currentUser.asReadonly();
+
+  login(credentials: LoginDto): Observable&lt;void&gt; {
+    <span class="kw">return</span> this.http.post&lt;AuthResponse&gt;(<span class="str">\`\${environment.apiUrl}/auth/login\`</span>, credentials)
+      .pipe(tap(res => {
+        localStorage.setItem(<span class="str">'token'</span>, res.token);
+        this.currentUser.set(res.user);
+      }), map(() => undefined));
+  }
+
+  logout(): void {
+    localStorage.removeItem(<span class="str">'token'</span>);
+    this.currentUser.set(null);
+    this.router.navigate([<span class="str">'/auth/login'</span>]);
+  }
+
+  getToken(): string | null {
+    <span class="kw">return</span> localStorage.getItem(<span class="str">'token'</span>);
+  }
+}`,
+        tags: ["critical"],
+        warn: "⚠ localStorage est vulnérable aux XSS. En production, préférer httpOnly cookies avec le backend."
+      },
+      {
+        title: "Auth Guard fonctionnel",
+        desc: "Protéger les routes avec un guard fonctionnel qui vérifie l'état d'authentification.",
+        code: `<span class="comment">// src/app/core/guards/auth.guard.ts</span>
+<span class="kw">export const</span> authGuard: CanActivateFn = (route, state) => {
+  <span class="kw">const</span> auth   = inject(AuthService);
+  <span class="kw">const</span> router = inject(Router);
+
+  <span class="kw">if</span> (auth.isAuthenticated()) <span class="kw">return true</span>;
+
+  <span class="comment">// Sauvegarder l'URL pour redirect post-login</span>
+  <span class="kw">return</span> router.createUrlTree(
+    [<span class="str">'/auth/login'</span>],
+    { queryParams: { returnUrl: state.url } }
+  );
+};
+
+<span class="comment">// Guard pour pages publiques (déjà connecté → dashboard)</span>
+<span class="kw">export const</span> publicGuard: CanActivateFn = () => {
+  <span class="kw">const</span> auth   = inject(AuthService);
+  <span class="kw">const</span> router = inject(Router);
+  <span class="kw">return</span> auth.isAuthenticated() ? router.createUrlTree([<span class="str">'/dashboard'</span>]) : <span class="flag">true</span>;
+};`,
+        tags: ["critical"]
+      }
+    ]
+  },
+  {
+    title: "Performance & Optimisation",
+    color: "#4a3a8b",
+    steps: [
+      {
+        title: "Change Detection Strategy OnPush",
+        desc: "Réduire drastiquement le nombre de cycles de détection de changements. OnPush = Angular ne vérifie le composant que si un Input change ou un Signal/Observable émet.",
+        code: `<span class="comment">// ✅ Toujours OnPush sur les composants</span>
+<span class="dec">@Component</span>({
+  changeDetection: ChangeDetectionStrategy.OnPush
+})
+
+<span class="comment">// Avec OnPush, Angular re-render si :</span>
+<span class="comment">// 1. Un @Input() reçoit une nouvelle référence</span>
+<span class="comment">// 2. Un Signal utilisé dans le template change</span>
+<span class="comment">// 3. Un async pipe émet une nouvelle valeur</span>
+<span class="comment">// 4. Un event DOM se déclenche dans le composant</span>
+
+<span class="comment">// ❌ Anti-pattern avec OnPush</span>
+post.tags.push(newTag);  <span class="comment">// mutation → pas de re-render</span>
+
+<span class="comment">// ✅ Immutabilité obligatoire</span>
+this.post.set({ ...this.post(), tags: [...this.post().tags, newTag] });`,
+        tags: ["critical"],
+        warn: "⚠ OnPush + mutation d'objet = bugs invisibles. Toujours traiter les données comme immutables."
+      },
+      {
+        title: "Lazy Loading et Code Splitting",
+        desc: "Vérifier que le lazy loading fonctionne correctement en analysant le bundle.",
+        code: `<span class="comment"># Analyser le bundle</span>
+<span class="cmd">ng build</span> <span class="flag">--stats-json</span>
+<span class="cmd">npx webpack-bundle-analyzer</span> dist/my-app/stats.json
+
+<span class="comment">// Lazy loading d'images</span>
+&lt;img [src]="post.imageUrl" loading="lazy" /&gt;
+
+<span class="comment">// Defer (Angular 17+) — charge un composant seulement quand visible</span>
+<span class="comment">// @defer (on viewport) {</span>
+<span class="comment">//   &lt;app-heavy-chart [data]="chartData" /&gt;</span>
+<span class="comment">// } @placeholder {</span>
+<span class="comment">//   &lt;div class="chart-skeleton"&gt;&lt;/div&gt;</span>
+<span class="comment">// }</span>`,
+        tags: ["critical"],
+        tip: "→ @defer est l'une des fonctionnalités les plus puissantes d'Angular 17. L'utiliser pour tout composant lourd."
+      },
+      {
+        title: "TrackBy dans les listes",
+        desc: "Indiquer à Angular comment identifier chaque item d'une liste pour éviter de re-créer tous les éléments DOM lors d'une mise à jour.",
+        code: `<span class="comment">// Ancienne syntaxe — trackBy function obligatoire</span>
+&lt;div *ngFor="let post of posts; trackBy: trackByPostId"&gt;
+
+trackByPostId(index: number, post: Post): number {
+  return post.id;
+}
+
+<span class="comment">// ✅ Nouvelle syntaxe @for (Angular 17+) — track intégré</span>
+<span class="comment">// @for (post of posts; track post.id) {</span>
+<span class="comment">//   &lt;app-post-card [post]="post" /&gt;</span>
+<span class="comment">// } @empty {</span>
+<span class="comment">//   &lt;p&gt;Aucun post trouvé.&lt;/p&gt;</span>
+<span class="comment">// }</span>`,
+        tags: ["critical"]
+      },
+      {
+        title: "Pipe async et gestion des subscriptions",
+        desc: "Utiliser le pipe async pour gérer automatiquement le subscribe/unsubscribe. Éviter les memory leaks.",
+        code: `<span class="comment">// ✅ Pipe async — unsubscribe automatique</span>
+posts$ = this.postsService.getAll();
+
+<span class="comment">// Template</span>
+<span class="comment">// @if (posts$ | async; as posts) {</span>
+<span class="comment">//   @for (post of posts; track post.id) { ... }</span>
+<span class="comment">// }</span>
+
+<span class="comment">// ✅ takeUntilDestroyed (Angular 16+)</span>
+<span class="kw">private</span> destroyRef = inject(DestroyRef);
+
+this.route.params.pipe(
+  takeUntilDestroyed(this.destroyRef)
+).subscribe(params => { ... });
+
+<span class="comment">// ❌ Anti-pattern — memory leak</span>
+ngOnInit() { this.postsService.getAll().subscribe(...); }
+<span class="comment">// Sans unsubscribe dans ngOnDestroy !</span>`,
+        tags: ["critical"],
+        warn: "⚠ Tout subscribe() manuel sans unsubscribe = memory leak potentiel."
+      }
+    ]
+  },
+  {
+    title: "Tests",
+    color: "#3a7a5a",
+    steps: [
+      {
+        title: "Configurer Jest (recommandé sur Karma)",
+        desc: "Jest est plus rapide que Karma/Jasmine, meilleure DX, et s'intègre mieux avec les outils modernes.",
+        code: `<span class="cmd">npm install</span> <span class="flag">--save-dev</span> jest @types/jest jest-preset-angular
+
+<span class="comment">// jest.config.ts</span>
+<span class="kw">export default</span> {
+  preset: <span class="str">'jest-preset-angular'</span>,
+  setupFilesAfterFramework: [<span class="str">'&lt;rootDir&gt;/setup-jest.ts'</span>],
+  testEnvironment: <span class="str">'jsdom'</span>,
+  moduleNameMapper: {
+    <span class="str">'@environments/(.*)'</span>: <span class="str">'&lt;rootDir&gt;/src/environments/$1'</span>
+  }
+};
+
+<span class="comment">// package.json</span>
+<span class="str">"test"</span>: <span class="str">"jest"</span>,
+<span class="str">"test:watch"</span>: <span class="str">"jest --watch"</span>,
+<span class="str">"test:coverage"</span>: <span class="str">"jest --coverage"</span>`,
+        tags: ["tip"]
+      },
+      {
+        title: "Tester les Services",
+        desc: "Tester les services isolément avec des mocks HTTP. Utiliser HttpClientTestingModule.",
+        code: `describe(<span class="str">'PostsService'</span>, () => {
+  <span class="kw">let</span> service: PostsService;
+  <span class="kw">let</span> httpMock: HttpTestingController;
+
+  beforeEach(() => {
+    TestBed.configureTestingModule({
+      imports: [HttpClientTestingModule],
+      providers: [PostsService]
+    });
+    service = TestBed.inject(PostsService);
+    httpMock = TestBed.inject(HttpTestingController);
+  });
+
+  it(<span class="str">'devrait récupérer tous les posts'</span>, () => {
+    <span class="kw">const</span> mockPosts = [{ id: 1, title: <span class="str">'Test'</span> }] <span class="kw">as</span> Post[];
+    service.getAll().subscribe(res => expect(res.data).toEqual(mockPosts));
+    <span class="kw">const</span> req = httpMock.expectOne(<span class="str">\`\${environment.apiUrl}/posts\`</span>);
+    expect(req.request.method).toBe(<span class="str">'GET'</span>);
+    req.flush({ data: mockPosts, total: 1, page: 1, perPage: 20 });
+  });
+
+  afterEach(() => httpMock.verify());
+});`,
+        tags: ["critical"]
+      },
+      {
+        title: "Tester les Composants",
+        desc: "Tester le comportement du composant (ce qu'il affiche, ce qu'il émet) plutôt que les détails d'implémentation.",
+        code: `describe(<span class="str">'PostCardComponent'</span>, () => {
+  <span class="kw">let</span> fixture: ComponentFixture&lt;PostCardComponent&gt;;
+  <span class="kw">let</span> component: PostCardComponent;
+
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
+      imports: [PostCardComponent]  <span class="comment">// standalone → import direct</span>
+    }).compileComponents();
+    fixture   = TestBed.createComponent(PostCardComponent);
+    component = fixture.componentInstance;
+    fixture.componentRef.setInput(<span class="str">'post'</span>, mockPost);
+    fixture.detectChanges();
+  });
+
+  it(<span class="str">'affiche le titre du post'</span>, () => {
+    <span class="kw">const</span> el = fixture.nativeElement.querySelector(<span class="str">'h2'</span>);
+    expect(el.textContent).toContain(mockPost.title);
+  });
+
+  it(<span class="str">'émet deleted avec l\'id au clic sur supprimer'</span>, () => {
+    <span class="kw">let</span> deletedId: number | undefined;
+    component.deleted.subscribe(id => deletedId = id);
+    fixture.nativeElement.querySelector(<span class="str">'[data-testid="delete-btn"]'</span>).click();
+    expect(deletedId).toBe(mockPost.id);
+  });
+});`,
+        tags: ["critical"]
+      },
+      {
+        title: "Tests E2E avec Playwright",
+        desc: "Playwright est recommandé sur Cypress pour Angular — meilleure performance et support multi-navigateurs.",
+        code: `<span class="cmd">npm install</span> <span class="flag">--save-dev</span> @playwright/test
+<span class="cmd">npx playwright install</span>
+
+<span class="comment">// e2e/posts.spec.ts</span>
+test(<span class="str">'l\'utilisateur peut créer un post'</span>, async ({ page }) => {
+  await page.goto(<span class="str">'/auth/login'</span>);
+  await page.fill(<span class="str">'[data-testid="email"]'</span>, <span class="str">'user@test.com'</span>);
+  await page.fill(<span class="str">'[data-testid="password"]'</span>, <span class="str">'password123'</span>);
+  await page.click(<span class="str">'[data-testid="login-btn"]'</span>);
+
+  await page.goto(<span class="str">'/posts/new'</span>);
+  await page.fill(<span class="str">'[data-testid="title"]'</span>, <span class="str">'Mon nouveau post'</span>);
+  await page.fill(<span class="str">'[data-testid="body"]'</span>, <span class="str">'Contenu du post...'</span>);
+  await page.click(<span class="str">'[data-testid="submit-btn"]'</span>);
+
+  await expect(page).toHaveURL(<span class="str">/\/posts\/\d+/</span>);
+  await expect(page.locator(<span class="str">'h1'</span>)).toContainText(<span class="str">'Mon nouveau post'</span>);
+});`,
+        tags: ["tip"],
+        tip: "→ Utiliser data-testid sur les éléments interactifs. Ne pas sélectionner par classe CSS dans les tests E2E."
+      }
+    ]
+  },
+  {
+    title: "Git Workflow & Deploy",
+    color: "#c3002f",
+    steps: [
+      {
+        title: "Structure de branches et conventions de commits",
+        desc: "Même stratégie que Rails : GitHub Flow + Conventional Commits. Cohérence entre les projets.",
+        code: `<span class="comment"># Branches</span>
+main          <span class="comment"># production</span>
+feature/xxx   <span class="comment"># nouvelles features</span>
+fix/xxx       <span class="comment"># bugfixes</span>
+chore/xxx     <span class="comment"># dépendances, config</span>
+
+<span class="comment"># Conventional Commits</span>
+feat(posts):      add infinite scroll to post list
+fix(auth):        redirect to returnUrl after login
+perf(posts):      add OnPush to PostCardComponent
+refactor(store):  migrate to Signal-based state
+test(posts):      add E2E test for post creation
+chore(deps):      update Angular to 17.3`,
+        tags: ["tip"]
+      },
+      {
+        title: "Build de production et analyse",
+        desc: "Vérifier la taille du bundle avant chaque déploiement. Un bundle mal optimisé dégrade l'expérience utilisateur.",
+        code: `<span class="comment"># Build production</span>
+<span class="cmd">ng build</span> <span class="flag">--configuration=production</span>
+
+<span class="comment"># Analyser le bundle</span>
+<span class="cmd">ng build</span> <span class="flag">--stats-json</span>
+<span class="cmd">npx webpack-bundle-analyzer</span> dist/my-app/browser/stats.json
+
+<span class="comment"># Vérifier les budgets (angular.json)</span>
+<span class="str">"budgets"</span>: [
+  { <span class="str">"type"</span>: <span class="str">"initial"</span>, <span class="str">"maximumWarning"</span>: <span class="str">"500kb"</span>, <span class="str">"maximumError"</span>: <span class="str">"1mb"</span> },
+  { <span class="str">"type"</span>: <span class="str">"anyComponentStyle"</span>, <span class="str">"maximumWarning"</span>: <span class="str">"4kb"</span> }
+]`,
+        tags: ["critical"],
+        tip: "→ Objectif : bundle initial < 200kb gzippé. Tout le reste en lazy load."
+      },
+      {
+        title: "CI/CD avec GitHub Actions",
+        desc: "Automatiser lint, tests et build sur chaque PR. Bloquer le merge si les tests échouent.",
+        code: `<span class="comment"># .github/workflows/ci.yml</span>
+name: CI
+on: [push, pull_request]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: <span class="str">'20'</span>, cache: <span class="str">'npm'</span> }
+      - run: npm ci
+      - run: npm run lint
+      - run: npm test <span class="flag">-- --coverage --watchAll=false</span>
+      - run: npm run build <span class="flag">-- --configuration=production</span>
+      - name: Upload coverage
+        uses: codecov/codecov-action@v3`,
+        tags: ["critical"]
+      },
+      {
+        title: "Déploiement",
+        desc: "Angular génère des fichiers statiques. Peut être déployé sur n'importe quel CDN ou hébergeur statique.",
+        code: `<span class="comment"># Options de déploiement</span>
+
+<span class="comment"># Vercel (recommandé — déploiement en 1 commande)</span>
+<span class="cmd">npm i</span> <span class="flag">-g</span> vercel && <span class="cmd">vercel</span>
+
+<span class="comment"># Netlify</span>
+<span class="comment"># Build command : ng build --configuration=production</span>
+<span class="comment"># Publish dir   : dist/my-app/browser</span>
+<span class="comment"># Redirects     : /* → /index.html (SPA routing)</span>
+
+<span class="comment"># Firebase Hosting</span>
+<span class="cmd">ng add</span> @angular/fire
+<span class="cmd">firebase deploy</span>
+
+<span class="comment"># nginx — _redirects ou nginx.conf</span>
+<span class="comment"># location / { try_files $uri $uri/ /index.html; }</span>`,
+        tags: ["critical"],
+        warn: "⚠ Toujours configurer le redirect /* → /index.html sur l'hébergeur — sinon les routes Angular donnent 404 au refresh."
+      }
+    ]
+  }
+];
+
+let checkState = {};
+
+function renderPhases() {
+  const container = document.getElementById('phases');
+  let totalSteps = 0;
+
+  PHASES.forEach((phase, pi) => {
+    totalSteps += phase.steps.length;
+    const phaseEl = document.createElement('div');
+    phaseEl.className = 'phase';
+    phaseEl.id = `phase-${pi}`;
+
+    const stepsHTML = phase.steps.map((step, si) => {
+      const key = `${pi}-${si}`;
+      const checked = checkState[key] || false;
+      return `
+        <div class="step" style="--phase-color: ${phase.color}">
+          <div class="step-gutter">
+            <div class="step-checkbox ${checked ? 'checked' : ''}" onclick="toggleCheck('${key}', this)"></div>
+            <div class="step-number">${String(si + 1).padStart(2, '0')}</div>
+          </div>
+          <div class="step-content">
+            <div class="step-title">${step.title}</div>
+            <div class="step-desc">${step.desc}</div>
+            ${step.code ? `<div class="step-code">${step.code}</div>` : ''}
+            ${step.tip  ? `<div class="tip-block">${step.tip}</div>`  : ''}
+            ${step.warn ? `<div class="warn-block">${step.warn}</div>` : ''}
+            <div class="step-tags">
+              ${(step.tags || []).map(t =>
+                `<span class="tag ${t === 'critical' ? 'tag-critical' : t === 'tip' ? 'tag-tip' : ''}">
+                  ${t === 'critical' ? '⚑ critique' : t === 'tip' ? '✓ best practice' : t}
+                </span>`
+              ).join('')}
+            </div>
+          </div>
+        </div>`;
+    }).join('');
+
+    phaseEl.innerHTML = `
+      <div class="phase-header" style="--phase-color: ${phase.color}" onclick="togglePhase(${pi})">
+        <div class="phase-num">PHASE ${String(pi + 1).padStart(2, '0')}</div>
+        <div class="phase-title">${phase.title}</div>
+        <div class="phase-count">${phase.steps.length} étapes</div>
+        <div class="phase-chevron">▼</div>
+      </div>
+      <div class="phase-body">${stepsHTML}</div>`;
+
+    container.appendChild(phaseEl);
+  });
+
+  document.getElementById('stat-total').textContent = totalSteps;
+  updateProgress();
+  document.getElementById('phase-0').classList.add('open');
+}
+
+function togglePhase(pi) {
+  document.getElementById(`phase-${pi}`).classList.toggle('open');
+}
+
+function toggleCheck(key, el) {
+  checkState[key] = !checkState[key];
+  el.classList.toggle('checked', checkState[key]);
+  saveState();
+  updateProgress();
+}
+
+function updateProgress() {
+  const total = PHASES.reduce((s, p) => s + p.steps.length, 0);
+  const done  = Object.values(checkState).filter(Boolean).length;
+  const pct   = total > 0 ? Math.round((done / total) * 100) : 0;
+  document.getElementById('progress-fill').style.width = pct + '%';
+  document.getElementById('progress-text').textContent = `${done} / ${total} étapes complétées`;
+  document.getElementById('stat-done').textContent = done;
+}
+
+function expandAll()  { PHASES.forEach((_, pi) => document.getElementById(`phase-${pi}`).classList.add('open')); }
+function collapseAll(){ PHASES.forEach((_, pi) => document.getElementById(`phase-${pi}`).classList.remove('open')); }
+
+function resetChecks() {
+  checkState = {};
+  document.querySelectorAll('.step-checkbox').forEach(el => el.classList.remove('checked'));
+  saveState();
+  updateProgress();
+}
+
+function saveState() {
+  try { localStorage.setItem('angular-workflow-checks', JSON.stringify(checkState)); } catch(e) {}
+}
+
+function loadState() {
+  try {
+    const saved = localStorage.getItem('angular-workflow-checks');
+    if (saved) checkState = JSON.parse(saved);
+  } catch(e) {}
+}
+
+function toggleTheme() {
+  const isLight = document.documentElement.classList.toggle('light');
+  document.getElementById('theme-icon').textContent  = isLight ? '🌙' : '☀';
+  document.getElementById('theme-label').textContent = isLight ? 'DARK' : 'LIGHT';
+  try { localStorage.setItem('angular-workflow-theme', isLight ? 'light' : 'dark'); } catch(e) {}
+}
+
+function loadTheme() {
+  try {
+    const saved = localStorage.getItem('angular-workflow-theme');
+    if (saved === 'light') {
+      document.documentElement.classList.add('light');
+      document.getElementById('theme-icon').textContent  = '🌙';
+      document.getElementById('theme-label').textContent = 'DARK';
+    }
+  } catch(e) {}
+}
+
+loadTheme();
+loadState();
+renderPhases();
+</script>
+</body>
+</html>

@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pensée stratégique — Parcours 6 mois</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap');
+
+  :root{
+    --paper:#efece4; --paper-2:#e6e1d3; --ink:#211f1c; --ink-soft:#5b5748;
+    --accent:#31506e; --accent-soft:#31506e1c; --good:#4d6b4a; --good-soft:#4d6b4a1e;
+    --line:#d7d0bd; --card:#f9f7f0; --shadow:0 1px 0 rgba(33,31,28,0.05);
+  }
+  html[data-theme="dark"]{
+    --paper:#1a1917; --paper-2:#211f1b; --ink:#ece7d9; --ink-soft:#a89f8c;
+    --accent:#6f9cc4; --accent-soft:#6f9cc426; --good:#8fb37f; --good-soft:#8fb37f22;
+    --line:#39352c; --card:#211f1b; --shadow:0 1px 0 rgba(0,0,0,0.3);
+  }
+  *{box-sizing:border-box;}
+  body{ margin:0; background:var(--paper); color:var(--ink); font-family:'Inter', system-ui, sans-serif; padding-bottom:80px; transition:background .3s, color .3s;}
+
+  header{ max-width:800px; margin:0 auto; padding:52px 24px 26px; border-bottom:1px solid var(--line);}
+  .eyebrow{ font-family:'IBM Plex Mono', monospace; font-size:12px; letter-spacing:.14em; text-transform:uppercase; color:var(--ink-soft); margin-bottom:12px;}
+  h1{ font-family:'Fraunces', serif; font-size:36px; font-weight:700; margin:0 0 8px;}
+  .subtitle{ color:var(--ink-soft); font-size:15.5px; max-width:64ch; margin:0 0 22px;}
+
+  .toggle-row{ display:flex; justify-content:space-between; align-items:center; gap:16px; flex-wrap:wrap;}
+  .progress-wrap{ flex:1; min-width:220px;}
+  .progress-label{ display:flex; justify-content:space-between; font-family:'IBM Plex Mono', monospace; font-size:11px; color:var(--ink-soft); margin-bottom:6px; letter-spacing:.05em;}
+  .progress-track{ height:8px; border-radius:4px; background:var(--paper-2); overflow:hidden; border:1px solid var(--line);}
+  .progress-fill{ height:100%; width:0%; background:linear-gradient(90deg, var(--good), var(--accent)); transition:width .5s ease;}
+  #theme-toggle{ font-family:'IBM Plex Mono', monospace; font-size:12px; background:transparent; border:1px solid var(--line);
+    color:var(--ink-soft); padding:8px 14px; border-radius:20px; cursor:pointer;}
+  #theme-toggle:hover{ border-color:var(--accent); color:var(--accent);}
+
+  .premise{ max-width:800px; margin:20px auto 0; padding:0 24px;}
+  .premise-box{ background:var(--accent-soft); border:1px solid var(--accent); border-radius:8px; padding:14px 18px; font-size:13.5px; color:var(--ink-soft);}
+  .premise-box b{ color:var(--ink);}
+
+  main{ max-width:800px; margin:0 auto; padding:20px 24px;}
+  .phase{ border-bottom:1px solid var(--line);}
+  .phase-head{ display:flex; align-items:center; gap:16px; padding:22px 4px; cursor:pointer; user-select:none;}
+  .phase-num{ font-family:'IBM Plex Mono', monospace; font-size:13px; color:var(--ink-soft); min-width:58px;}
+  .phase-titles{ flex:1;}
+  .phase-fr{ font-size:18.5px; font-weight:600; margin:0;}
+  .phase-meta{ font-size:13px; color:var(--ink-soft); margin-top:2px;}
+  .phase-count{ font-family:'IBM Plex Mono', monospace; font-size:12px; color:var(--ink-soft); white-space:nowrap;}
+  .chevron{ width:18px; height:18px; flex-shrink:0; transition:transform .25s ease; color:var(--ink-soft);}
+  .phase.open .chevron{ transform:rotate(90deg); color:var(--accent);}
+  .phase-body{ max-height:0; overflow:hidden; transition:max-height .4s ease;}
+  .phase.open .phase-body{ max-height:1600px;}
+
+  .phase-why{ margin:0 4px 14px; padding:12px 14px; background:var(--accent-soft); border-left:2px solid var(--accent);
+    font-size:13.5px; color:var(--ink-soft); border-radius:0 4px 4px 0;}
+
+  .section-label{ font-family:'IBM Plex Mono', monospace; font-size:11px; letter-spacing:.08em; text-transform:uppercase;
+    color:var(--ink-soft); margin:16px 4px 8px; display:flex; align-items:center; gap:8px;}
+  .section-label::after{ content:""; flex:1; height:1px; background:var(--line);}
+
+  .item{ display:flex; align-items:flex-start; gap:12px; background:var(--card); border:1px solid var(--line); border-radius:6px;
+    padding:10px 12px; margin:0 4px 6px; box-shadow:var(--shadow);}
+  .item input[type="checkbox"]{ width:16px; height:16px; margin-top:2px; accent-color:var(--accent); flex-shrink:0; cursor:pointer;}
+  .item.checked{ opacity:.55;}
+  .item .txt{ font-size:14px; line-height:1.35;}
+  .item .tag{ font-family:'IBM Plex Mono', monospace; font-size:9.5px; text-transform:uppercase; letter-spacing:.05em;
+    color:var(--ink-soft); border:1px dashed var(--line); border-radius:10px; padding:1px 6px; margin-right:6px;}
+  .item.optional .tag{ color:var(--accent); border-color:var(--accent);}
+
+  .gate{ margin:14px 4px 4px; padding:14px 16px; background:var(--good-soft); border:1px solid var(--good); border-radius:8px;}
+  .gate-label{ font-family:'IBM Plex Mono', monospace; font-size:11px; text-transform:uppercase; letter-spacing:.06em; color:var(--good); margin-bottom:6px;}
+  .gate-text{ font-size:13.5px; color:var(--ink-soft);}
+
+  footer{ max-width:800px; margin:44px auto 0; padding:20px 24px; text-align:center; font-family:'IBM Plex Mono', monospace; font-size:11px; color:var(--ink-soft);}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="eyebrow">Dudley Orestil · Méta-apprentissage · Pensée & stratégie</div>
+  <h1>Penser mieux — 6 mois</h1>
+  <p class="subtitle">Modèles mentaux, créativité, systèmes, décision — un livre par mois, pas trois. L'objectif n'est pas d'accumuler des lectures mais de produire un artefact public à la fin de chaque mois.</p>
+  <div class="toggle-row">
+    <div class="progress-wrap">
+      <div class="progress-label"><span id="progress-text">0 / 0 étapes</span><span id="progress-pct">0%</span></div>
+      <div class="progress-track"><div class="progress-fill" id="progress-fill"></div></div>
+    </div>
+    <button id="theme-toggle">☾ Mode sombre</button>
+  </div>
+</header>
+
+<div class="premise">
+  <div class="premise-box">
+    <b>Règle du parcours :</b> on ne passe au mois suivant que si l'artefact du mois précédent existe et a été montré à quelqu'un (post, message, commentaire d'un collègue) — pas juste sauvegardé dans un dossier. Un mois où le livre est lu mais l'artefact n'existe pas n'est pas un mois complété.
+  </div>
+</div>
+
+<main id="phases"></main>
+
+<footer>modèles · systèmes · décision — un mois, un artefact, une fois</footer>
+
+<script>
+const DATA = [
+  {
+    fr: "Modèles mentaux & premiers principes",
+    meta: "Mois 1 · voir les structures plutôt que mémoriser les faits",
+    why: "Les gens qui raisonnent vite ne savent pas plus de choses — ils ont une bibliothèque de modèles réutilisables pour décomposer n'importe quel problème.",
+    items: [
+      ["livre","The Great Mental Models Vol. 1 — Shane Parrish"],
+      ["livre optional","The Art of Thinking Clearly — Rolf Dobelli (en survol, pas ligne par ligne)"],
+      ["exercice","Décomposition quotidienne : prendre un problème réel et le réduire à ses composants de base (10 min/jour, 5 jours/semaine)"],
+      ["exercice","Rétro-ingénierie : choisir un objet ou système du quotidien et le reconstruire mentalement depuis zéro"],
+      ["exercice","Carte mentale hebdomadaire d'un sujet en cours (un des 16 autres parcours, par exemple)"]
+    ],
+    gate: "Artefact : un texte court (500-800 mots) qui déconstruit une croyance répandue avec les premiers principes. Publié quelque part — blog, LinkedIn, peu importe."
+  },
+  {
+    fr: "Pensée latérale & créativité structurée",
+    meta: "Mois 2 · la créativité comme méthode, pas comme don",
+    why: "La créativité s'entraîne avec des contraintes et des techniques précises, pas en attendant l'inspiration.",
+    items: [
+      ["livre","Thinkertoys — Michael Michalko (le plus concret des trois, à traiter comme boîte à outils)"],
+      ["livre optional","Steal Like an Artist — Austin Kleon"],
+      ["exercice","Connexions forcées : associer deux objets sans rapport et en tirer un concept viable (3×/semaine)"],
+      ["exercice","Méthode SCAMPER appliquée à un produit ou service que tu utilises déjà"],
+      ["exercice","10 idées en 15 minutes, 3×/semaine — sur un même thème pour forcer la profondeur plutôt que la largeur"]
+    ],
+    gate: "Artefact : un concept de produit ou d'outil, même absurde, avec croquis + description d'une page. Partagé et commenté par au moins une personne."
+  },
+  {
+    fr: "Pensée systémique & résolution de problèmes",
+    meta: "Mois 3 · voir les interactions plutôt que les symptômes isolés",
+    why: "La plupart des problèmes récurrents viennent d'une boucle qu'on n'a jamais cartographiée — pas d'un manque de volonté.",
+    items: [
+      ["livre","Thinking in Systems — Donella Meadows"],
+      ["livre optional","Super Thinking — Weinberg & McCann"],
+      ["exercice","Cartographie stocks & flux d'un système réel (ex : pourquoi tu accumules des parcours d'apprentissage sans les finir)"],
+      ["exercice","Repérer un goulot d'étranglement dans ta routine actuelle et documenter une intervention testable"],
+      ["exercice","Analyser un problème public (embouteillages, adoption d'un outil au travail) avec une boucle causale"]
+    ],
+    gate: "Artefact : un rapport d'une page qui cartographie un système réel (personnel ou professionnel) et propose un point de levier précis."
+  },
+  {
+    fr: "Rigueur algorithmique — appliquée, pas théorique",
+    meta: "Mois 4 · pas de nouveau projet jouet, un projet déjà en cours",
+    why: "Tu sais déjà coder. L'angle mort n'est pas la syntaxe, c'est d'appliquer une pensée algorithmique rigoureuse à un problème que tu as déjà sur les bras.",
+    items: [
+      ["livre","Algorithms to Live By — Brian Christian & Tom Griffiths"],
+      ["exercice","Reformuler un problème réel de ton travail (audit QC, prédiction TVT du Kaggle ROGII…) comme un problème d'optimisation classique"],
+      ["exercice","Identifier où tu explores encore vs où tu devrais exploiter — dilemme explore/exploit appliqué à une vraie décision en cours"],
+      ["exercice","Documenter une heuristique que tu utilises déjà sans l'avoir formalisée"]
+    ],
+    gate: "Artefact : amélioration mesurable sur un projet déjà existant (le tien) — pas un nouveau dashboard jouet. Avant/après documenté."
+  },
+  {
+    fr: "Décision & stratégie",
+    meta: "Mois 5 · anticiper plutôt que réagir",
+    why: "Les bons stratèges ne prédisent pas l'avenir — ils structurent leurs décisions pour bien encaisser plusieurs futurs possibles.",
+    items: [
+      ["livre","Thinking, Fast and Slow — Daniel Kahneman"],
+      ["livre optional","Good Strategy, Bad Strategy — Richard Rumelt"],
+      ["exercice","Journal de décision : consigner 3 décisions importantes par semaine, le raisonnement, puis le résultat réel plus tard"],
+      ["exercice","Une partie d'échecs ou de Go analysée coup par coup — identifier les décisions systématiquement biaisées"],
+      ["exercice","Scénario planning sur une décision personnelle réelle (carrière, prochain parcours technique)"]
+    ],
+    gate: "Artefact : une page de stratégie sur un sujet réel — ta recherche d'emploi, un secteur qui t'intéresse, ou une entreprise. Prédiction écrite, datée, vérifiable plus tard."
+  },
+  {
+    fr: "Synthèse & framework personnel",
+    meta: "Mois 6 · construire ton propre système plutôt que suivre celui des autres",
+    why: "Après cinq mois d'input, l'exercice final est de produire de l'output original — sinon tout ce qui précède reste de la consommation passive.",
+    items: [
+      ["livre","How to Take Smart Notes — Sönke Ahrens"],
+      ["livre optional","Range — David Epstein"],
+      ["exercice","Formuler un modèle mental original à toi, avec un nom et une règle claire"],
+      ["exercice","Enseigner publiquement un des 5 mois précédents à quelqu'un — écrit, vidéo, ou conversation structurée"],
+      ["exercice","Auto-expérimentation : tester une nouvelle habitude 2 semaines, consigner les résultats honnêtement"]
+    ],
+    gate: "Artefact final : un document qui consigne tes propres principes de pensée et de décision — le vrai livrable des 6 mois, pas un résumé des livres lus."
+  }
+];
+
+const container = document.getElementById('phases');
+let totalItems = 0;
+DATA.forEach(p => totalItems += p.items.length);
+
+DATA.forEach((phase, pi) => {
+  const el = document.createElement('div');
+  el.className = 'phase';
+  el.innerHTML = `
+    <div class="phase-head" data-idx="${pi}">
+      <div class="phase-num">${String(pi+1).padStart(2,'0')} / 06</div>
+      <div class="phase-titles">
+        <p class="phase-fr">${phase.fr}</p>
+        <div class="phase-meta">${phase.meta}</div>
+      </div>
+      <div class="phase-count" data-count="${pi}">0/${phase.items.length}</div>
+      <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6l6 6-6 6"/></svg>
+    </div>
+    <div class="phase-body">
+      <div class="phase-why">${phase.why}</div>
+      <div class="section-label">📚 À faire ce mois-ci</div>
+      ${phase.items.map((it,ii) => {
+        const [rawType, label] = it;
+        const isOptional = rawType.includes('optional');
+        const tag = rawType.replace(' optional','');
+        return `
+          <label class="item ${isOptional?'optional':''}" data-item="${pi}-${ii}">
+            <input type="checkbox" data-item-cb="${pi}-${ii}">
+            <span class="txt"><span class="tag">${tag}${isOptional?' · optionnel':''}</span>${label}</span>
+          </label>`;
+      }).join('')}
+      <div class="gate">
+        <div class="gate-label">🎯 Verrou de fin de mois</div>
+        <div class="gate-text">${phase.gate}</div>
+      </div>
+    </div>
+  `;
+  container.appendChild(el);
+  el.querySelector('.phase-head').addEventListener('click', () => el.classList.toggle('open'));
+});
+container.querySelector('.phase').classList.add('open');
+
+const STORE_KEY = 'pensee_strategique_v1';
+function loadState(){ try{ return JSON.parse(localStorage.getItem(STORE_KEY)) || {}; }catch(e){ return {}; } }
+function saveState(s){ localStorage.setItem(STORE_KEY, JSON.stringify(s)); }
+let state = loadState();
+
+function updatePhaseCount(pi){
+  const total = DATA[pi].items.length;
+  let checked = 0;
+  DATA[pi].items.forEach((it,ii) => { if(state[`${pi}-${ii}`]) checked++; });
+  document.querySelector(`[data-count="${pi}"]`).textContent = `${checked}/${total}`;
+}
+function updateGlobalProgress(){
+  let checked = 0;
+  Object.values(state).forEach(v => { if(v) checked++; });
+  const pct = totalItems > 0 ? Math.round((checked/totalItems)*100) : 0;
+  document.getElementById('progress-text').textContent = `${checked} / ${totalItems} étapes`;
+  document.getElementById('progress-pct').textContent = `${pct}%`;
+  document.getElementById('progress-fill').style.width = pct + '%';
+}
+document.querySelectorAll('[data-item-cb]').forEach(cb => {
+  const key = cb.getAttribute('data-item-cb');
+  cb.checked = !!state[key];
+  const wrapper = document.querySelector(`[data-item="${key}"]`);
+  if(cb.checked) wrapper.classList.add('checked');
+  cb.addEventListener('change', () => {
+    state[key] = cb.checked;
+    saveState(state);
+    wrapper.classList.toggle('checked', cb.checked);
+    const pi = parseInt(key.split('-')[0]);
+    updatePhaseCount(pi);
+    updateGlobalProgress();
+  });
+});
+DATA.forEach((_,pi) => updatePhaseCount(pi));
+updateGlobalProgress();
+
+const themeBtn = document.getElementById('theme-toggle');
+const root = document.documentElement;
+function applyTheme(t){
+  root.setAttribute('data-theme', t);
+  themeBtn.textContent = t === 'dark' ? '☀ Mode clair' : '☾ Mode sombre';
+  localStorage.setItem('pensee_theme', t);
+}
+applyTheme(localStorage.getItem('pensee_theme') || 'light');
+themeBtn.addEventListener('click', () => applyTheme(root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark'));
+</script>
+
+<a href="index.html" title="Retour à l'accueil"
+   style="position:fixed; bottom:20px; left:20px; z-index:99999; display:flex; align-items:center; gap:8px;
+          background:#211f1c; color:#f1ece0; text-decoration:none; font-family:system-ui,sans-serif;
+          font-size:13px; padding:10px 16px 10px 12px; border-radius:24px; box-shadow:0 3px 10px rgba(0,0,0,.25);
+          border:1px solid rgba(255,255,255,.15); opacity:.88; transition:opacity .2s, transform .2s;"
+   onmouseover="this.style.opacity=1; this.style.transform='translateY(-2px)';"
+   onmouseout="this.style.opacity=.88; this.style.transform='translateY(0)';">
+  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><path d="M9 22V12h6v10"/></svg>
+  Accueil
+</a>
+</body>
+</html>

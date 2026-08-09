@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mémoire compétitive — Plan 8 semaines</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap');
+
+  :root{
+    --paper:#efece4; --paper-2:#e6e1d3; --ink:#211f1c; --ink-soft:#5b5748;
+    --accent:#6a3d8f; --accent-soft:#6a3d8f1c; --good:#4d6b4a; --good-soft:#4d6b4a1e;
+    --line:#d7d0bd; --card:#f9f7f0; --shadow:0 1px 0 rgba(33,31,28,0.05);
+  }
+  html[data-theme="dark"]{
+    --paper:#1a1917; --paper-2:#211f1b; --ink:#ece7d9; --ink-soft:#a89f8c;
+    --accent:#b487d6; --accent-soft:#b487d626; --good:#8fb37f; --good-soft:#8fb37f22;
+    --line:#39352c; --card:#211f1b; --shadow:0 1px 0 rgba(0,0,0,0.3);
+  }
+  *{box-sizing:border-box;}
+  body{ margin:0; background:var(--paper); color:var(--ink); font-family:'Inter', system-ui, sans-serif; padding-bottom:80px; transition:background .3s, color .3s;}
+
+  header{ max-width:800px; margin:0 auto; padding:52px 24px 26px; border-bottom:1px solid var(--line);}
+  .eyebrow{ font-family:'IBM Plex Mono', monospace; font-size:12px; letter-spacing:.14em; text-transform:uppercase; color:var(--ink-soft); margin-bottom:12px;}
+  h1{ font-family:'Fraunces', serif; font-size:36px; font-weight:700; margin:0 0 8px;}
+  .subtitle{ color:var(--ink-soft); font-size:15.5px; max-width:64ch; margin:0 0 22px;}
+
+  .toggle-row{ display:flex; justify-content:space-between; align-items:center; gap:16px; flex-wrap:wrap;}
+  .progress-wrap{ flex:1; min-width:220px;}
+  .progress-label{ display:flex; justify-content:space-between; font-family:'IBM Plex Mono', monospace; font-size:11px; color:var(--ink-soft); margin-bottom:6px; letter-spacing:.05em;}
+  .progress-track{ height:8px; border-radius:4px; background:var(--paper-2); overflow:hidden; border:1px solid var(--line);}
+  .progress-fill{ height:100%; width:0%; background:linear-gradient(90deg, var(--good), var(--accent)); transition:width .5s ease;}
+  #theme-toggle{ font-family:'IBM Plex Mono', monospace; font-size:12px; background:transparent; border:1px solid var(--line);
+    color:var(--ink-soft); padding:8px 14px; border-radius:20px; cursor:pointer;}
+  #theme-toggle:hover{ border-color:var(--accent); color:var(--accent);}
+
+  .routine{ max-width:800px; margin:20px auto 0; padding:0 24px;}
+  .routine-box{ background:var(--accent-soft); border:1px solid var(--accent); border-radius:8px; padding:16px 18px;}
+  .routine-title{ font-family:'IBM Plex Mono', monospace; font-size:12px; letter-spacing:.06em; color:var(--accent); text-transform:uppercase; margin:0 0 10px;}
+  .routine-table{ width:100%; border-collapse:collapse; font-size:13.5px;}
+  .routine-table td{ padding:4px 8px 4px 0; border-bottom:1px solid var(--line);}
+  .routine-table td:first-child{ font-family:'IBM Plex Mono', monospace; color:var(--ink-soft); white-space:nowrap; width:70px;}
+  .routine-table tr:last-child td{ border-bottom:none;}
+
+  main{ max-width:800px; margin:0 auto; padding:20px 24px;}
+  .phase{ border-bottom:1px solid var(--line);}
+  .phase-head{ display:flex; align-items:center; gap:16px; padding:22px 4px; cursor:pointer; user-select:none;}
+  .phase-num{ font-family:'IBM Plex Mono', monospace; font-size:13px; color:var(--ink-soft); min-width:58px;}
+  .phase-titles{ flex:1;}
+  .phase-fr{ font-size:18.5px; font-weight:600; margin:0;}
+  .phase-meta{ font-size:13px; color:var(--ink-soft); margin-top:2px;}
+  .phase-count{ font-family:'IBM Plex Mono', monospace; font-size:12px; color:var(--ink-soft); white-space:nowrap;}
+  .chevron{ width:18px; height:18px; flex-shrink:0; transition:transform .25s ease; color:var(--ink-soft);}
+  .phase.open .chevron{ transform:rotate(90deg); color:var(--accent);}
+  .phase-body{ max-height:0; overflow:hidden; transition:max-height .4s ease;}
+  .phase.open .phase-body{ max-height:1600px;}
+
+  .phase-why{ margin:0 4px 14px; padding:12px 14px; background:var(--accent-soft); border-left:2px solid var(--accent);
+    font-size:13.5px; color:var(--ink-soft); border-radius:0 4px 4px 0;}
+
+  .section-label{ font-family:'IBM Plex Mono', monospace; font-size:11px; letter-spacing:.08em; text-transform:uppercase;
+    color:var(--ink-soft); margin:16px 4px 8px; display:flex; align-items:center; gap:8px;}
+  .section-label::after{ content:""; flex:1; height:1px; background:var(--line);}
+
+  .item{ display:flex; align-items:flex-start; gap:12px; background:var(--card); border:1px solid var(--line); border-radius:6px;
+    padding:10px 12px; margin:0 4px 6px; box-shadow:var(--shadow);}
+  .item input[type="checkbox"]{ width:16px; height:16px; margin-top:2px; accent-color:var(--accent); flex-shrink:0; cursor:pointer;}
+  .item.checked{ opacity:.55;}
+  .item .txt{ font-size:14px; line-height:1.35;}
+  .item .tag{ font-family:'IBM Plex Mono', monospace; font-size:9.5px; text-transform:uppercase; letter-spacing:.05em;
+    color:var(--ink-soft); border:1px dashed var(--line); border-radius:10px; padding:1px 6px; margin-right:6px;}
+
+  .gate{ margin:14px 4px 4px; padding:14px 16px; background:var(--good-soft); border:1px solid var(--good); border-radius:8px;}
+  .gate-label{ font-family:'IBM Plex Mono', monospace; font-size:11px; text-transform:uppercase; letter-spacing:.06em; color:var(--good); margin-bottom:6px;}
+  .gate-text{ font-size:13.5px; color:var(--ink-soft);}
+
+  .journal{ margin-top:16px;}
+  .journal-box{ background:var(--card); border:1px solid var(--line); border-radius:8px; padding:16px 18px;}
+  .journal-desc{ font-size:13px; color:var(--ink-soft); margin:0 0 10px;}
+  .journal textarea{ width:100%; min-height:140px; resize:vertical; background:var(--paper-2); color:var(--ink);
+    border:1px solid var(--line); border-radius:6px; padding:12px; font-family:'IBM Plex Mono', monospace; font-size:12.5px; line-height:1.5;}
+  .journal-status{ font-family:'IBM Plex Mono', monospace; font-size:10.5px; color:var(--ink-soft); margin-top:6px; text-align:right;}
+
+  footer{ max-width:800px; margin:44px auto 0; padding:20px 24px; text-align:center; font-family:'IBM Plex Mono', monospace; font-size:11px; color:var(--ink-soft);}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="eyebrow">Dudley Orestil · Cognition · Mémoire compétitive</div>
+  <h1>Palais, PAO, Major — 8 semaines</h1>
+  <p class="subtitle">Progression séquentielle plutôt qu'une liste de dix techniques à apprendre en même temps : fondations, chiffres, cartes, visages, puis compression et simulation. Chaque semaine se termine par un palier chronométré, pas juste une lecture.</p>
+  <div class="toggle-row">
+    <div class="progress-wrap">
+      <div class="progress-label"><span id="progress-text">0 / 0 étapes</span><span id="progress-pct">0%</span></div>
+      <div class="progress-track"><div class="progress-fill" id="progress-fill"></div></div>
+    </div>
+    <button id="theme-toggle">☾ Mode sombre</button>
+  </div>
+</header>
+
+<div class="routine">
+  <div class="routine-box">
+    <p class="routine-title">Routine quotidienne de référence — 45 à 60 min</p>
+    <table class="routine-table">
+      <tr><td>10 min</td><td>Révision des palais de mémoire</td></tr>
+      <tr><td>10 min</td><td>Entraînement PAO ou Major System</td></tr>
+      <tr><td>15 min</td><td>Mémorisation de chiffres</td></tr>
+      <tr><td>10 min</td><td>Mémorisation de cartes ou de mots</td></tr>
+      <tr><td>10 min</td><td>Rappel actif et analyse des erreurs</td></tr>
+    </table>
+  </div>
+</div>
+
+<main id="phases"></main>
+
+<div class="journal" style="max-width:800px; margin:32px auto 0; padding:0 24px;">
+  <div class="journal-box">
+    <div class="section-label" style="margin:0 0 8px;">📓 Journal d'entraînement</div>
+    <p class="journal-desc">Note chaque séance : nombre d'éléments mémorisés, taux de réussite, type d'erreur (emplacement oublié, images trop similaires, association trop faible). Sauvegardé automatiquement dans ce navigateur.</p>
+    <textarea id="journal-text" placeholder="Ex — 12 août : 60 chiffres en Major, 3 erreurs (deux images trop proches sur 34/43), 4min12."></textarea>
+    <div class="journal-status" id="journal-status">Sauvegardé</div>
+  </div>
+</div>
+
+<footer>encoder · réviser · corriger — la mémoire est un système, pas un talent</footer>
+
+<script>
+const DATA = [
+  {
+    fr: "Fondations — palais & attention",
+    meta: "Semaine 1 · sans ça, aucune technique numérique ne tient",
+    why: "Un bon encodage dépend d'abord de l'attention soutenue, et toutes les techniques suivantes reposent sur des palais fiables. On ne touche à aucun système numérique cette semaine.",
+    items: [
+      ["exercice","Construire 5 palais distincts (appartement, trajet vers le travail, ancienne école, un jeu vidéo connu, Google Street View)"],
+      ["exercice","Parcourir mentalement chaque palais en moins d'une minute, tous les jours"],
+      ["exercice","5 min/jour d'attention soutenue : observer un objet sans laisser l'esprit vagabonder"],
+      ["exercice","Visualisation : faire tourner un objet mentalement, changer sa taille, sa couleur, sa texture"]
+    ],
+    gate: "Palier : réciter les 20-30 emplacements de 2 palais différents, dans l'ordre, sans erreur, en moins d'une minute chacun."
+  },
+  {
+    fr: "Story linking & chunking",
+    meta: "Semaine 2 · mémoriser des listes avant les chiffres",
+    why: "Ces deux techniques suffisent déjà à mémoriser des listes complexes — elles installent le réflexe de créer des images plutôt que de répéter des mots, avant d'ajouter la couche numérique.",
+    items: [
+      ["technique","Story linking : transformer une liste de 10 mots aléatoires en histoire absurde"],
+      ["exercice","Mémoriser 20 mots dans un palais, rappel immédiat"],
+      ["exercice","Chunking : découper un nombre de 12 chiffres en blocs de 3, une image par bloc"],
+      ["technique","Exagération systématique : rendre chaque image énorme, ridicule ou dangereuse"]
+    ],
+    gate: "Palier : mémoriser 30 mots dans l'ordre, ≥90% de rappel exact, en moins de 5 minutes d'encodage."
+  },
+  {
+    fr: "Major System",
+    meta: "Semaine 3 · le système le plus utilisé au monde pour les chiffres",
+    why: "Le Major convertit chaque chiffre en son, ce qui permet de générer une image instantanément plutôt que de l'inventer à chaque fois — la vitesse vient de l'automatisme, pas de la créativité en temps réel.",
+    items: [
+      ["technique","Mémoriser les 10 correspondances : 0=s/z, 1=t/d, 2=n, 3=m, 4=r, 5=l, 6=j/ch, 7=k/g, 8=f/v, 9=p/b"],
+      ["exercice","Créer une liste personnelle de 100 images (00-99) à partir du système Major"],
+      ["exercice","Convertir 20 chiffres aléatoires en images Major, chronométré"],
+      ["exercice","Monter progressivement : 20 → 40 chiffres cette semaine"]
+    ],
+    gate: "Palier : mémoriser 40 chiffres dans l'ordre avec le Major seul, en moins de 3 minutes."
+  },
+  {
+    fr: "PAO — Person-Action-Object",
+    meta: "Semaine 4 · la technique la plus rentable après le palais",
+    why: "Le PAO comprime bien plus que le Major seul : une seule image de scène (personne + action + objet) peut encoder 6 chiffres d'un coup.",
+    items: [
+      ["exercice","Construire ton système PAO complet 00-99 (100 combinaisons personne + action + objet)"],
+      ["exercice","S'entraîner à fusionner deux nombres PAO en une seule scène (Personne A fait l'Action B sur l'Objet C)"],
+      ["exercice","Monter progressivement : 40 → 80 chiffres en PAO cette semaine"],
+      ["technique","Encodage multisensoriel : ajouter mouvement, son, émotion à chaque scène PAO"]
+    ],
+    gate: "Palier : système PAO complet et récitable pour au moins 50 des 100 combinaisons, sans hésitation."
+  },
+  {
+    fr: "Cartes à jouer",
+    meta: "Semaine 5 · même principe que les chiffres, ordre spatial plus exigeant",
+    why: "Chaque carte devient une image PAO comme un nombre — mais l'ordre strict des 52 cartes sollicite le palais bien plus fort que les chiffres, où la position compte moins.",
+    items: [
+      ["exercice","Associer une image PAO à chacune des 52 cartes"],
+      ["exercice","Monter progressivement : 1 → 5 → 10 cartes dans un palais cette semaine"],
+      ["exercice","Rappel actif différé : reconstruire le paquet mémorisé 1h après l'encodage, sans le revoir"]
+    ],
+    gate: "Palier : mémoriser 10 cartes dans l'ordre exact, rappel confirmé après 1 heure sans révision."
+  },
+  {
+    fr: "Noms, visages & mots",
+    meta: "Semaine 6 · encoder une personne réelle plutôt qu'un symbole abstrait",
+    why: "La reconnaissance faciale et l'association de prénoms demandent un système à part — c'est l'épreuve où le plus de compétiteurs perdent des points, faute d'avoir pratiqué spécifiquement.",
+    items: [
+      ["exercice","Observer 10 photos aléatoires, noter un trait distinctif par visage (nez, yeux, cheveux, oreilles)"],
+      ["exercice","Associer chaque visage à une image forte liée au prénom"],
+      ["exercice","Mémoriser 50 mots aléatoires dans un palais dédié"],
+      ["exercice","Chiffres : monter progressivement de 80 → 160 cette semaine"]
+    ],
+    gate: "Palier : mémoriser 20 paires nom-visage, rappel exact après 30 minutes."
+  },
+  {
+    fr: "Compression & vitesse",
+    meta: "Semaine 7 · le vrai secret des records : moins d'images, plus denses",
+    why: "Les champions ne créent pas plus d'images que les autres — ils compressent plus fort. Une seule image bien construite peut porter 10 chiffres au lieu de 3-4.",
+    items: [
+      ["technique","Compression : réduire un encodage de 10 images à 3 images sans perte"],
+      ["exercice","Chiffres : monter progressivement de 160 → 320 cette semaine, chronométré"],
+      ["exercice","Cartes : viser le paquet complet (52 cartes)"],
+      ["technique","Dominic System : apprendre les initiales de 20 nombres, à titre de comparaison avec le Major"]
+    ],
+    gate: "Palier : mémoriser 320 chiffres décimaux (précision ≥90%) OU un paquet complet de 52 cartes, au choix."
+  },
+  {
+    fr: "Simulation & analyse",
+    meta: "Semaine 8 · une compétition, ce n'est pas que de la mémorisation",
+    why: "Gérer le temps, le stress et ses propres erreurs sous contrainte est une compétence à part — cette dernière semaine teste le système complet dans des conditions réelles, puis l'affine.",
+    items: [
+      ["exercice","Simulation complète d'une épreuve officielle (chiffres, cartes, noms/visages, mots) dans les conditions de temps réelles"],
+      ["exercice","Analyse d'erreurs : identifier images ambiguës, emplacements oubliés, associations trop faibles"],
+      ["exercice","Ajuster ton système PAO/Major aux points faibles identifiés dans l'analyse"],
+      ["technique","Ben System : à explorer seulement maintenant, après maîtrise du PAO, du Major et du palais"]
+    ],
+    gate: "Palier final : passer une épreuve chronométrée complète et documenter précisément les 3 erreurs les plus fréquentes dans le journal ci-dessous."
+  }
+];
+
+const container = document.getElementById('phases');
+let totalItems = 0;
+DATA.forEach(p => totalItems += p.items.length);
+
+DATA.forEach((phase, pi) => {
+  const el = document.createElement('div');
+  el.className = 'phase';
+  el.innerHTML = `
+    <div class="phase-head" data-idx="${pi}">
+      <div class="phase-num">${String(pi+1).padStart(2,'0')} / 08</div>
+      <div class="phase-titles">
+        <p class="phase-fr">${phase.fr}</p>
+        <div class="phase-meta">${phase.meta}</div>
+      </div>
+      <div class="phase-count" data-count="${pi}">0/${phase.items.length}</div>
+      <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6l6 6-6 6"/></svg>
+    </div>
+    <div class="phase-body">
+      <div class="phase-why">${phase.why}</div>
+      <div class="section-label">🧠 À faire cette semaine</div>
+      ${phase.items.map((it,ii) => {
+        const [tag, label] = it;
+        return `
+          <label class="item" data-item="${pi}-${ii}">
+            <input type="checkbox" data-item-cb="${pi}-${ii}">
+            <span class="txt"><span class="tag">${tag}</span>${label}</span>
+          </label>`;
+      }).join('')}
+      <div class="gate">
+        <div class="gate-label">🎯 Palier de fin de semaine</div>
+        <div class="gate-text">${phase.gate}</div>
+      </div>
+    </div>
+  `;
+  container.appendChild(el);
+  el.querySelector('.phase-head').addEventListener('click', () => el.classList.toggle('open'));
+});
+container.querySelector('.phase').classList.add('open');
+
+const STORE_KEY = 'memoire_competitive_v1';
+function loadState(){ try{ return JSON.parse(localStorage.getItem(STORE_KEY)) || {}; }catch(e){ return {}; } }
+function saveState(s){ localStorage.setItem(STORE_KEY, JSON.stringify(s)); }
+let state = loadState();
+
+function updatePhaseCount(pi){
+  const total = DATA[pi].items.length;
+  let checked = 0;
+  DATA[pi].items.forEach((it,ii) => { if(state[`${pi}-${ii}`]) checked++; });
+  document.querySelector(`[data-count="${pi}"]`).textContent = `${checked}/${total}`;
+}
+function updateGlobalProgress(){
+  let checked = 0;
+  Object.values(state).forEach(v => { if(v) checked++; });
+  const pct = totalItems > 0 ? Math.round((checked/totalItems)*100) : 0;
+  document.getElementById('progress-text').textContent = `${checked} / ${totalItems} étapes`;
+  document.getElementById('progress-pct').textContent = `${pct}%`;
+  document.getElementById('progress-fill').style.width = pct + '%';
+}
+document.querySelectorAll('[data-item-cb]').forEach(cb => {
+  const key = cb.getAttribute('data-item-cb');
+  cb.checked = !!state[key];
+  const wrapper = document.querySelector(`[data-item="${key}"]`);
+  if(cb.checked) wrapper.classList.add('checked');
+  cb.addEventListener('change', () => {
+    state[key] = cb.checked;
+    saveState(state);
+    wrapper.classList.toggle('checked', cb.checked);
+    const pi = parseInt(key.split('-')[0]);
+    updatePhaseCount(pi);
+    updateGlobalProgress();
+  });
+});
+DATA.forEach((_,pi) => updatePhaseCount(pi));
+updateGlobalProgress();
+
+// journal — autosave to localStorage
+const JOURNAL_KEY = 'memoire_journal_v1';
+const journalEl = document.getElementById('journal-text');
+const journalStatus = document.getElementById('journal-status');
+journalEl.value = localStorage.getItem(JOURNAL_KEY) || '';
+let journalTimer;
+journalEl.addEventListener('input', () => {
+  journalStatus.textContent = 'Écriture…';
+  clearTimeout(journalTimer);
+  journalTimer = setTimeout(() => {
+    localStorage.setItem(JOURNAL_KEY, journalEl.value);
+    journalStatus.textContent = 'Sauvegardé';
+  }, 500);
+});
+
+const themeBtn = document.getElementById('theme-toggle');
+const root = document.documentElement;
+function applyTheme(t){
+  root.setAttribute('data-theme', t);
+  themeBtn.textContent = t === 'dark' ? '☀ Mode clair' : '☾ Mode sombre';
+  localStorage.setItem('memoire_theme', t);
+}
+applyTheme(localStorage.getItem('memoire_theme') || 'light');
+themeBtn.addEventListener('click', () => applyTheme(root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark'));
+</script>
+
+<a href="index.html" title="Retour à l'accueil"
+   style="position:fixed; bottom:20px; left:20px; z-index:99999; display:flex; align-items:center; gap:8px;
+          background:#211f1c; color:#f1ece0; text-decoration:none; font-family:system-ui,sans-serif;
+          font-size:13px; padding:10px 16px 10px 12px; border-radius:24px; box-shadow:0 3px 10px rgba(0,0,0,.25);
+          border:1px solid rgba(255,255,255,.15); opacity:.88; transition:opacity .2s, transform .2s;"
+   onmouseover="this.style.opacity=1; this.style.transform='translateY(-2px)';"
+   onmouseout="this.style.opacity=.88; this.style.transform='translateY(0)';">
+  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><path d="M9 22V12h6v10"/></svg>
+  Accueil
+</a>
+</body>
+</html>

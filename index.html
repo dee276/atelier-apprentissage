@@ -127,9 +127,11 @@ const PLANS = [
   { file:'parcours-pensee-strategique.html', title:'Penser mieux — 6 mois', cat:'🧠 Stratégie & Écriture', selector:'#progress-text', mode:'fraction' },
   // dans CATEGORY_ORDER, ajoute '🧩 Cognition & Mémoire'
   { file:'entrainement-memoire-competitive.html', title:'Palais, PAO, Major — 8 semaines', cat:'🧩 Cognition & Mémoire', selector:'#progress-text', mode:'fraction' },
+  // dans CATEGORY_ORDER : '🕹️ Expériences immersives (LBE)'
+  { file:'parcours-experience-immersive.html', title:"Ingénierie de l'Expérience Immersive", cat:'🕹️ Expériences immersives (LBE)', selector:'#progress-text', mode:'fraction' },
 ];
 
-const CATEGORY_ORDER = ['🌏 Langues','🖥️ DevOps & Architecture','💻 Frameworks Web','🦀 Rust & Cryptographie','🎓 Curriculum académique','🎮 Jeu vidéo','🧠 Stratégie & Écriture','🧩 Cognition & Mémoire'];
+const CATEGORY_ORDER = ['🌏 Langues','🖥️ DevOps & Architecture','💻 Frameworks Web','🦀 Rust & Cryptographie','🎓 Curriculum académique','🎮 Jeu vidéo','🧠 Stratégie & Écriture','🧩 Cognition & Mémoire','🕹️ Expériences immersives (LBE)'];
 
 const HUB_SEEN_KEY = 'hub_manual_seen';
 function loadSeen(){ try{ return JSON.parse(localStorage.getItem(HUB_SEEN_KEY)) || {}; }catch(e){ return {}; } }

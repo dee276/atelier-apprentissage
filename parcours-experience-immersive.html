@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ingénierie de l'Expérience Immersive</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap');
+
+  :root{
+    --paper:#efece4; --paper-2:#e6e1d3; --ink:#211f1c; --ink-soft:#5b5748;
+    --accent:#b5480e; --accent-soft:#b5480e1c; --good:#4d6b4a; --good-soft:#4d6b4a1e;
+    --line:#d7d0bd; --card:#f9f7f0; --shadow:0 1px 0 rgba(33,31,28,0.05);
+  }
+  html[data-theme="dark"]{
+    --paper:#1a1917; --paper-2:#211f1b; --ink:#ece7d9; --ink-soft:#a89f8c;
+    --accent:#e8874a; --accent-soft:#e8874a26; --good:#8fb37f; --good-soft:#8fb37f22;
+    --line:#39352c; --card:#211f1b; --shadow:0 1px 0 rgba(0,0,0,0.3);
+  }
+  *{box-sizing:border-box;}
+  body{ margin:0; background:var(--paper); color:var(--ink); font-family:'Inter', system-ui, sans-serif; padding-bottom:80px; transition:background .3s, color .3s;}
+
+  header{ max-width:800px; margin:0 auto; padding:52px 24px 26px; border-bottom:1px solid var(--line);}
+  .eyebrow{ font-family:'IBM Plex Mono', monospace; font-size:12px; letter-spacing:.14em; text-transform:uppercase; color:var(--ink-soft); margin-bottom:12px;}
+  h1{ font-family:'Fraunces', serif; font-size:34px; font-weight:700; margin:0 0 8px;}
+  .subtitle{ color:var(--ink-soft); font-size:15.5px; max-width:64ch; margin:0 0 22px;}
+
+  .toggle-row{ display:flex; justify-content:space-between; align-items:center; gap:16px; flex-wrap:wrap;}
+  .progress-wrap{ flex:1; min-width:220px;}
+  .progress-label{ display:flex; justify-content:space-between; font-family:'IBM Plex Mono', monospace; font-size:11px; color:var(--ink-soft); margin-bottom:6px; letter-spacing:.05em;}
+  .progress-track{ height:8px; border-radius:4px; background:var(--paper-2); overflow:hidden; border:1px solid var(--line);}
+  .progress-fill{ height:100%; width:0%; background:linear-gradient(90deg, var(--good), var(--accent)); transition:width .5s ease;}
+  #theme-toggle{ font-family:'IBM Plex Mono', monospace; font-size:12px; background:transparent; border:1px solid var(--line);
+    color:var(--ink-soft); padding:8px 14px; border-radius:20px; cursor:pointer;}
+  #theme-toggle:hover{ border-color:var(--accent); color:var(--accent);}
+
+  .comm{ max-width:800px; margin:20px auto 0; padding:0 24px;}
+  .comm-box{ background:var(--accent-soft); border:1px solid var(--accent); border-radius:8px; padding:16px 18px;}
+  .comm-title{ font-family:'IBM Plex Mono', monospace; font-size:12px; letter-spacing:.06em; color:var(--accent); text-transform:uppercase; margin:0 0 10px;}
+  .comm-grid{ display:grid; grid-template-columns:1fr 1fr; gap:6px 16px; font-size:13.5px;}
+  @media(max-width:600px){ .comm-grid{ grid-template-columns:1fr;} }
+  .comm-grid b{ font-weight:600;}
+  .comm-grid span{ color:var(--ink-soft);}
+
+  main{ max-width:800px; margin:0 auto; padding:20px 24px;}
+  .phase{ border-bottom:1px solid var(--line);}
+  .phase-head{ display:flex; align-items:center; gap:16px; padding:22px 4px; cursor:pointer; user-select:none;}
+  .phase-num{ font-family:'IBM Plex Mono', monospace; font-size:13px; color:var(--ink-soft); min-width:70px;}
+  .phase-titles{ flex:1;}
+  .phase-fr{ font-size:18.5px; font-weight:600; margin:0;}
+  .phase-meta{ font-size:13px; color:var(--ink-soft); margin-top:2px;}
+  .phase-count{ font-family:'IBM Plex Mono', monospace; font-size:12px; color:var(--ink-soft); white-space:nowrap;}
+  .chevron{ width:18px; height:18px; flex-shrink:0; transition:transform .25s ease; color:var(--ink-soft);}
+  .phase.open .chevron{ transform:rotate(90deg); color:var(--accent);}
+  .phase-body{ max-height:0; overflow:hidden; transition:max-height .4s ease;}
+  .phase.open .phase-body{ max-height:1700px;}
+
+  .phase-why{ margin:0 4px 14px; padding:12px 14px; background:var(--accent-soft); border-left:2px solid var(--accent);
+    font-size:13.5px; color:var(--ink-soft); border-radius:0 4px 4px 0;}
+
+  .section-label{ font-family:'IBM Plex Mono', monospace; font-size:11px; letter-spacing:.08em; text-transform:uppercase;
+    color:var(--ink-soft); margin:16px 4px 8px; display:flex; align-items:center; gap:8px;}
+  .section-label::after{ content:""; flex:1; height:1px; background:var(--line);}
+
+  .item{ display:flex; align-items:flex-start; gap:12px; background:var(--card); border:1px solid var(--line); border-radius:6px;
+    padding:10px 12px; margin:0 4px 6px; box-shadow:var(--shadow);}
+  .item input[type="checkbox"]{ width:16px; height:16px; margin-top:2px; accent-color:var(--accent); flex-shrink:0; cursor:pointer;}
+  .item.checked{ opacity:.55;}
+  .item .txt{ font-size:14px; line-height:1.35;}
+  .item .tag{ font-family:'IBM Plex Mono', monospace; font-size:9.5px; text-transform:uppercase; letter-spacing:.05em;
+    color:var(--ink-soft); border:1px dashed var(--line); border-radius:10px; padding:1px 6px; margin-right:6px;}
+  .item .bonus{ display:block; margin-top:4px; font-size:12px; color:var(--accent); font-style:italic;}
+
+  .gate{ margin:14px 4px 4px; padding:14px 16px; background:var(--good-soft); border:1px solid var(--good); border-radius:8px;}
+  .gate-label{ font-family:'IBM Plex Mono', monospace; font-size:11px; text-transform:uppercase; letter-spacing:.06em; color:var(--good); margin-bottom:6px;}
+  .gate-text{ font-size:13.5px; color:var(--ink-soft);}
+
+  footer{ max-width:800px; margin:44px auto 0; padding:20px 24px; text-align:center; font-family:'IBM Plex Mono', monospace; font-size:11px; color:var(--ink-soft);}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="eyebrow">Dudley Orestil · R&D → Divertissement · Escape Game / LBE</div>
+  <h1>Ingénierie de l'Expérience Immersive</h1>
+  <p class="subtitle">De la robotique industrielle à l'électronique d'escape game, arcade et laser quest. Même rigueur, autre finalité : l'indicateur de performance devient le sourire du joueur, pas la répétabilité machine. 7 semaines, chacune se termine par un artefact technique, pas une lecture cochée.</p>
+  <div class="toggle-row">
+    <div class="progress-wrap">
+      <div class="progress-label"><span id="progress-text">0 / 0 étapes</span><span id="progress-pct">0%</span></div>
+      <div class="progress-track"><div class="progress-fill" id="progress-fill"></div></div>
+    </div>
+    <button id="theme-toggle">☾ Mode sombre</button>
+  </div>
+</header>
+
+<div class="comm">
+  <div class="comm-box">
+    <p class="comm-title">Communautés & outils de référence — à garder ouverts en continu</p>
+    <div class="comm-grid">
+      <span><b>r/escaperooms</b> — serrures, alimentations, fiabilité des capteurs face au public</span>
+      <span><b>Playful Technologies (YouTube)</b> — Alastair Atchison, code + électronique de jeu</span>
+      <span><b>Room Escape Artist</b> — blog + podcast Spoilers Club, design de haut niveau</span>
+      <span><b>COGS (Clockwork Dogs)</b> — logiciel de contrôle de salle, référence en Europe</span>
+    </div>
+  </div>
+</div>
+
+<main id="phases"></main>
+
+<footer>capteur · illusion · sourire — l'électronique s'efface derrière l'expérience</footer>
+
+<script>
+const DATA = [
+  {
+    fr: "Comprendre l'industrie & changer de posture",
+    numLabel: "01 / 07",
+    meta: "Semaine 1 · l'illusion prime sur la précision millimétrique",
+    why: "Le plus grand risque en venant de la robotique industrielle, c'est d'optimiser pour la précision quand le public cherche l'illusion. Cette semaine change la lentille avant de toucher au code.",
+    items: [
+      ["série","The Imagineering Story (Disney+) — comment la technique s'efface derrière l'illusion, face à l'usure et la sécurité du public"],
+      ["série","Alice in Borderland — structure des arènes de jeu, clarté des règles, variété des mécaniques"],
+      ["communauté","2 semaines de lecture active sur r/escaperooms (serrures magnétiques, alimentations 12V/24V, capteurs face à un public brutal)"],
+      ["lecture","The Design of Everyday Things — Don Norman (l'affordance : si un joueur voit un levier, il va le tirer)"]
+    ],
+    itemBonus: {3: "Bonus réaménagement : applique l'affordance à ton appart — qu'est-ce qui, dans une pièce, suggère la mauvaise utilisation ?"},
+    gate: "Palier : une page qui reformule ta mission — 'concevoir une ligne d'assemblage automatisée où le produit est un humain, et l'indicateur de performance est son sourire.'"
+  },
+  {
+    fr: "Théorie du puzzle & de la quête",
+    numLabel: "02 / 07",
+    meta: "Semaine 2 · décomposer une histoire en organigramme de capteurs",
+    why: "Avant d'écrire une ligne de C++, il faut savoir traduire une idée narrative en structure logique — c'est un problème de décomposition, pas de créativité pure.",
+    items: [
+      ["lecture","Quest Giving — Nathan Savant (anatomie logique d'une quête, transposable en organigramme)"],
+      ["lecture","Unlocking the Potential of Puzzle-based Learning — Nicholson & Cable (mécanique des énigmes, game flow, psychologie des joueurs)"],
+      ["exercice","Décomposer une énigme déjà vécue (n'importe quelle salle visitée) en capteur → condition → actionneur"]
+    ],
+    itemBonus: {0: "Bonus réaménagement : les principes de structure de quête s'appliquent au flux de circulation d'un appart (point de départ, tension, résolution)."},
+    gate: "Palier : un organigramme complet (capteurs / conditions / actionneurs) pour une énigme originale que tu inventes toi-même."
+  },
+  {
+    fr: "Systems design — l'ingénierie de l'expérience",
+    numLabel: "03 / 07",
+    meta: "Semaine 3 · la sous-discipline la plus proche de ton ancien métier",
+    why: "Des règles, des boucles logiques, des structures interconnectées — c'est de la programmation d'architecture, mais pour l'esprit humain plutôt que pour une machine.",
+    items: [
+      ["lecture","Designing Games: A Guide to Engineering Experiences — Tynan Sylvester"],
+      ["lecture","Introduction to Game Systems Design — Dax Gazaway (arbres logiques, matrices, équilibrage)"],
+      ["exercice","Cartographier les boucles de rétroaction d'une salle en conception : mise en place → tension → indice → résolution"]
+    ],
+    gate: "Palier : une matrice d'équilibrage complète (difficulté vs temps vs indices disponibles) pour ta première salle."
+  },
+  {
+    fr: "Architecture logicielle du jeu",
+    numLabel: "04 / 07",
+    meta: "Semaine 4 · du code modulaire, réutilisable d'une salle à l'autre",
+    why: "Pour une startup qui veut créer plusieurs salles, un code d'énigme jetable coûte cher — les patterns de génie logiciel appliqués au jeu évitent de repartir de zéro à chaque fois.",
+    items: [
+      ["lecture","Game Programming Patterns — Robert Nystrom (State Machine, Command, Flyweight appliqués aux énigmes)"],
+      ["projet open-source","Disséquer ArduinoProps sur GitHub — gestion de pannes de capteurs, contrôle à distance par le Game Master"],
+      ["exercice","Écrire un squelette C++ minimal : ouverture de porte après activation de 3 boutons dans le bon ordre"]
+    ],
+    gate: "Palier : ton propre module Arduino de base (au moins un capteur → un actionneur) fonctionnel sur table."
+  },
+  {
+    fr: "Infrastructure réseau, lumière & supervision",
+    numLabel: "05 / 07",
+    meta: "Semaine 5 · un réseau de modules fiables, ton terrain de jeu habituel",
+    why: "Une salle est un réseau de capteurs et d'actionneurs qui doivent communiquer sans faille — exactement ton domaine en robotique industrielle, avec des protocoles plus légers.",
+    items: [
+      ["projet open-source","Étudier WLED — API HTTP/MQTT pour piloter les LED adressables (ambiance, alerte rouge, transitions)"],
+      ["projet open-source","Étudier Node-REDscape (Playful Technologies) — dashboard Game Master, timers, indices déclenchés via MQTT"],
+      ["exercice","Trancher : Ethernet stable ou Wi-Fi/ESP32 flexible — justifier le choix par écrit pour ta première salle"]
+    ],
+    gate: "Palier : un script Python capable d'envoyer une commande réseau simple (ex : LED en rouge alerte) à un module WLED ou équivalent."
+  },
+  {
+    fr: "Prototypage papier & board",
+    numLabel: "06 / 07",
+    meta: "Semaine 6 · si ce n'est pas amusant sur une table, ce ne le sera pas non plus câblé",
+    why: "La méthode secrète des studios de jeux physiques : tester la mécanique avec du carton et des jetons avant d'écrire une ligne de code ou d'acheter un composant.",
+    items: [
+      ["méthode","Dessiner la pièce sur un carton, jouer le rôle des capteurs avec des collègues — énigme à synchronisation (ex : miroirs lasers à 4 joueurs)"],
+      ["exercice","Identifier en 10 min si l'énigme est ennuyeuse, trop difficile, ou crée un goulot d'étranglement (un joueur actif, trois spectateurs)"],
+      ["outil","Maquetter la même énigme dans Escape Simulator (Steam, ~20$) pour tester le flux avant tout achat de composant"]
+    ],
+    gate: "Palier : une énigme validée par au moins 3 testeurs papier avant de commander le moindre composant électronique."
+  },
+  {
+    fr: "Premier prototype électronique complet",
+    numLabel: "07 / 07",
+    meta: "Semaine 7 · la rigueur industrielle prend le relai",
+    why: "Une fois le concept validé sur papier, on l'industrialise avec les mêmes standards qu'en robotique — mais pour un public qui va tirer sur les câbles s'il le peut.",
+    items: [
+      ["exercice","Construire le prototype filaire minimal (Arduino, 3 fils) de l'énigme validée en semaine 6"],
+      ["exercice","Appliquer le fail-safe inversé : si un capteur flanche, mode dégradé ou reprise à distance par le Game Master"],
+      ["exercice","Surdimensionner la résistance mécanique : boutons industriels, cloisons renforcées, câblage caché"]
+    ],
+    gate: "Palier : un prototype complet testé par un joueur externe qui ne connaît pas la solution, sans intervention manuelle du Game Master."
+  },
+  {
+    fr: "Piste parallèle — renforcement technique en continu",
+    numLabel: "continu",
+    meta: "Pas lié à une semaine précise · à faire progresser en tâche de fond",
+    why: "Ces ressources ne sont pas spécifiques à l'escape game, mais elles alimentent directement le dashboard web du Game Master et la rigueur logicielle générale — et rejoignent tes parcours Ruby/Rails déjà présents dans ce hub.",
+    items: [
+      ["ressource","CS50 (Harvard) — combler les lacunes en fondamentaux CS si nécessaire"],
+      ["ressource","visualgo.net — pratique visuelle des structures de données et algorithmes"],
+      ["ressource","The Odin Project — terminer le parcours déjà entamé (voir ruby_guide / rails_workflow dans ce hub)"],
+      ["ressource","The Full Stack Open — apprentissage par projet, directement réutilisable pour le dashboard web du Game Master"]
+    ],
+    gate: "Palier : au moins un de ces parcours débouche sur un module réutilisable dans le dashboard de supervision de tes salles — pas des exercices isolés sans destination."
+  }
+];
+
+const container = document.getElementById('phases');
+let totalItems = 0;
+DATA.forEach(p => totalItems += p.items.length);
+
+DATA.forEach((phase, pi) => {
+  const el = document.createElement('div');
+  el.className = 'phase';
+  el.innerHTML = `
+    <div class="phase-head" data-idx="${pi}">
+      <div class="phase-num">${phase.numLabel}</div>
+      <div class="phase-titles">
+        <p class="phase-fr">${phase.fr}</p>
+        <div class="phase-meta">${phase.meta}</div>
+      </div>
+      <div class="phase-count" data-count="${pi}">0/${phase.items.length}</div>
+      <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6l6 6-6 6"/></svg>
+    </div>
+    <div class="phase-body">
+      <div class="phase-why">${phase.why}</div>
+      <div class="section-label">🛠️ À faire</div>
+      ${phase.items.map((it,ii) => {
+        const [tag, label] = it;
+        const bonus = phase.itemBonus && phase.itemBonus[ii] ? `<span class="bonus">${phase.itemBonus[ii]}</span>` : '';
+        return `
+          <label class="item" data-item="${pi}-${ii}">
+            <input type="checkbox" data-item-cb="${pi}-${ii}">
+            <span class="txt"><span class="tag">${tag}</span>${label}${bonus}</span>
+          </label>`;
+      }).join('')}
+      <div class="gate">
+        <div class="gate-label">🎯 Palier</div>
+        <div class="gate-text">${phase.gate}</div>
+      </div>
+    </div>
+  `;
+  container.appendChild(el);
+  el.querySelector('.phase-head').addEventListener('click', () => el.classList.toggle('open'));
+});
+container.querySelector('.phase').classList.add('open');
+
+const STORE_KEY = 'experience_immersive_v1';
+function loadState(){ try{ return JSON.parse(localStorage.getItem(STORE_KEY)) || {}; }catch(e){ return {}; } }
+function saveState(s){ localStorage.setItem(STORE_KEY, JSON.stringify(s)); }
+let state = loadState();
+
+function updatePhaseCount(pi){
+  const total = DATA[pi].items.length;
+  let checked = 0;
+  DATA[pi].items.forEach((it,ii) => { if(state[`${pi}-${ii}`]) checked++; });
+  document.querySelector(`[data-count="${pi}"]`).textContent = `${checked}/${total}`;
+}
+function updateGlobalProgress(){
+  let checked = 0;
+  Object.values(state).forEach(v => { if(v) checked++; });
+  const pct = totalItems > 0 ? Math.round((checked/totalItems)*100) : 0;
+  document.getElementById('progress-text').textContent = `${checked} / ${totalItems} étapes`;
+  document.getElementById('progress-pct').textContent = `${pct}%`;
+  document.getElementById('progress-fill').style.width = pct + '%';
+}
+document.querySelectorAll('[data-item-cb]').forEach(cb => {
+  const key = cb.getAttribute('data-item-cb');
+  cb.checked = !!state[key];
+  const wrapper = document.querySelector(`[data-item="${key}"]`);
+  if(cb.checked) wrapper.classList.add('checked');
+  cb.addEventListener('change', () => {
+    state[key] = cb.checked;
+    saveState(state);
+    wrapper.classList.toggle('checked', cb.checked);
+    const pi = parseInt(key.split('-')[0]);
+    updatePhaseCount(pi);
+    updateGlobalProgress();
+  });
+});
+DATA.forEach((_,pi) => updatePhaseCount(pi));
+updateGlobalProgress();
+
+const themeBtn = document.getElementById('theme-toggle');
+const root = document.documentElement;
+function applyTheme(t){
+  root.setAttribute('data-theme', t);
+  themeBtn.textContent = t === 'dark' ? '☀ Mode clair' : '☾ Mode sombre';
+  localStorage.setItem('experience_theme', t);
+}
+applyTheme(localStorage.getItem('experience_theme') || 'light');
+themeBtn.addEventListener('click', () => applyTheme(root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark'));
+</script>
+
+<a href="index.html" title="Retour à l'accueil"
+   style="position:fixed; bottom:20px; left:20px; z-index:99999; display:flex; align-items:center; gap:8px;
+          background:#211f1c; color:#f1ece0; text-decoration:none; font-family:system-ui,sans-serif;
+          font-size:13px; padding:10px 16px 10px 12px; border-radius:24px; box-shadow:0 3px 10px rgba(0,0,0,.25);
+          border:1px solid rgba(255,255,255,.15); opacity:.88; transition:opacity .2s, transform .2s;"
+   onmouseover="this.style.opacity=1; this.style.transform='translateY(-2px)';"
+   onmouseout="this.style.opacity=.88; this.style.transform='translateY(0)';">
+  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><path d="M9 22V12h6v10"/></svg>
+  Accueil
+</a>
+</body>
+</html>

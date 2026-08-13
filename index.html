@@ -129,9 +129,11 @@ const PLANS = [
   { file:'entrainement-memoire-competitive.html', title:'Palais, PAO, Major — 8 semaines', cat:'🧩 Cognition & Mémoire', selector:'#progress-text', mode:'fraction' },
   // dans CATEGORY_ORDER : '🕹️ Expériences immersives (LBE)'
   { file:'parcours-experience-immersive.html', title:"Ingénierie de l'Expérience Immersive", cat:'🕹️ Expériences immersives (LBE)', selector:'#progress-text', mode:'fraction' },
+  // nouvelle catégorie dans CATEGORY_ORDER : '📊 Data & IA'
+  { file:'90-jours-data-ai.html', title:'90 Jours — Data Analyst → AI Engineer', cat:'📊 Data & IA', selector:'#progress-text', mode:'fraction' },
 ];
 
-const CATEGORY_ORDER = ['🌏 Langues','🖥️ DevOps & Architecture','💻 Frameworks Web','🦀 Rust & Cryptographie','🎓 Curriculum académique','🎮 Jeu vidéo','🧠 Stratégie & Écriture','🧩 Cognition & Mémoire','🕹️ Expériences immersives (LBE)'];
+const CATEGORY_ORDER = ['🌏 Langues','🖥️ DevOps & Architecture','💻 Frameworks Web','🦀 Rust & Cryptographie','🎓 Curriculum académique','🎮 Jeu vidéo','🧠 Stratégie & Écriture','🧩 Cognition & Mémoire','🕹️ Expériences immersives (LBE)','📊 Data & IA'];
 
 const HUB_SEEN_KEY = 'hub_manual_seen';
 function loadSeen(){ try{ return JSON.parse(localStorage.getItem(HUB_SEEN_KEY)) || {}; }catch(e){ return {}; } }

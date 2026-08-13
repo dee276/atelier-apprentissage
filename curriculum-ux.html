@@ -1,0 +1,1337 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Curriculum Autodidacte — Design UX</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #F7F5F0;
+    --bg2: #EFEDE6;
+    --card: #FFFFFF;
+    --text: #1A1A18;
+    --muted: #6B6B65;
+    --accent: #C84B2F;
+    --accent2: #2F6AC8;
+    --border: rgba(26,26,24,0.1);
+    --tag-book-bg: #EBF2FC; --tag-book-txt: #174A8C;
+    --tag-vid-bg: #FCEEE9; --tag-vid-txt: #8C2D14;
+    --tag-tool-bg: #EAF5EC; --tag-tool-txt: #1A6B2E;
+    --phase-colors: #C84B2F,#2F6AC8,#2A8C5A,#8C4B2F,#6B2F8C;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+  }
+
+  /* HERO */
+  .hero {
+    padding: 5rem 2rem 4rem;
+    max-width: 860px;
+    margin: 0 auto;
+  }
+  .hero-eyebrow {
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 1rem;
+  }
+  .hero h1 {
+    font-family: 'DM Serif Display', serif;
+    font-size: clamp(2.4rem, 5vw, 3.8rem);
+    line-height: 1.1;
+    color: var(--text);
+    margin-bottom: 1.25rem;
+  }
+  .hero h1 em {
+    font-style: italic;
+    color: var(--accent);
+  }
+  .hero p {
+    font-size: 1.05rem;
+    color: var(--muted);
+    line-height: 1.7;
+    max-width: 540px;
+  }
+
+  .stats {
+    display: flex;
+    gap: 2rem;
+    margin-top: 2.5rem;
+    flex-wrap: wrap;
+  }
+  .stat { border-left: 2px solid var(--accent); padding-left: 1rem; }
+  .stat-num { font-family: 'DM Serif Display', serif; font-size: 1.8rem; color: var(--text); }
+  .stat-label { font-size: 12px; color: var(--muted); margin-top: 2px; }
+
+  /* FILTERS */
+  .filter-bar {
+    max-width: 860px;
+    margin: 0 auto 1rem;
+    padding: 0 2rem;
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .filter-btn {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 12px;
+    font-weight: 500;
+    padding: 6px 14px;
+    border-radius: 100px;
+    border: 1.5px solid var(--border);
+    background: transparent;
+    color: var(--muted);
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .filter-btn:hover { border-color: var(--accent); color: var(--accent); }
+  .filter-btn.active { background: var(--accent); color: white; border-color: var(--accent); }
+
+  /* PROGRESS BAR */
+  .progress-wrap {
+    max-width: 860px;
+    margin: 0 auto 2rem;
+    padding: 0 2rem;
+  }
+  .progress-label {
+    font-size: 12px;
+    color: var(--muted);
+    margin-bottom: 8px;
+    display: flex;
+    justify-content: space-between;
+  }
+  .progress-track {
+    height: 4px;
+    background: var(--bg2);
+    border-radius: 4px;
+    overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%;
+    background: var(--accent);
+    border-radius: 4px;
+    transition: width 0.4s ease;
+    width: 0%;
+  }
+
+  /* MAIN */
+  main {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 0 2rem 6rem;
+  }
+
+  /* PHASE */
+  .phase { margin-bottom: 3rem; }
+  .phase-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 1rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid var(--border);
+  }
+  .phase-dot {
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .phase-name {
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  .phase-count {
+    margin-left: auto;
+    font-size: 11px;
+    color: var(--muted);
+  }
+
+  /* COURSE CARD */
+  .course-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    margin-bottom: 8px;
+    overflow: hidden;
+    transition: box-shadow 0.2s, transform 0.2s;
+  }
+  .course-card:hover { box-shadow: 0 4px 20px rgba(0,0,0,0.07); transform: translateY(-1px); }
+  .course-card.done { border-left: 3px solid #2A8C5A; }
+
+  .course-trigger {
+    width: 100%;
+    background: none;
+    border: none;
+    padding: 1.1rem 1.25rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    text-align: left;
+    font-family: 'DM Sans', sans-serif;
+  }
+  .check-circle {
+    width: 22px; height: 22px;
+    border-radius: 50%;
+    border: 1.5px solid var(--border);
+    flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.2s;
+    cursor: pointer;
+  }
+  .check-circle:hover { border-color: #2A8C5A; }
+  .check-circle svg { display: none; }
+  .course-card.done .check-circle { background: #2A8C5A; border-color: #2A8C5A; }
+  .course-card.done .check-circle svg { display: block; }
+
+  .course-code {
+    font-size: 11px;
+    font-weight: 500;
+    background: var(--bg2);
+    color: var(--muted);
+    padding: 3px 9px;
+    border-radius: 4px;
+    white-space: nowrap;
+  }
+  .course-title {
+    font-size: 15px;
+    font-weight: 500;
+    color: var(--text);
+    flex: 1;
+  }
+  .course-credits {
+    font-size: 12px;
+    color: var(--muted);
+    white-space: nowrap;
+  }
+  .chevron {
+    width: 18px; height: 18px;
+    color: var(--muted);
+    transition: transform 0.25s;
+    flex-shrink: 0;
+  }
+  .course-card.open .chevron { transform: rotate(180deg); }
+
+  /* BODY */
+  .course-body {
+    display: none;
+    padding: 0 1.25rem 1.25rem 1.25rem;
+    border-top: 1px solid var(--border);
+  }
+  .course-card.open .course-body { display: block; }
+
+  .body-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.25rem;
+    padding-top: 1.1rem;
+  }
+  @media (max-width: 600px) { .body-grid { grid-template-columns: 1fr; } }
+
+  .section-label {
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 0.6rem;
+  }
+  .resource-list { list-style: none; display: flex; flex-direction: column; gap: 8px; }
+  .resource-list li {
+    font-size: 13px;
+    color: var(--muted);
+    line-height: 1.5;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+  }
+  .resource-list li a { color: var(--accent2); text-decoration: none; }
+  .resource-list li a:hover { text-decoration: underline; }
+
+  .tag {
+    display: inline-block;
+    font-size: 10px;
+    font-weight: 500;
+    padding: 2px 8px;
+    border-radius: 100px;
+    align-self: flex-start;
+    margin-bottom: 2px;
+  }
+  .tag-livre { background: var(--tag-book-bg); color: var(--tag-book-txt); }
+  .tag-video { background: var(--tag-vid-bg); color: var(--tag-vid-txt); }
+  .tag-outil { background: var(--tag-tool-bg); color: var(--tag-tool-txt); }
+
+  .project-box {
+    background: var(--bg);
+    border-radius: 8px;
+    padding: 1rem;
+  }
+  .project-box p { font-size: 13px; color: var(--muted); line-height: 1.65; }
+
+  .mark-done-btn {
+    margin-top: 1rem;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 12px;
+    font-weight: 500;
+    padding: 7px 16px;
+    border-radius: 100px;
+    border: 1.5px solid #2A8C5A;
+    background: transparent;
+    color: #2A8C5A;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .mark-done-btn:hover { background: #2A8C5A; color: white; }
+  .course-card.done .mark-done-btn { background: #2A8C5A; color: white; }
+
+  /* HIDDEN */
+  .phase[data-hidden="true"] { display: none; }
+  .course-card[data-hidden="true"] { display: none; }
+
+  /* FOOTER */
+  footer {
+    text-align: center;
+    padding: 2rem;
+    font-size: 12px;
+    color: var(--muted);
+    border-top: 1px solid var(--border);
+  }
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <div class="hero-eyebrow">Parcours autodidacte · ÉTS Design UX</div>
+  <h1>Devenir designer UX<br><em>sans passer par l'université.</em></h1>
+  <p>Un curriculum complet inspiré du baccalauréat en design UX de l'ÉTS, adapté pour l'apprentissage autonome. Ressources gratuites, livres de référence et mini-projets d'un à deux jours.</p>
+  <div class="stats">
+    <div class="stat"><div class="stat-num" id="stat-cours">28</div><div class="stat-label">cours</div></div>
+    <div class="stat"><div class="stat-num" id="stat-done">0</div><div class="stat-label">complétés</div></div>
+    <div class="stat"><div class="stat-num">5</div><div class="stat-label">phases</div></div>
+  </div>
+</div>
+
+<div class="progress-wrap">
+  <div class="progress-label">
+    <span>Progression</span>
+    <span id="progress-pct">0%</span>
+  </div>
+  <div class="progress-track"><div class="progress-fill" id="progress-fill"></div></div>
+</div>
+
+<div class="filter-bar">
+  <button class="filter-btn active" onclick="filterPhase('all', this)">Tous</button>
+  <button class="filter-btn" onclick="filterPhase('1', this)">Phase 1 — Fondements</button>
+  <button class="filter-btn" onclick="filterPhase('2', this)">Phase 2 — Méthodes</button>
+  <button class="filter-btn" onclick="filterPhase('3', this)">Phase 3 — Approfondissement</button>
+  <button class="filter-btn" onclick="filterPhase('4', this)">Phase 4 — Éthique & pro</button>
+  <button class="filter-btn" onclick="filterPhase('5', this)">Phase 5 — Spécialisations</button>
+</div>
+
+<main>
+
+<!-- ───────────── PHASE 1 ───────────── -->
+<div class="phase" data-phase="1">
+  <div class="phase-header">
+    <div class="phase-dot" style="background:#C84B2F"></div>
+    <span class="phase-name">Phase 1 — Fondements</span>
+    <span class="phase-count">3 cours</span>
+  </div>
+
+  <!-- DSN110 -->
+  <div class="course-card" id="c-DSN110">
+    <button class="course-trigger" onclick="toggleCard('DSN110')">
+      <div class="check-circle" onclick="markDone(event,'DSN110')">
+        <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </div>
+      <span class="course-code">DSN110</span>
+      <span class="course-title">Recherche utilisateur I</span>
+      <span class="course-credits">3 cr.</span>
+      <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+    </button>
+    <div class="course-body">
+      <div class="body-grid">
+        <div>
+          <div class="section-label">Ressources</div>
+          <ul class="resource-list">
+            <li><span class="tag tag-livre">Livre</span><em>Interviewing Users</em> — Steve Portigal (EN)</li>
+            <li><span class="tag tag-video">Vidéo</span><a href="https://www.youtube.com/watch?v=MT4Ig2uqjTc" target="_blank">Introduction à la recherche UX — UX Mastery</a></li>
+            <li><span class="tag tag-livre">Article</span><a href="https://www.nngroup.com/articles/which-ux-research-methods/" target="_blank">Which UX Research Methods? — Nielsen Norman Group</a></li>
+          </ul>
+        </div>
+        <div>
+          <div class="section-label">Mini-projet (1–2 jours)</div>
+          <div class="project-box"><p>Mène 3 entretiens courts (15–20 min) avec des proches sur leur expérience d'une application qu'ils utilisent souvent. Prends des notes structurées, puis synthétise les thèmes communs dans un document d'une page.</p></div>
+        </div>
+      </div>
+      <button class="mark-done-btn" onclick="markDone(event,'DSN110')">Marquer comme complété</button>
+    </div>
+  </div>
+
+  <!-- DSN120 -->
+  <div class="course-card" id="c-DSN120">
+    <button class="course-trigger" onclick="toggleCard('DSN120')">
+      <div class="check-circle" onclick="markDone(event,'DSN120')"><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      <span class="course-code">DSN120</span>
+      <span class="course-title">Atelier I : Design UX</span>
+      <span class="course-credits">3 cr.</span>
+      <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+    </button>
+    <div class="course-body">
+      <div class="body-grid">
+        <div>
+          <div class="section-label">Ressources</div>
+          <ul class="resource-list">
+            <li><span class="tag tag-livre">Livre</span><em>The Design of Everyday Things</em> — Don Norman (EN/FR)</li>
+            <li><span class="tag tag-video">Vidéo</span><a href="https://www.youtube.com/watch?v=yY96hTb8WgI" target="_blank">Google UX Design Certificate Intro — Coursera/YouTube</a></li>
+            <li><span class="tag tag-outil">Outil</span>Figma — créer un compte gratuit sur figma.com</li>
+          </ul>
+        </div>
+        <div>
+          <div class="section-label">Mini-projet (1–2 jours)</div>
+          <div class="project-box"><p>Choisis une application mobile que tu trouves frustrante. Identifie 3 problèmes d'expérience utilisateur et propose des pistes de solution sous forme de croquis (papier ou Figma).</p></div>
+        </div>
+      </div>
+      <button class="mark-done-btn" onclick="markDone(event,'DSN120')">Marquer comme complété</button>
+    </div>
+  </div>
+
+  <!-- DSN140 -->
+  <div class="course-card" id="c-DSN140">
+    <button class="course-trigger" onclick="toggleCard('DSN140')">
+      <div class="check-circle" onclick="markDone(event,'DSN140')"><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      <span class="course-code">DSN140</span>
+      <span class="course-title">Histoire des idées en design UX</span>
+      <span class="course-credits">3 cr.</span>
+      <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+    </button>
+    <div class="course-body">
+      <div class="body-grid">
+        <div>
+          <div class="section-label">Ressources</div>
+          <ul class="resource-list">
+            <li><span class="tag tag-livre">Livre</span><em>Universal Principles of Design</em> — Lidwell, Holden & Butler (EN)</li>
+            <li><span class="tag tag-video">Vidéo</span><a href="https://www.youtube.com/watch?v=sByzHoiYFX0" target="_blank">History of UX Design — Flux Academy</a></li>
+            <li><span class="tag tag-livre">Article</span><a href="https://www.nngroup.com/articles/definition-user-experience/" target="_blank">The Definition of UX — Nielsen Norman Group</a></li>
+          </ul>
+        </div>
+        <div>
+          <div class="section-label">Mini-projet (1–2 jours)</div>
+          <div class="project-box"><p>Crée une frise chronologique visuelle des 5 moments clés qui ont façonné le design UX, de l'ergonomie industrielle aux interfaces tactiles. Ajoute une phrase d'impact pour chaque moment.</p></div>
+        </div>
+      </div>
+      <button class="mark-done-btn" onclick="markDone(event,'DSN140')">Marquer comme complété</button>
+    </div>
+  </div>
+</div>
+
+<!-- ───────────── PHASE 2 ───────────── -->
+<div class="phase" data-phase="2">
+  <div class="phase-header">
+    <div class="phase-dot" style="background:#2F6AC8"></div>
+    <span class="phase-name">Phase 2 — Méthodes & pratique</span>
+    <span class="phase-count">4 cours</span>
+  </div>
+
+  <!-- DSN210 -->
+  <div class="course-card" id="c-DSN210">
+    <button class="course-trigger" onclick="toggleCard('DSN210')">
+      <div class="check-circle" onclick="markDone(event,'DSN210')"><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      <span class="course-code">DSN210</span>
+      <span class="course-title">Recherche utilisateur II</span>
+      <span class="course-credits">3 cr.</span>
+      <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+    </button>
+    <div class="course-body">
+      <div class="body-grid">
+        <div>
+          <div class="section-label">Ressources</div>
+          <ul class="resource-list">
+            <li><span class="tag tag-livre">Livre</span><em>Just Enough Research</em> — Erika Hall (EN)</li>
+            <li><span class="tag tag-video">Vidéo</span><a href="https://www.youtube.com/watch?v=3ZbIN8YObOA" target="_blank">How to Synthesize UX Research — CareerFoundry</a></li>
+            <li><span class="tag tag-outil">Outil</span>Miro ou FigJam — cartographie d'affinité</li>
+          </ul>
+        </div>
+        <div>
+          <div class="section-label">Mini-projet (1–2 jours)</div>
+          <div class="project-box"><p>Conçois un sondage de 10 questions sur les habitudes de lecture numérique, distribue-le à une dizaine de personnes, puis analyse les résultats avec une cartographie d'affinité dans Miro ou FigJam.</p></div>
+        </div>
+      </div>
+      <button class="mark-done-btn" onclick="markDone(event,'DSN210')">Marquer comme complété</button>
+    </div>
+  </div>
+
+  <!-- DSN220 -->
+  <div class="course-card" id="c-DSN220">
+    <button class="course-trigger" onclick="toggleCard('DSN220')">
+      <div class="check-circle" onclick="markDone(event,'DSN220')"><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      <span class="course-code">DSN220</span>
+      <span class="course-title">Atelier II : Design de services</span>
+      <span class="course-credits">3 cr.</span>
+      <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+    </button>
+    <div class="course-body">
+      <div class="body-grid">
+        <div>
+          <div class="section-label">Ressources</div>
+          <ul class="resource-list">
+            <li><span class="tag tag-livre">Livre</span><em>This is Service Design Doing</em> — Stickdorn et al. (EN)</li>
+            <li><span class="tag tag-video">Vidéo</span><a href="https://www.youtube.com/watch?v=Owh8kBFN4aA" target="_blank">Customer Journey Map — NNGroup</a></li>
+            <li><span class="tag tag-outil">Outil</span>Miro — modèle de journey map gratuit</li>
+          </ul>
+        </div>
+        <div>
+          <div class="section-label">Mini-projet (1–2 jours)</div>
+          <div class="project-box"><p>Cartographie l'expérience complète d'un usager dans un service du quotidien (commande en ligne, visite chez le médecin). Identifie les points de friction et propose 2 améliorations concrètes.</p></div>
+        </div>
+      </div>
+      <button class="mark-done-btn" onclick="markDone(event,'DSN220')">Marquer comme complété</button>
+    </div>
+  </div>
+
+  <!-- DSN230 -->
+  <div class="course-card" id="c-DSN230">
+    <button class="course-trigger" onclick="toggleCard('DSN230')">
+      <div class="check-circle" onclick="markDone(event,'DSN230')"><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      <span class="course-code">DSN230</span>
+      <span class="course-title">Prototypage pour le design UX</span>
+      <span class="course-credits">3 cr.</span>
+      <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+    </button>
+    <div class="course-body">
+      <div class="body-grid">
+        <div>
+          <div class="section-label">Ressources</div>
+          <ul class="resource-list">
+            <li><span class="tag tag-video">Vidéo</span><a href="https://www.youtube.com/watch?v=JMjozqJS44M" target="_blank">Figma for Beginners (4 parties) — Figma</a></li>
+            <li><span class="tag tag-livre">Article</span><a href="https://www.nngroup.com/articles/ux-prototype-hi-lo-fidelity/" target="_blank">High vs. Low Fidelity Prototypes — NNGroup</a></li>
+            <li><span class="tag tag-outil">Outil</span>Figma — fonctionnalités de prototypage interactif</li>
+          </ul>
+        </div>
+        <div>
+          <div class="section-label">Mini-projet (1–2 jours)</div>
+          <div class="project-box"><p>Crée un prototype interactif basse fidélité d'une application de suivi d'habitudes dans Figma : écran d'accueil, ajout d'une habitude, vue de progression. Ajoute les liens de navigation entre les écrans.</p></div>
+        </div>
+      </div>
+      <button class="mark-done-btn" onclick="markDone(event,'DSN230')">Marquer comme complété</button>
+    </div>
+  </div>
+
+  <!-- DSN260 -->
+  <div class="course-card" id="c-DSN260">
+    <button class="course-trigger" onclick="toggleCard('DSN260')">
+      <div class="check-circle" onclick="markDone(event,'DSN260')"><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      <span class="course-code">DSN260</span>
+      <span class="course-title">Facteurs humains et sciences cognitives</span>
+      <span class="course-credits">3 cr.</span>
+      <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+    </button>
+    <div class="course-body">
+      <div class="body-grid">
+        <div>
+          <div class="section-label">Ressources</div>
+          <ul class="resource-list">
+            <li><span class="tag tag-livre">Livre</span><em>100 Things Every Designer Needs to Know About People</em> — Susan Weinschenk (EN)</li>
+            <li><span class="tag tag-video">Vidéo</span><a href="https://www.youtube.com/watch?v=Ln-sgmBZPNk" target="_blank">Laws of UX en 10 min</a></li>
+            <li><span class="tag tag-livre">Référence</span><a href="https://lawsofux.com" target="_blank">lawsofux.com</a> — recueil illustré des lois du design</li>
+          </ul>
+        </div>
+        <div>
+          <div class="section-label">Mini-projet (1–2 jours)</div>
+          <div class="project-box"><p>Analyse une interface au choix à travers le prisme de 5 lois UX (Hick, Fitts, Miller, Jakob…). Documente chaque loi avec une capture d'écran annotée et une explication de son application.</p></div>
+        </div>
+      </div>
+      <button class="mark-done-btn" onclick="markDone(event,'DSN260')">Marquer comme complété</button>
+    </div>
+  </div>
+</div>
+
+<!-- ───────────── PHASE 3 ───────────── -->
+<div class="phase" data-phase="3">
+  <div class="phase-header">
+    <div class="phase-dot" style="background:#2A8C5A"></div>
+    <span class="phase-name">Phase 3 — Approfondissement</span>
+    <span class="phase-count">6 cours</span>
+  </div>
+
+  <!-- DSN240 -->
+  <div class="course-card" id="c-DSN240">
+    <button class="course-trigger" onclick="toggleCard('DSN240')">
+      <div class="check-circle" onclick="markDone(event,'DSN240')"><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      <span class="course-code">DSN240</span>
+      <span class="course-title">Design participatif et design social</span>
+      <span class="course-credits">3 cr.</span>
+      <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+    </button>
+    <div class="course-body">
+      <div class="body-grid">
+        <div>
+          <div class="section-label">Ressources</div>
+          <ul class="resource-list">
+            <li><span class="tag tag-livre">Livre</span><em>Design for the Real World</em> — Victor Papanek (EN/FR)</li>
+            <li><span class="tag tag-video">Vidéo</span><a href="https://www.youtube.com/watch?v=dkHCGKMQfkA" target="_blank">Co-design Workshop Methods — Service Design Network</a></li>
+          </ul>
+        </div>
+        <div>
+          <div class="section-label">Mini-projet (1–2 jours)</div>
+          <div class="project-box"><p>Organise un mini atelier de co-design (30–45 min) avec 2 ou 3 personnes autour d'un problème local simple. Facilite, documente et synthétise les idées générées.</p></div>
+        </div>
+      </div>
+      <button class="mark-done-btn" onclick="markDone(event,'DSN240')">Marquer comme complété</button>
+    </div>
+  </div>
+
+  <!-- DSN250 -->
+  <div class="course-card" id="c-DSN250">
+    <button class="course-trigger" onclick="toggleCard('DSN250')">
+      <div class="check-circle" onclick="markDone(event,'DSN250')"><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      <span class="course-code">DSN250</span>
+      <span class="course-title">Gestion de produit, stratégie et design UX</span>
+      <span class="course-credits">3 cr.</span>
+      <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+    </button>
+    <div class="course-body">
+      <div class="body-grid">
+        <div>
+          <div class="section-label">Ressources</div>
+          <ul class="resource-list">
+            <li><span class="tag tag-livre">Livre</span><em>Lean UX</em> — Jeff Gothelf & Josh Seiden (EN)</li>
+            <li><span class="tag tag-video">Vidéo</span><a href="https://www.youtube.com/watch?v=502ILHjX9EE" target="_blank">UX & Product Strategy — AJ&Smart</a></li>
+            <li><span class="tag tag-livre">Articles</span><a href="https://www.svpg.com/articles/" target="_blank">SVPG — Silicon Valley Product Group</a></li>
+          </ul>
+        </div>
+        <div>
+          <div class="section-label">Mini-projet (1–2 jours)</div>
+          <div class="project-box"><p>Choisis une app existante et rédige une fiche produit d'une page : problème résolu, utilisateurs cibles, proposition de valeur, 3 métriques de succès et une opportunité d'amélioration UX.</p></div>
+        </div>
+      </div>
+      <button class="mark-done-btn" onclick="markDone(event,'DSN250')">Marquer comme complété</button>
+    </div>
+  </div>
+
+  <!-- DSN340 -->
+  <div class="course-card" id="c-DSN340">
+    <button class="course-trigger" onclick="toggleCard('DSN340')">
+      <div class="check-circle" onclick="markDone(event,'DSN340')"><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      <span class="course-code">DSN340</span>
+      <span class="course-title">Design et complexité</span>
+      <span class="course-credits">3 cr.</span>
+      <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+    </button>
+    <div class="course-body">
+      <div class="body-grid">
+        <div>
+          <div class="section-label">Ressources</div>
+          <ul class="resource-list">
+            <li><span class="tag tag-livre">Article</span><em>Wicked Problems in Design Thinking</em> — Richard Buchanan (EN)</li>
+            <li><span class="tag tag-video">Vidéo</span><a href="https://www.youtube.com/watch?v=gHGqFEl8BNE" target="_blank">Systems Thinking — The RSA</a></li>
+          </ul>
+        </div>
+        <div>
+          <div class="section-label">Mini-projet (1–2 jours)</div>
+          <div class="project-box"><p>Cartographie un système complexe du quotidien (ex. : transports en commun) sous forme de diagramme de relations. Identifie les boucles de rétroaction et 2 leviers d'intervention possibles.</p></div>
+        </div>
+      </div>
+      <button class="mark-done-btn" onclick="markDone(event,'DSN340')">Marquer comme complété</button>
+    </div>
+  </div>
+
+  <!-- DSN370 -->
+  <div class="course-card" id="c-DSN370">
+    <button class="course-trigger" onclick="toggleCard('DSN370')">
+      <div class="check-circle" onclick="markDone(event,'DSN370')"><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      <span class="course-code">DSN370</span>
+      <span class="course-title">Design inclusif</span>
+      <span class="course-credits">3 cr.</span>
+      <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+    </button>
+    <div class="course-body">
+      <div class="body-grid">
+        <div>
+          <div class="section-label">Ressources</div>
+          <ul class="resource-list">
+            <li><span class="tag tag-livre">Guide</span><a href="https://www.microsoft.com/design/inclusive/" target="_blank">Microsoft Inclusive Design Toolkit</a></li>
+            <li><span class="tag tag-video">Vidéo</span><a href="https://www.youtube.com/watch?v=bDNM4pOxoVA" target="_blank">Accessibility & Inclusive Design — Google</a></li>
+            <li><span class="tag tag-outil">Outil</span><a href="https://wave.webaim.org" target="_blank">WAVE</a> — évaluateur d'accessibilité web gratuit</li>
+          </ul>
+        </div>
+        <div>
+          <div class="section-label">Mini-projet (1–2 jours)</div>
+          <div class="project-box"><p>Audite l'accessibilité d'un site web public avec WAVE. Documente 5 problèmes (contraste, texte alternatif, navigation clavier…) et propose une correction pour chacun avec captures annotées.</p></div>
+        </div>
+      </div>
+      <button class="mark-done-btn" onclick="markDone(event,'DSN370')">Marquer comme complété</button>
+    </div>
+  </div>
+
+  <!-- DSN460 -->
+  <div class="course-card" id="c-DSN460">
+    <button class="course-trigger" onclick="toggleCard('DSN460')">
+      <div class="check-circle" onclick="markDone(event,'DSN460')"><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      <span class="course-code">DSN460</span>
+      <span class="course-title">Ergonomie cognitive et mesures physiologiques</span>
+      <span class="course-credits">3 cr.</span>
+      <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+    </button>
+    <div class="course-body">
+      <div class="body-grid">
+        <div>
+          <div class="section-label">Ressources</div>
+          <ul class="resource-list">
+            <li><span class="tag tag-livre">Livre</span><em>Thinking, Fast and Slow</em> — Daniel Kahneman (EN/FR)</li>
+            <li><span class="tag tag-video">Vidéo</span><a href="https://www.youtube.com/watch?v=3bKoJBn0Hbs" target="_blank">Eye Tracking in UX Research — NNGroup</a></li>
+            <li><span class="tag tag-livre">Article</span><a href="https://www.nngroup.com/articles/f-shaped-pattern-reading-content/" target="_blank">F-Shaped Reading Pattern — NNGroup</a></li>
+          </ul>
+        </div>
+        <div>
+          <div class="section-label">Mini-projet (1–2 jours)</div>
+          <div class="project-box"><p>Fais passer un test de pensée à voix haute à 2 personnes sur une tâche simple (acheter un billet en ligne). Observe les hésitations et erreurs, rédige un rapport d'une page avec tes observations clés.</p></div>
+        </div>
+      </div>
+      <button class="mark-done-btn" onclick="markDone(event,'DSN460')">Marquer comme complété</button>
+    </div>
+  </div>
+
+  <!-- DSN530 -->
+  <div class="course-card" id="c-DSN530">
+    <button class="course-trigger" onclick="toggleCard('DSN530')">
+      <div class="check-circle" onclick="markDone(event,'DSN530')"><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      <span class="course-code">DSN530</span>
+      <span class="course-title">Développement durable et design UX</span>
+      <span class="course-credits">3 cr.</span>
+      <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+    </button>
+    <div class="course-body">
+      <div class="body-grid">
+        <div>
+          <div class="section-label">Ressources</div>
+          <ul class="resource-list">
+            <li><span class="tag tag-livre">Livre</span><em>Designing for Sustainability</em> — Tim Frick (EN)</li>
+            <li><span class="tag tag-livre">Référence</span><a href="https://sustainablewebdesign.org" target="_blank">sustainablewebdesign.org</a></li>
+            <li><span class="tag tag-outil">Outil</span><a href="https://www.websitecarbon.com" target="_blank">websitecarbon.com</a> — empreinte carbone d'un site</li>
+          </ul>
+        </div>
+        <div>
+          <div class="section-label">Mini-projet (1–2 jours)</div>
+          <div class="project-box"><p>Analyse l'empreinte numérique de 3 sites avec websitecarbon.com. Identifie les pratiques problématiques et propose un redesign partiel d'une page en appliquant les principes de sobriété numérique.</p></div>
+        </div>
+      </div>
+      <button class="mark-done-btn" onclick="markDone(event,'DSN530')">Marquer comme complété</button>
+    </div>
+  </div>
+</div>
+
+<!-- ───────────── PHASE 4 ───────────── -->
+<div class="phase" data-phase="4">
+  <div class="phase-header">
+    <div class="phase-dot" style="background:#8C4B2F"></div>
+    <span class="phase-name">Phase 4 — Posture professionnelle & éthique</span>
+    <span class="phase-count">4 cours</span>
+  </div>
+
+  <!-- DSN610 -->
+  <div class="course-card" id="c-DSN610">
+    <button class="course-trigger" onclick="toggleCard('DSN610')">
+      <div class="check-circle" onclick="markDone(event,'DSN610')"><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      <span class="course-code">DSN610</span>
+      <span class="course-title">Problématisation du projet de fin d'études</span>
+      <span class="course-credits">3 cr.</span>
+      <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+    </button>
+    <div class="course-body">
+      <div class="body-grid">
+        <div>
+          <div class="section-label">Ressources</div>
+          <ul class="resource-list">
+            <li><span class="tag tag-livre">Livre</span><em>UX Strategy</em> — Jaime Levy (EN)</li>
+            <li><span class="tag tag-video">Vidéo</span><a href="https://www.youtube.com/watch?v=gHGqFEl8BNE" target="_blank">How to Frame a Design Problem — AJ&Smart</a></li>
+          </ul>
+        </div>
+        <div>
+          <div class="section-label">Mini-projet (1–2 jours)</div>
+          <div class="project-box"><p>Rédige un brief de projet personnel : choisis un problème UX, formule une question de design (« Comment pourrait-on… »), définis ta cible, tes contraintes et 3 critères de succès.</p></div>
+        </div>
+      </div>
+      <button class="mark-done-btn" onclick="markDone(event,'DSN610')">Marquer comme complété</button>
+    </div>
+  </div>
+
+  <!-- DSN630 -->
+  <div class="course-card" id="c-DSN630">
+    <button class="course-trigger" onclick="toggleCard('DSN630')">
+      <div class="check-circle" onclick="markDone(event,'DSN630')"><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      <span class="course-code">DSN630</span>
+      <span class="course-title">Pratique professionnelle en design UX</span>
+      <span class="course-credits">3 cr.</span>
+      <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+    </button>
+    <div class="course-body">
+      <div class="body-grid">
+        <div>
+          <div class="section-label">Ressources</div>
+          <ul class="resource-list">
+            <li><span class="tag tag-livre">Livre</span><em>The UX Careers Handbook</em> — Cory Lebson (EN)</li>
+            <li><span class="tag tag-video">Vidéo</span><a href="https://www.youtube.com/watch?v=oSbz3DQo2YQ" target="_blank">How to Build a UX Portfolio — Femke</a></li>
+            <li><span class="tag tag-outil">Outil</span>Notion ou Framer — créer un portfolio en ligne</li>
+          </ul>
+        </div>
+        <div>
+          <div class="section-label">Mini-projet (1–2 jours)</div>
+          <div class="project-box"><p>Crée la structure de ton portfolio en ligne avec une page d'accueil, une courte bio et un gabarit d'étude de cas réutilisable (problème → recherche → solution → résultats).</p></div>
+        </div>
+      </div>
+      <button class="mark-done-btn" onclick="markDone(event,'DSN630')">Marquer comme complété</button>
+    </div>
+  </div>
+
+  <!-- ETH440 -->
+  <div class="course-card" id="c-ETH440">
+    <button class="course-trigger" onclick="toggleCard('ETH440')">
+      <div class="check-circle" onclick="markDone(event,'ETH440')"><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      <span class="course-code">ETH440</span>
+      <span class="course-title">Éthique et pratique du design UX</span>
+      <span class="course-credits">3 cr.</span>
+      <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+    </button>
+    <div class="course-body">
+      <div class="body-grid">
+        <div>
+          <div class="section-label">Ressources</div>
+          <ul class="resource-list">
+            <li><span class="tag tag-livre">Référence</span><a href="https://www.darkpatterns.org" target="_blank">darkpatterns.org</a> — catalogue de dark patterns</li>
+            <li><span class="tag tag-livre">Livre</span><em>Technically Wrong</em> — Sara Wachter-Boettcher (EN)</li>
+            <li><span class="tag tag-video">Vidéo</span><a href="https://www.youtube.com/watch?v=1wcOBtCFBpA" target="_blank">Ethical Design — The Future of UX</a></li>
+          </ul>
+        </div>
+        <div>
+          <div class="section-label">Mini-projet (1–2 jours)</div>
+          <div class="project-box"><p>Recense 5 dark patterns dans des interfaces que tu utilises. Pour chacun, explique la manipulation, l'impact sur l'utilisateur et propose une alternative éthique.</p></div>
+        </div>
+      </div>
+      <button class="mark-done-btn" onclick="markDone(event,'ETH440')">Marquer comme complété</button>
+    </div>
+  </div>
+
+  <!-- TIN540 -->
+  <div class="course-card" id="c-TIN540">
+    <button class="course-trigger" onclick="toggleCard('TIN540')">
+      <div class="check-circle" onclick="markDone(event,'TIN540')"><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      <span class="course-code">TIN540</span>
+      <span class="course-title">Sociologie de la technologie et design UX</span>
+      <span class="course-credits">3 cr.</span>
+      <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+    </button>
+    <div class="course-body">
+      <div class="body-grid">
+        <div>
+          <div class="section-label">Ressources</div>
+          <ul class="resource-list">
+            <li><span class="tag tag-livre">Livre</span><em>Weapons of Math Destruction</em> — Cathy O'Neil (EN/FR)</li>
+            <li><span class="tag tag-video">Vidéo</span><a href="https://www.youtube.com/watch?v=5vJbFJ2VNPs" target="_blank">The Social Dilemma — analyse</a></li>
+            <li><span class="tag tag-livre">Référence</span><a href="https://designjustice.org" target="_blank">Design Justice Network</a></li>
+          </ul>
+        </div>
+        <div>
+          <div class="section-label">Mini-projet (1–2 jours)</div>
+          <div class="project-box"><p>Analyse une technologie numérique grand public sous l'angle sociologique : qui en bénéficie ? Qui en est exclu ? Quels biais de conception sont visibles ? Réflexion critique d'une page.</p></div>
+        </div>
+      </div>
+      <button class="mark-done-btn" onclick="markDone(event,'TIN540')">Marquer comme complété</button>
+    </div>
+  </div>
+</div>
+
+<!-- ───────────── PHASE 5 ───────────── -->
+<div class="phase" data-phase="5">
+  <div class="phase-header">
+    <div class="phase-dot" style="background:#6B2F8C"></div>
+    <span class="phase-name">Phase 5 — Spécialisations (cours au choix)</span>
+    <span class="phase-count">11 cours</span>
+  </div>
+
+  <!-- DSN360 -->
+  <div class="course-card" id="c-DSN360">
+    <button class="course-trigger" onclick="toggleCard('DSN360')">
+      <div class="check-circle" onclick="markDone(event,'DSN360')"><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      <span class="course-code">DSN360</span>
+      <span class="course-title">Architecture de l'information</span>
+      <span class="course-credits">3 cr.</span>
+      <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+    </button>
+    <div class="course-body">
+      <div class="body-grid">
+        <div>
+          <div class="section-label">Ressources</div>
+          <ul class="resource-list">
+            <li><span class="tag tag-livre">Livre</span><em>Information Architecture</em> — Rosenfeld, Morville & Arango (EN)</li>
+            <li><span class="tag tag-video">Vidéo</span><a href="https://www.youtube.com/watch?v=Ij6VjX7vMH8" target="_blank">Card Sorting & Tree Testing — NNGroup</a></li>
+            <li><span class="tag tag-outil">Outil</span><a href="https://www.optimalworkshop.com" target="_blank">Optimal Workshop</a> — card sorting (freemium)</li>
+          </ul>
+        </div>
+        <div>
+          <div class="section-label">Mini-projet (1–2 jours)</div>
+          <div class="project-box"><p>Réalise un card sorting ouvert avec 5 personnes sur la navigation d'un site e-commerce fictif. Analyse les regroupements et propose une arborescence de navigation optimisée.</p></div>
+        </div>
+      </div>
+      <button class="mark-done-btn" onclick="markDone(event,'DSN360')">Marquer comme complété</button>
+    </div>
+  </div>
+
+  <!-- DSN380 -->
+  <div class="course-card" id="c-DSN380">
+    <button class="course-trigger" onclick="toggleCard('DSN380')">
+      <div class="check-circle" onclick="markDone(event,'DSN380')"><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      <span class="course-code">DSN380</span>
+      <span class="course-title">Introduction à l'IA pour le design UX</span>
+      <span class="course-credits">3 cr.</span>
+      <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+    </button>
+    <div class="course-body">
+      <div class="body-grid">
+        <div>
+          <div class="section-label">Ressources</div>
+          <ul class="resource-list">
+            <li><span class="tag tag-livre">Article</span><a href="https://www.nngroup.com/articles/ai-ux/" target="_blank">AI & UX — NNGroup</a></li>
+            <li><span class="tag tag-video">Vidéo</span><a href="https://www.youtube.com/watch?v=2kEJoWfobpA" target="_blank">Designing AI Experiences — Google I/O</a></li>
+            <li><span class="tag tag-outil">Outil</span>Galileo AI ou Uizard — génération d'interfaces par IA</li>
+          </ul>
+        </div>
+        <div>
+          <div class="section-label">Mini-projet (1–2 jours)</div>
+          <div class="project-box"><p>Génère un écran d'interface avec un outil IA, critique le résultat (problèmes d'utilisabilité, incohérences) et améliore-le manuellement dans Figma.</p></div>
+        </div>
+      </div>
+      <button class="mark-done-btn" onclick="markDone(event,'DSN380')">Marquer comme complété</button>
+    </div>
+  </div>
+
+  <!-- DSN420 -->
+  <div class="course-card" id="c-DSN420">
+    <button class="course-trigger" onclick="toggleCard('DSN420')">
+      <div class="check-circle" onclick="markDone(event,'DSN420')"><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      <span class="course-code">DSN420</span>
+      <span class="course-title">Visualisation de l'information</span>
+      <span class="course-credits">3 cr.</span>
+      <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+    </button>
+    <div class="course-body">
+      <div class="body-grid">
+        <div>
+          <div class="section-label">Ressources</div>
+          <ul class="resource-list">
+            <li><span class="tag tag-livre">Livre</span><em>The Functional Art</em> — Alberto Cairo (EN)</li>
+            <li><span class="tag tag-livre">Référence</span><a href="https://www.data-to-viz.com" target="_blank">data-to-viz.com</a> — choisir le bon graphique</li>
+            <li><span class="tag tag-outil">Outil</span>Flourish ou Datawrapper — visualisation sans code</li>
+          </ul>
+        </div>
+        <div>
+          <div class="section-label">Mini-projet (1–2 jours)</div>
+          <div class="project-box"><p>Trouve un jeu de données public et crée 3 visualisations différentes du même dataset avec Flourish ou Datawrapper. Compare leur efficacité communicationnelle.</p></div>
+        </div>
+      </div>
+      <button class="mark-done-btn" onclick="markDone(event,'DSN420')">Marquer comme complété</button>
+    </div>
+  </div>
+
+  <!-- DSN450 -->
+  <div class="course-card" id="c-DSN450">
+    <button class="course-trigger" onclick="toggleCard('DSN450')">
+      <div class="check-circle" onclick="markDone(event,'DSN450')"><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      <span class="course-code">DSN450</span>
+      <span class="course-title">Design UX et transformation organisationnelle</span>
+      <span class="course-credits">3 cr.</span>
+      <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+    </button>
+    <div class="course-body">
+      <div class="body-grid">
+        <div>
+          <div class="section-label">Ressources</div>
+          <ul class="resource-list">
+            <li><span class="tag tag-livre">Livre</span><em>Change by Design</em> — Tim Brown (EN/FR)</li>
+            <li><span class="tag tag-video">Vidéo</span><a href="https://www.youtube.com/watch?v=OsAbgs4XKJE" target="_blank">Design Thinking for Organizations — IDEO U</a></li>
+            <li><span class="tag tag-livre">Article</span><a href="https://www.mckinsey.com/capabilities/mckinsey-design/our-insights/the-business-value-of-design" target="_blank">The Business Value of Design — McKinsey</a></li>
+          </ul>
+        </div>
+        <div>
+          <div class="section-label">Mini-projet (1–2 jours)</div>
+          <div class="project-box"><p>Cartographie le processus de design d'une organisation fictive ou réelle. Identifie les blocages et propose 3 recommandations pour mieux intégrer le design UX dans les décisions stratégiques.</p></div>
+        </div>
+      </div>
+      <button class="mark-done-btn" onclick="markDone(event,'DSN450')">Marquer comme complété</button>
+    </div>
+  </div>
+
+  <!-- DSN470 -->
+  <div class="course-card" id="c-DSN470">
+    <button class="course-trigger" onclick="toggleCard('DSN470')">
+      <div class="check-circle" onclick="markDone(event,'DSN470')"><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      <span class="course-code">DSN470</span>
+      <span class="course-title">Design UX pour les jeux vidéo</span>
+      <span class="course-credits">3 cr.</span>
+      <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+    </button>
+    <div class="course-body">
+      <div class="body-grid">
+        <div>
+          <div class="section-label">Ressources</div>
+          <ul class="resource-list">
+            <li><span class="tag tag-livre">Livre</span><em>The Art of Game Design</em> — Jesse Schell (EN)</li>
+            <li><span class="tag tag-video">Vidéo</span><a href="https://www.youtube.com/watch?v=v5cbMHMHaCI" target="_blank">Game UX — Extra Credits</a></li>
+            <li><span class="tag tag-livre">Article</span><a href="https://www.nngroup.com/articles/game-ux/" target="_blank">UX in Video Games — NNGroup</a></li>
+          </ul>
+        </div>
+        <div>
+          <div class="section-label">Mini-projet (1–2 jours)</div>
+          <div class="project-box"><p>Analyse l'onboarding d'un jeu vidéo au choix : comment enseigne-t-il ses mécaniques ? Documente les techniques (affordances, feedback, progression) avec des captures annotées.</p></div>
+        </div>
+      </div>
+      <button class="mark-done-btn" onclick="markDone(event,'DSN470')">Marquer comme complété</button>
+    </div>
+  </div>
+
+  <!-- DSN510 -->
+  <div class="course-card" id="c-DSN510">
+    <button class="course-trigger" onclick="toggleCard('DSN510')">
+      <div class="check-circle" onclick="markDone(event,'DSN510')"><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      <span class="course-code">DSN510</span>
+      <span class="course-title">Science des données pour la recherche utilisateur</span>
+      <span class="course-credits">3 cr.</span>
+      <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+    </button>
+    <div class="course-body">
+      <div class="body-grid">
+        <div>
+          <div class="section-label">Ressources</div>
+          <ul class="resource-list">
+            <li><span class="tag tag-livre">Livre</span><em>Quantifying the User Experience</em> — Sauro & Lewis (EN)</li>
+            <li><span class="tag tag-video">Vidéo</span><a href="https://www.youtube.com/watch?v=ua-MTEy2-i4" target="_blank">Google Analytics for UX Research — UX Mastery</a></li>
+            <li><span class="tag tag-outil">Outil</span><a href="https://lookerstudio.google.com" target="_blank">Looker Studio</a> — visualisation de données (gratuit)</li>
+          </ul>
+        </div>
+        <div>
+          <div class="section-label">Mini-projet (1–2 jours)</div>
+          <div class="project-box"><p>Télécharge un jeu de données UX public (Kaggle) et analyse-le dans un tableur ou Looker Studio. Identifie 3 insights actionnables et présente-les dans un rapport visuel d'une page.</p></div>
+        </div>
+      </div>
+      <button class="mark-done-btn" onclick="markDone(event,'DSN510')">Marquer comme complété</button>
+    </div>
+  </div>
+
+  <!-- DSN570 -->
+  <div class="course-card" id="c-DSN570">
+    <button class="course-trigger" onclick="toggleCard('DSN570')">
+      <div class="check-circle" onclick="markDone(event,'DSN570')"><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      <span class="course-code">DSN570</span>
+      <span class="course-title">Design de contenu</span>
+      <span class="course-credits">3 cr.</span>
+      <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+    </button>
+    <div class="course-body">
+      <div class="body-grid">
+        <div>
+          <div class="section-label">Ressources</div>
+          <ul class="resource-list">
+            <li><span class="tag tag-livre">Livre</span><em>Strategic Writing for UX</em> — Torrey Podmajersky (EN)</li>
+            <li><span class="tag tag-livre">Article</span><a href="https://www.nngroup.com/articles/writing-for-lower-literacy-users/" target="_blank">Writing for Lower-Literacy Users — NNGroup</a></li>
+          </ul>
+        </div>
+        <div>
+          <div class="section-label">Mini-projet (1–2 jours)</div>
+          <div class="project-box"><p>Récris les microtextes (boutons, messages d'erreur, onboarding) d'une interface existante en appliquant les principes de clarté et d'accessibilité. Compare l'avant/après dans un document annoté.</p></div>
+        </div>
+      </div>
+      <button class="mark-done-btn" onclick="markDone(event,'DSN570')">Marquer comme complété</button>
+    </div>
+  </div>
+
+  <!-- DSN580 -->
+  <div class="course-card" id="c-DSN580">
+    <button class="course-trigger" onclick="toggleCard('DSN580')">
+      <div class="check-circle" onclick="markDone(event,'DSN580')"><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      <span class="course-code">DSN580</span>
+      <span class="course-title">Design d'interfaces tangibles</span>
+      <span class="course-credits">3 cr.</span>
+      <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+    </button>
+    <div class="course-body">
+      <div class="body-grid">
+        <div>
+          <div class="section-label">Ressources</div>
+          <ul class="resource-list">
+            <li><span class="tag tag-livre">Livre</span><em>Designing Connected Products</em> — Claire Rowland et al. (EN)</li>
+            <li><span class="tag tag-video">Vidéo</span><a href="https://www.youtube.com/watch?v=AD6cmBDuJiA" target="_blank">Tangible User Interfaces — MIT Media Lab</a></li>
+            <li><span class="tag tag-livre">Article</span><a href="https://www.interaction-design.org/literature/topics/tangible-interaction" target="_blank">Tangible Interaction — IxDF</a></li>
+          </ul>
+        </div>
+        <div>
+          <div class="section-label">Mini-projet (1–2 jours)</div>
+          <div class="project-box"><p>Conçois le concept d'un objet connecté du quotidien (thermostat, lampe intelligente…). Documente les interactions physiques et numériques dans un diagramme de flux et esquisse l'app compagnon.</p></div>
+        </div>
+      </div>
+      <button class="mark-done-btn" onclick="markDone(event,'DSN580')">Marquer comme complété</button>
+    </div>
+  </div>
+
+  <!-- DSN620 -->
+  <div class="course-card" id="c-DSN620">
+    <button class="course-trigger" onclick="toggleCard('DSN620')">
+      <div class="check-circle" onclick="markDone(event,'DSN620')"><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      <span class="course-code">DSN620</span>
+      <span class="course-title">Design spéculatif</span>
+      <span class="course-credits">3 cr.</span>
+      <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+    </button>
+    <div class="course-body">
+      <div class="body-grid">
+        <div>
+          <div class="section-label">Ressources</div>
+          <ul class="resource-list">
+            <li><span class="tag tag-livre">Livre</span><em>Speculative Everything</em> — Dunne & Raby (EN)</li>
+            <li><span class="tag tag-video">Vidéo</span><a href="https://www.youtube.com/watch?v=URrlGHEwMRo" target="_blank">What is Speculative Design? — Superflux</a></li>
+          </ul>
+        </div>
+        <div>
+          <div class="section-label">Mini-projet (1–2 jours)</div>
+          <div class="project-box"><p>Imagine une interface dans un futur alternatif à 20 ans. Crée une maquette basse fidélité et un court texte de fiction qui décrit le contexte et les enjeux soulevés.</p></div>
+        </div>
+      </div>
+      <button class="mark-done-btn" onclick="markDone(event,'DSN620')">Marquer comme complété</button>
+    </div>
+  </div>
+
+  <!-- DSN640 -->
+  <div class="course-card" id="c-DSN640">
+    <button class="course-trigger" onclick="toggleCard('DSN640')">
+      <div class="check-circle" onclick="markDone(event,'DSN640')"><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      <span class="course-code">DSN640</span>
+      <span class="course-title">Culture socionumérique</span>
+      <span class="course-credits">3 cr.</span>
+      <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+    </button>
+    <div class="course-body">
+      <div class="body-grid">
+        <div>
+          <div class="section-label">Ressources</div>
+          <ul class="resource-list">
+            <li><span class="tag tag-livre">Livre</span><em>It's Complicated</em> — danah boyd (EN, PDF gratuit)</li>
+            <li><span class="tag tag-video">Vidéo</span><a href="https://www.youtube.com/watch?v=OQSMr-3GGvQ" target="_blank">How Social Media is Reshaping Society — TED</a></li>
+            <li><span class="tag tag-livre">Articles</span><a href="https://theconversation.com/fr" target="_blank">The Conversation France</a> — articles académiques vulgarisés</li>
+          </ul>
+        </div>
+        <div>
+          <div class="section-label">Mini-projet (1–2 jours)</div>
+          <div class="project-box"><p>Choisis une pratique numérique émergente (doom scrolling, communautés Discord…) et rédige une analyse de 500 mots sur ses implications culturelles et comment un designer responsable devrait en tenir compte.</p></div>
+        </div>
+      </div>
+      <button class="mark-done-btn" onclick="markDone(event,'DSN640')">Marquer comme complété</button>
+    </div>
+  </div>
+
+  <!-- DSN650 -->
+  <div class="course-card" id="c-DSN650">
+    <button class="course-trigger" onclick="toggleCard('DSN650')">
+      <div class="check-circle" onclick="markDone(event,'DSN650')"><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      <span class="course-code">DSN650</span>
+      <span class="course-title">Orchestrer le design UX — DesignOps</span>
+      <span class="course-credits">3 cr.</span>
+      <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+    </button>
+    <div class="course-body">
+      <div class="body-grid">
+        <div>
+          <div class="section-label">Ressources</div>
+          <ul class="resource-list">
+            <li><span class="tag tag-livre">Livre</span><em>Design That Scales</em> — Dan Mall (EN)</li>
+            <li><span class="tag tag-video">Vidéo</span><a href="https://www.youtube.com/watch?v=EzZZlY-kxog" target="_blank">What is DesignOps? — InVision</a></li>
+            <li><span class="tag tag-outil">Outil</span>Figma — design system et composants réutilisables</li>
+          </ul>
+        </div>
+        <div>
+          <div class="section-label">Mini-projet (1–2 jours)</div>
+          <div class="project-box"><p>Crée un mini design system dans Figma pour une marque fictive : palette, typographie, 5 composants de base (bouton, champ, carte, badge, navigation). Documente les règles d'utilisation.</p></div>
+        </div>
+      </div>
+      <button class="mark-done-btn" onclick="markDone(event,'DSN650')">Marquer comme complété</button>
+    </div>
+  </div>
+
+  <!-- DSN660 -->
+  <div class="course-card" id="c-DSN660">
+    <button class="course-trigger" onclick="toggleCard('DSN660')">
+      <div class="check-circle" onclick="markDone(event,'DSN660')"><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      <span class="course-code">DSN660</span>
+      <span class="course-title">Design UX pour l'espace public</span>
+      <span class="course-credits">3 cr.</span>
+      <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+    </button>
+    <div class="course-body">
+      <div class="body-grid">
+        <div>
+          <div class="section-label">Ressources</div>
+          <ul class="resource-list">
+            <li><span class="tag tag-livre">Livre</span><em>The Death and Life of Great American Cities</em> — Jane Jacobs (EN/FR)</li>
+            <li><span class="tag tag-video">Vidéo</span><a href="https://www.youtube.com/watch?v=qpCGl4W0yRk" target="_blank">Urban UX — How Cities Can Be Designed Better</a></li>
+            <li><span class="tag tag-livre">Article</span><a href="https://www.interaction-design.org/literature/topics/urban-ux" target="_blank">Urban UX — IxDF</a></li>
+          </ul>
+        </div>
+        <div>
+          <div class="section-label">Mini-projet (1–2 jours)</div>
+          <div class="project-box"><p>Observe un espace public de ton quartier pendant 30–45 min. Note les comportements, frictions et usages inattendus. Propose un redesign partiel en t'appuyant sur le design centré sur l'humain.</p></div>
+        </div>
+      </div>
+      <button class="mark-done-btn" onclick="markDone(event,'DSN660')">Marquer comme complété</button>
+    </div>
+  </div>
+
+  <!-- DSN670 -->
+  <div class="course-card" id="c-DSN670">
+    <button class="course-trigger" onclick="toggleCard('DSN670')">
+      <div class="check-circle" onclick="markDone(event,'DSN670')"><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      <span class="course-code">DSN670</span>
+      <span class="course-title">Design UX pour la robotique mobile</span>
+      <span class="course-credits">3 cr.</span>
+      <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+    </button>
+    <div class="course-body">
+      <div class="body-grid">
+        <div>
+          <div class="section-label">Ressources</div>
+          <ul class="resource-list">
+            <li><span class="tag tag-livre">Livre</span><em>Human-Robot Interaction</em> — Bartneck et al. (EN, PDF gratuit)</li>
+            <li><span class="tag tag-video">Vidéo</span><a href="https://www.youtube.com/watch?v=7g7OmPRRQfU" target="_blank">Designing for Robots — HRI Conference</a></li>
+            <li><span class="tag tag-livre">Article</span><a href="https://www.nngroup.com/articles/robot-ux/" target="_blank">UX for Robots — NNGroup</a></li>
+          </ul>
+        </div>
+        <div>
+          <div class="section-label">Mini-projet (1–2 jours)</div>
+          <div class="project-box"><p>Conçois l'expérience d'interaction d'un robot de livraison autonome en milieu urbain. Crée un storyboard de 6 à 8 cases illustrant différents scénarios et les signaux visuels/sonores associés.</p></div>
+        </div>
+      </div>
+      <button class="mark-done-btn" onclick="markDone(event,'DSN670')">Marquer comme complété</button>
+    </div>
+  </div>
+
+  <!-- DSN680 -->
+  <div class="course-card" id="c-DSN680">
+    <button class="course-trigger" onclick="toggleCard('DSN680')">
+      <div class="check-circle" onclick="markDone(event,'DSN680')"><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      <span class="course-code">DSN680</span>
+      <span class="course-title">Design UX pour la réalité virtuelle et augmentée</span>
+      <span class="course-credits">3 cr.</span>
+      <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+    </button>
+    <div class="course-body">
+      <div class="body-grid">
+        <div>
+          <div class="section-label">Ressources</div>
+          <ul class="resource-list">
+            <li><span class="tag tag-livre">Livre</span><em>Learning Virtual Reality</em> — Tony Parisi (EN)</li>
+            <li><span class="tag tag-video">Vidéo</span><a href="https://www.youtube.com/watch?v=id86HeV-Vb8" target="_blank">UX Design for VR & AR — Google Daydream</a></li>
+            <li><span class="tag tag-outil">Outil</span><a href="https://www.figma.com/community/file/931622993089124955" target="_blank">VR/AR UI Kit pour Figma</a> — composants spatiaux gratuits</li>
+          </ul>
+        </div>
+        <div>
+          <div class="section-label">Mini-projet (1–2 jours)</div>
+          <div class="project-box"><p>Conçois l'onboarding d'une application VR fictive. Identifie les défis spécifiques à l'interface spatiale (confort, cybermalaise) et produis un storyboard ou maquettes annotées des 3 premiers écrans.</p></div>
+        </div>
+      </div>
+      <button class="mark-done-btn" onclick="markDone(event,'DSN680')">Marquer comme complété</button>
+    </div>
+  </div>
+
+  <!-- INF270 -->
+  <div class="course-card" id="c-INF270">
+    <button class="course-trigger" onclick="toggleCard('INF270')">
+      <div class="check-circle" onclick="markDone(event,'INF270')"><svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      <span class="course-code">INF270</span>
+      <span class="course-title">Programmation Web pour le design UX</span>
+      <span class="course-credits">3 cr.</span>
+      <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+    </button>
+    <div class="course-body">
+      <div class="body-grid">
+        <div>
+          <div class="section-label">Ressources</div>
+          <ul class="resource-list">
+            <li><span class="tag tag-video">Vidéo</span><a href="https://www.youtube.com/watch?v=G3e-cpL7ofc" target="_blank">HTML & CSS Full Course — SuperSimpleDev</a></li>
+            <li><span class="tag tag-livre">Référence</span><a href="https://developer.mozilla.org/fr/" target="_blank">MDN Web Docs</a> — documentation HTML/CSS/JS (FR/EN)</li>
+            <li><span class="tag tag-outil">Outil</span><a href="https://codepen.io" target="_blank">CodePen</a> — éditeur web en ligne pour expérimenter</li>
+          </ul>
+        </div>
+        <div>
+          <div class="section-label">Mini-projet (1–2 jours)</div>
+          <div class="project-box"><p>Intègre en HTML/CSS un écran de ton prototype Figma (ex. : la page d'accueil de l'app de suivi d'habitudes de DSN230). L'objectif est de comprendre les contraintes du développement pour mieux designer.</p></div>
+        </div>
+      </div>
+      <button class="mark-done-btn" onclick="markDone(event,'INF270')">Marquer comme complété</button>
+    </div>
+  </div>
+
+</div>
+</main>
+
+<footer>Curriculum inspiré du bac en design UX de l'ÉTS · Adapté pour l'apprentissage autonome</footer>
+
+<script>
+  const TOTAL = 28;
+  let done = JSON.parse(localStorage.getItem('ux-done') || '[]');
+
+  function init() {
+    done.forEach(id => {
+      const card = document.getElementById('c-' + id);
+      if (card) card.classList.add('done');
+    });
+    updateProgress();
+  }
+
+  function toggleCard(id) {
+    const card = document.getElementById('c-' + id);
+    card.classList.toggle('open');
+  }
+
+  function markDone(e, id) {
+    e.stopPropagation();
+    const card = document.getElementById('c-' + id);
+    if (done.includes(id)) {
+      done = done.filter(d => d !== id);
+      card.classList.remove('done');
+    } else {
+      done.push(id);
+      card.classList.add('done');
+    }
+    localStorage.setItem('ux-done', JSON.stringify(done));
+    updateProgress();
+  }
+
+  function updateProgress() {
+    const count = done.length;
+    const pct = Math.round((count / TOTAL) * 100);
+    document.getElementById('stat-done').textContent = count;
+    document.getElementById('progress-fill').style.width = pct + '%';
+    document.getElementById('progress-pct').textContent = pct + '%';
+  }
+
+  function filterPhase(phase, btn) {
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    document.querySelectorAll('.phase').forEach(p => {
+      p.setAttribute('data-hidden', phase !== 'all' && p.getAttribute('data-phase') !== phase);
+    });
+  }
+
+  init();
+</script>
+</body>
+</html>

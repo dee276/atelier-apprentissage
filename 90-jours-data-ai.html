@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>90 Jours — Data Analyst → AI Engineer</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap');
+
+  :root{
+    --paper:#eef1ef; --paper-2:#e2e8e6; --ink:#1c211f; --ink-soft:#535d59;
+    --accent:#1f7a8c; --accent-soft:#1f7a8c1c; --good:#4d6b4a; --good-soft:#4d6b4a1e;
+    --line:#cdd6d2; --card:#f7faf9; --shadow:0 1px 0 rgba(28,33,31,0.05);
+  }
+  html[data-theme="dark"]{
+    --paper:#171a19; --paper-2:#1f2321; --ink:#e6ece9; --ink-soft:#9caaa5;
+    --accent:#5fb8cc; --accent-soft:#5fb8cc26; --good:#8fb37f; --good-soft:#8fb37f22;
+    --line:#333a37; --card:#1f2321; --shadow:0 1px 0 rgba(0,0,0,0.3);
+  }
+  *{box-sizing:border-box;}
+  body{ margin:0; background:var(--paper); color:var(--ink); font-family:'Inter', system-ui, sans-serif; padding-bottom:80px; transition:background .3s, color .3s;}
+
+  header{ max-width:820px; margin:0 auto; padding:52px 24px 26px; border-bottom:1px solid var(--line);}
+  .eyebrow{ font-family:'IBM Plex Mono', monospace; font-size:12px; letter-spacing:.14em; text-transform:uppercase; color:var(--ink-soft); margin-bottom:12px;}
+  h1{ font-family:'Fraunces', serif; font-size:34px; font-weight:700; margin:0 0 8px;}
+  .subtitle{ color:var(--ink-soft); font-size:15.5px; max-width:66ch; margin:0 0 22px;}
+
+  .toggle-row{ display:flex; justify-content:space-between; align-items:center; gap:16px; flex-wrap:wrap;}
+  .progress-wrap{ flex:1; min-width:220px;}
+  .progress-label{ display:flex; justify-content:space-between; font-family:'IBM Plex Mono', monospace; font-size:11px; color:var(--ink-soft); margin-bottom:6px; letter-spacing:.05em;}
+  .progress-track{ height:8px; border-radius:4px; background:var(--paper-2); overflow:hidden; border:1px solid var(--line);}
+  .progress-fill{ height:100%; width:0%; background:linear-gradient(90deg, var(--good), var(--accent)); transition:width .5s ease;}
+  #theme-toggle{ font-family:'IBM Plex Mono', monospace; font-size:12px; background:transparent; border:1px solid var(--line);
+    color:var(--ink-soft); padding:8px 14px; border-radius:20px; cursor:pointer;}
+  #theme-toggle:hover{ border-color:var(--accent); color:var(--accent);}
+
+  .stack{ max-width:820px; margin:20px auto 0; padding:0 24px;}
+  .stack-box{ background:var(--accent-soft); border:1px solid var(--accent); border-radius:8px; padding:16px 18px;}
+  .stack-title{ font-family:'IBM Plex Mono', monospace; font-size:12px; letter-spacing:.06em; color:var(--accent); text-transform:uppercase; margin:0 0 10px;}
+  .stack-chips{ display:flex; flex-wrap:wrap; gap:8px;}
+  .stack-chip{ background:var(--card); border:1px solid var(--line); border-radius:20px; padding:5px 12px; font-size:12.5px; font-family:'IBM Plex Mono', monospace;}
+
+  main{ max-width:820px; margin:0 auto; padding:20px 24px;}
+  .phase{ border-bottom:1px solid var(--line);}
+  .phase-head{ display:flex; align-items:center; gap:16px; padding:22px 4px; cursor:pointer; user-select:none;}
+  .phase-num{ font-family:'IBM Plex Mono', monospace; font-size:13px; color:var(--ink-soft); min-width:78px;}
+  .phase-titles{ flex:1;}
+  .phase-fr{ font-size:18.5px; font-weight:600; margin:0;}
+  .phase-meta{ font-size:13px; color:var(--ink-soft); margin-top:2px;}
+  .phase-count{ font-family:'IBM Plex Mono', monospace; font-size:12px; color:var(--ink-soft); white-space:nowrap;}
+  .chevron{ width:18px; height:18px; flex-shrink:0; transition:transform .25s ease; color:var(--ink-soft);}
+  .phase.open .chevron{ transform:rotate(90deg); color:var(--accent);}
+  .phase-body{ max-height:0; overflow:hidden; transition:max-height .4s ease;}
+  .phase.open .phase-body{ max-height:1700px;}
+
+  .phase-why{ margin:0 4px 14px; padding:12px 14px; background:var(--accent-soft); border-left:2px solid var(--accent);
+    font-size:13.5px; color:var(--ink-soft); border-radius:0 4px 4px 0;}
+
+  .section-label{ font-family:'IBM Plex Mono', monospace; font-size:11px; letter-spacing:.08em; text-transform:uppercase;
+    color:var(--ink-soft); margin:16px 4px 8px; display:flex; align-items:center; gap:8px;}
+  .section-label::after{ content:""; flex:1; height:1px; background:var(--line);}
+
+  .item{ display:flex; align-items:flex-start; gap:12px; background:var(--card); border:1px solid var(--line); border-radius:6px;
+    padding:10px 12px; margin:0 4px 6px; box-shadow:var(--shadow);}
+  .item input[type="checkbox"]{ width:16px; height:16px; margin-top:2px; accent-color:var(--accent); flex-shrink:0; cursor:pointer;}
+  .item.checked{ opacity:.55;}
+  .item .txt{ font-size:14px; line-height:1.35;}
+  .item .tag{ font-family:'IBM Plex Mono', monospace; font-size:9.5px; text-transform:uppercase; letter-spacing:.05em;
+    color:var(--ink-soft); border:1px dashed var(--line); border-radius:10px; padding:1px 6px; margin-right:6px;}
+
+  .gate{ margin:14px 4px 4px; padding:14px 16px; background:var(--good-soft); border:1px solid var(--good); border-radius:8px;}
+  .gate-label{ font-family:'IBM Plex Mono', monospace; font-size:11px; text-transform:uppercase; letter-spacing:.06em; color:var(--good); margin-bottom:6px;}
+  .gate-text{ font-size:13.5px; color:var(--ink-soft);}
+
+  footer{ max-width:820px; margin:44px auto 0; padding:20px 24px; text-align:center; font-family:'IBM Plex Mono', monospace; font-size:11px; color:var(--ink-soft);}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="eyebrow">Dudley Orestil · 90 jours · Data & IA appliquée</div>
+  <h1>90 Jours — Data Analyst → AI Engineer</h1>
+  <p class="subtitle">Vu ton profil (certificats data analysis / data engineering / AI engineering déjà en poche, expérience LXT, compétition Kaggle), ce sprint n'enseigne pas les bases — il les consolide en portfolio concret et comble le pont entre analyse, ingénierie de données et IA appliquée. 13 semaines, un livrable réel chaque semaine, un portfolio publiable à la fin.</p>
+  <div class="toggle-row">
+    <div class="progress-wrap">
+      <div class="progress-label"><span id="progress-text">0 / 0 étapes</span><span id="progress-pct">0%</span></div>
+      <div class="progress-track"><div class="progress-fill" id="progress-fill"></div></div>
+    </div>
+    <button id="theme-toggle">☾ Mode sombre</button>
+  </div>
+</header>
+
+<div class="stack">
+  <div class="stack-box">
+    <p class="stack-title">Stack couverte sur les 90 jours</p>
+    <div class="stack-chips">
+      <span class="stack-chip">SQL avancé</span><span class="stack-chip">Python · pandas/numpy</span>
+      <span class="stack-chip">Statistiques & EDA</span><span class="stack-chip">Power BI / Tableau</span>
+      <span class="stack-chip">R · tidyverse</span><span class="stack-chip">ETL / Airflow</span>
+      <span class="stack-chip">dbt · Docker</span><span class="stack-chip">scikit-learn</span>
+      <span class="stack-chip">XGBoost / LightGBM</span><span class="stack-chip">Deep Learning (Keras/PyTorch)</span>
+      <span class="stack-chip">GenAI / RAG</span><span class="stack-chip">Portfolio & entretien</span>
+    </div>
+  </div>
+</div>
+
+<main id="phases"></main>
+
+<footer>requête · pipeline · modèle · portfolio — 90 jours, un livrable à la fois</footer>
+
+<script>
+const DATA = [
+  {
+    fr: "SQL avancé",
+    numLabel: "J1–7",
+    meta: "Semaine 1 · au-delà des SELECT simples",
+    why: "Le SQL avancé (fenêtrage, optimisation) est le filtre le plus fréquent en entretien data — et la base de tout le reste du sprint.",
+    items: [
+      ["sql","Jointures complexes, sous-requêtes corrélées, CTEs récursives"],
+      ["sql","Fonctions de fenêtrage : RANK, LAG/LEAD, running totals, moyennes mobiles"],
+      ["sql","Optimisation : lecture de plans d'exécution (EXPLAIN), index, quand dénormaliser"],
+      ["projet","10 requêtes avancées sur un dataset public (Chinook ou Northwind) répondant à des questions business réelles, documentées"]
+    ],
+    gate: "Palier : les 10 requêtes sont commentées avec le raisonnement du plan d'exécution, pas juste le résultat."
+  },
+  {
+    fr: "Python pour la donnée — pandas & numpy",
+    numLabel: "J8–14",
+    meta: "Semaine 2 · manipulation avancée, pas les bases de la syntaxe",
+    why: "pandas mal maîtrisé = boucles lentes et code fragile. L'objectif ici est la vectorisation et la manipulation multi-dimensionnelle propres.",
+    items: [
+      ["python","Manipulation avancée : multi-index, pivot_table, merge/join complexes"],
+      ["python","Nettoyage de données réelles : valeurs manquantes, outliers, typage, données textuelles sales"],
+      ["python","Vectorisation vs boucles — profilage de performance (%timeit, mesure avant/après)"],
+      ["projet","Pipeline de nettoyage complet sur un dataset Kaggle brut, du CSV sale au dataframe exploitable"]
+    ],
+    gate: "Palier : le pipeline de nettoyage tourne sans intervention manuelle sur un nouveau fichier du même format."
+  },
+  {
+    fr: "Statistiques appliquées & EDA",
+    numLabel: "J15–21",
+    meta: "Semaine 3 · l'analyse exploratoire structurée, pas la stat pour la stat",
+    why: "Une EDA solide évite de construire un modèle sur des données mal comprises — c'est la différence entre un rapport crédible et un tableau de chiffres.",
+    items: [
+      ["stats","Distributions, tests d'hypothèses (t-test, chi², ANOVA) — quand utiliser lequel"],
+      ["stats","Corrélation vs causalité, pièges classiques d'interprétation"],
+      ["stats","EDA structurée : univariée → bivariée → multivariée, checklist reproductible"],
+      ["projet","Rapport EDA complet sur un dataset de ton choix, avec conclusions actionnables, pas juste des graphiques"]
+    ],
+    gate: "Palier : le rapport EDA identifie au moins une décision business concrète que les données appuient."
+  },
+  {
+    fr: "Visualisation & storytelling",
+    numLabel: "J22–28",
+    meta: "Semaine 4 · choisir le bon graphique, pas le plus joli",
+    why: "Un bon dashboard raconte une histoire en 5 secondes. La compétence rare n'est pas de savoir tracer un graphique, c'est de savoir lequel éviter.",
+    items: [
+      ["python","matplotlib/seaborn : grammar of graphics, choix du graphique selon la question posée"],
+      ["technique","Storytelling avec les données : arc narratif, éviter le chartjunk, hiérarchie visuelle"],
+      ["projet","Dashboard statique (5-6 visualisations) qui raconte une histoire complète sur un dataset"]
+    ],
+    gate: "Palier : quelqu'un d'externe comprend la conclusion du dashboard en moins de 30 secondes, sans explication orale."
+  },
+  {
+    fr: "Power BI ou Tableau",
+    numLabel: "J29–35",
+    meta: "Semaine 5 · le dashboard interactif que les recruteurs veulent voir",
+    why: "C'est l'outil le plus demandé dans les offres d'analyste — et ton intérêt existant pour l'UX se transpose directement à la conception de dashboards.",
+    items: [
+      ["bi","Modélisation de données : relations, mesures DAX (Power BI) ou calculs (Tableau)"],
+      ["bi","Dashboards interactifs : filtres, drill-down, paramètres dynamiques"],
+      ["ux","Bonnes pratiques UX de dashboard : hiérarchie de l'information, charge cognitive, couleur fonctionnelle"],
+      ["projet","Dashboard interactif publié ou partagé publiquement (Power BI Service ou Tableau Public)"]
+    ],
+    gate: "Palier : le dashboard est accessible via un lien public, pas juste un fichier local."
+  },
+  {
+    fr: "R pour l'analyse statistique",
+    numLabel: "J36–42",
+    meta: "Semaine 6 · savoir quand R bat Python, pas juste apprendre la syntaxe",
+    why: "R reste dominant dans certains contextes analytiques et académiques — savoir pourquoi (pas juste comment) te distingue en entretien.",
+    items: [
+      ["r","tidyverse : dplyr et tidyr pour la manipulation de données"],
+      ["r","ggplot2 : grammar of graphics, comparé à seaborn/matplotlib"],
+      ["projet","Reproduire l'EDA de la semaine 3 en R et documenter où R est plus adapté que pandas pour ce cas précis"]
+    ],
+    gate: "Palier : un court comparatif écrit (R vs Python) basé sur ton expérience réelle des deux implémentations, pas sur des généralités lues en ligne."
+  },
+  {
+    fr: "Data Engineering — fondamentaux ETL",
+    numLabel: "J43–49",
+    meta: "Semaine 7 · construire le pipeline, pas juste analyser des données déjà propres",
+    why: "Un analyste qui comprend l'ingénierie derrière ses données devient beaucoup plus autonome — et c'est l'angle qui te distingue vu ton profil technique.",
+    items: [
+      ["de","Pipelines ETL/ELT, orchestration avec Airflow ou Prefect"],
+      ["de","Modélisation dimensionnelle : star schema, tables de faits et de dimensions"],
+      ["de","Data warehouse cloud (BigQuery ou Snowflake, tier gratuit) — charger et interroger"],
+      ["projet","Pipeline automatisé qui extrait, transforme et charge des données réelles vers le warehouse"]
+    ],
+    gate: "Palier : le pipeline tourne sur un scheduler (pas exécuté manuellement) et gère au moins un cas d'échec proprement."
+  },
+  {
+    fr: "Data Engineering — transformation moderne",
+    numLabel: "J50–56",
+    meta: "Semaine 8 · dbt, qualité de données, reproductibilité",
+    why: "dbt est devenu le standard pour des transformations SQL versionnées et testées — c'est ce que les équipes data modernes attendent.",
+    items: [
+      ["de","dbt : transformations en SQL versionnées, testées et documentées"],
+      ["de","Qualité de données : tests automatisés, monitoring, notion de data contract"],
+      ["docker","Docker pour la reproductibilité du pipeline (environnement identique partout)"],
+      ["projet","Reconstruire le pipeline de la semaine 7 avec dbt et des tests de qualité automatisés"]
+    ],
+    gate: "Palier : au moins 3 tests dbt (unicité, non-null, valeurs attendues) passent sur le pipeline transformé."
+  },
+  {
+    fr: "Machine Learning appliqué — fondamentaux",
+    numLabel: "J57–63",
+    meta: "Semaine 9 · scikit-learn avec rigueur d'évaluation",
+    why: "La compétence rare n'est pas d'entraîner un modèle, c'est de savoir si le résultat est fiable — la partie souvent bâclée.",
+    items: [
+      ["ml","scikit-learn : régression, classification, arbres de décision, méthodes d'ensemble"],
+      ["ml","Feature engineering : encodage, mise à l'échelle, création de variables dérivées"],
+      ["ml","Évaluation rigoureuse : validation croisée, métriques adaptées au problème métier (pas juste l'accuracy)"],
+      ["projet","Reprendre un dataset déjà exploré (ex : ta compétition ROGII) avec un pipeline ML complet et documenté"]
+    ],
+    gate: "Palier : le choix de métrique d'évaluation est justifié par écrit en fonction du coût réel des erreurs du modèle."
+  },
+  {
+    fr: "Machine Learning — au-delà des bases",
+    numLabel: "J64–70",
+    meta: "Semaine 10 · formaliser ce que tu utilises déjà en intuition",
+    why: "Tu as déjà utilisé LightGBM en compétition — cette semaine formalise pourquoi ça marche et ajoute l'interprétabilité, souvent absente des projets Kaggle.",
+    items: [
+      ["ml","Gradient boosting avancé : XGBoost et LightGBM, tuning des hyperparamètres clés"],
+      ["ml","Interprétabilité : SHAP values, feature importance, quand s'en méfier"],
+      ["ml","Déséquilibre de classes et fuite de données (data leakage) — les deux pièges les plus fréquents en entretien"],
+      ["projet","Rapport de modélisation avec interprétation SHAP sur un cas réel"]
+    ],
+    gate: "Palier : le rapport explique en langage clair (non technique) pourquoi le modèle prend ses décisions — testable sur un non-expert."
+  },
+  {
+    fr: "Deep Learning & AI Engineering",
+    numLabel: "J71–77",
+    meta: "Semaine 11 · relié directement à ton certificat IBM AI Engineering en cours",
+    why: "C'est ici que ton étude Keras/TensorFlow/PyTorch déjà entamée devient un projet concret plutôt qu'un ensemble de notes.",
+    items: [
+      ["dl","Réseaux de neurones avec Keras/TensorFlow et PyTorch — réutiliser ton guide d'étude existant"],
+      ["dl","Fine-tuning vs entraînement from scratch : quand chaque approche est justifiée"],
+      ["mlops","MLOps de base : versioning de modèles, tracking d'expériences (MLflow)"],
+      ["projet","Un modèle deep learning simple entraîné, suivi via MLflow, même en local"]
+    ],
+    gate: "Palier : l'expérience est reproductible — un tiers peut relancer l'entraînement à partir de ton tracking et obtenir un résultat similaire."
+  },
+  {
+    fr: "GenAI & LLM Engineering",
+    numLabel: "J78–84",
+    meta: "Semaine 12 · la compétence la plus demandée dans les postes 'AI Engineer' en 2026",
+    why: "Un poste 'AI Engineer' aujourd'hui suppose de savoir construire autour des LLM, pas seulement des modèles classiques — c'est le chaînon manquant du profil.",
+    items: [
+      ["genai","APIs de LLM : prompting structuré, function calling, gestion du contexte"],
+      ["genai","RAG (Retrieval-Augmented Generation) : architecture de base, embeddings, recherche vectorielle"],
+      ["genai","Évaluation de systèmes LLM : hallucination, coûts, latence — comment mesurer objectivement"],
+      ["projet","Petit outil RAG interrogeant tes propres documents (par exemple, tes parcours d'apprentissage de ce hub)"]
+    ],
+    gate: "Palier : l'outil RAG répond correctement à au moins 8 questions sur 10 posées sur tes propres documents, sans halluciner de source."
+  },
+  {
+    fr: "Portfolio final & préparation entretien",
+    numLabel: "J85–90",
+    meta: "Semaine 13 · transformer 90 jours de travail en candidature crédible",
+    why: "Sans consolidation, 12 semaines de projets isolés ne convainquent personne — un recruteur veut voir 2-3 projets phares racontés clairement, pas 13 dossiers dispersés.",
+    items: [
+      ["portfolio","Consolider 2-3 projets phares en portfolio public (GitHub + résumé écrit clair)"],
+      ["entretien","Préparer des études de cas type entretien : SQL en live, case study business"],
+      ["entretien","Storytelling de carrière : comment présenter ce sprint de 90 jours en 2 minutes à un recruteur"],
+      ["simulation","Faire au moins une simulation d'entretien technique complète (avec un pair ou un outil)"]
+    ],
+    gate: "Palier final : le portfolio est publié, accessible par un lien, et tu peux le présenter oralement en moins de 3 minutes sans notes."
+  }
+];
+
+const container = document.getElementById('phases');
+let totalItems = 0;
+DATA.forEach(p => totalItems += p.items.length);
+
+DATA.forEach((phase, pi) => {
+  const el = document.createElement('div');
+  el.className = 'phase';
+  el.innerHTML = `
+    <div class="phase-head" data-idx="${pi}">
+      <div class="phase-num">${phase.numLabel}</div>
+      <div class="phase-titles">
+        <p class="phase-fr">${phase.fr}</p>
+        <div class="phase-meta">${phase.meta}</div>
+      </div>
+      <div class="phase-count" data-count="${pi}">0/${phase.items.length}</div>
+      <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6l6 6-6 6"/></svg>
+    </div>
+    <div class="phase-body">
+      <div class="phase-why">${phase.why}</div>
+      <div class="section-label">📊 À faire cette semaine</div>
+      ${phase.items.map((it,ii) => {
+        const [tag, label] = it;
+        return `
+          <label class="item" data-item="${pi}-${ii}">
+            <input type="checkbox" data-item-cb="${pi}-${ii}">
+            <span class="txt"><span class="tag">${tag}</span>${label}</span>
+          </label>`;
+      }).join('')}
+      <div class="gate">
+        <div class="gate-label">🎯 Palier</div>
+        <div class="gate-text">${phase.gate}</div>
+      </div>
+    </div>
+  `;
+  container.appendChild(el);
+  el.querySelector('.phase-head').addEventListener('click', () => el.classList.toggle('open'));
+});
+container.querySelector('.phase').classList.add('open');
+
+const STORE_KEY = 'ninety_days_data_ai_v1';
+function loadState(){ try{ return JSON.parse(localStorage.getItem(STORE_KEY)) || {}; }catch(e){ return {}; } }
+function saveState(s){ localStorage.setItem(STORE_KEY, JSON.stringify(s)); }
+let state = loadState();
+
+function updatePhaseCount(pi){
+  const total = DATA[pi].items.length;
+  let checked = 0;
+  DATA[pi].items.forEach((it,ii) => { if(state[`${pi}-${ii}`]) checked++; });
+  document.querySelector(`[data-count="${pi}"]`).textContent = `${checked}/${total}`;
+}
+function updateGlobalProgress(){
+  let checked = 0;
+  Object.values(state).forEach(v => { if(v) checked++; });
+  const pct = totalItems > 0 ? Math.round((checked/totalItems)*100) : 0;
+  document.getElementById('progress-text').textContent = `${checked} / ${totalItems} étapes`;
+  document.getElementById('progress-pct').textContent = `${pct}%`;
+  document.getElementById('progress-fill').style.width = pct + '%';
+}
+document.querySelectorAll('[data-item-cb]').forEach(cb => {
+  const key = cb.getAttribute('data-item-cb');
+  cb.checked = !!state[key];
+  const wrapper = document.querySelector(`[data-item="${key}"]`);
+  if(cb.checked) wrapper.classList.add('checked');
+  cb.addEventListener('change', () => {
+    state[key] = cb.checked;
+    saveState(state);
+    wrapper.classList.toggle('checked', cb.checked);
+    const pi = parseInt(key.split('-')[0]);
+    updatePhaseCount(pi);
+    updateGlobalProgress();
+  });
+});
+DATA.forEach((_,pi) => updatePhaseCount(pi));
+updateGlobalProgress();
+
+const themeBtn = document.getElementById('theme-toggle');
+const root = document.documentElement;
+function applyTheme(t){
+  root.setAttribute('data-theme', t);
+  themeBtn.textContent = t === 'dark' ? '☀ Mode clair' : '☾ Mode sombre';
+  localStorage.setItem('ninety_days_theme', t);
+}
+applyTheme(localStorage.getItem('ninety_days_theme') || 'light');
+themeBtn.addEventListener('click', () => applyTheme(root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark'));
+</script>
+
+<a href="index.html" title="Retour à l'accueil"
+   style="position:fixed; bottom:20px; left:20px; z-index:99999; display:flex; align-items:center; gap:8px;
+          background:#211f1c; color:#f1ece0; text-decoration:none; font-family:system-ui,sans-serif;
+          font-size:13px; padding:10px 16px 10px 12px; border-radius:24px; box-shadow:0 3px 10px rgba(0,0,0,.25);
+          border:1px solid rgba(255,255,255,.15); opacity:.88; transition:opacity .2s, transform .2s;"
+   onmouseover="this.style.opacity=1; this.style.transform='translateY(-2px)';"
+   onmouseout="this.style.opacity=.88; this.style.transform='translateY(0)';">
+  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><path d="M9 22V12h6v10"/></svg>
+  Accueil
+</a>
+</body>
+</html>

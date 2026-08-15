@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sculpter pour Penser</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap');
+
+  :root{
+    --paper:#f0e9df; --paper-2:#e6dccb; --ink:#241f18; --ink-soft:#6b5f4c;
+    --accent:#a5652e; --accent-soft:#a5652e1c; --good:#5a7050; --good-soft:#5a70501e;
+    --line:#dccdb0; --card:#f9f4ea; --shadow:0 1px 0 rgba(36,31,24,0.06);
+  }
+  html[data-theme="dark"]{
+    --paper:#1c1712; --paper-2:#241e17; --ink:#ece3d3; --ink-soft:#b0a084;
+    --accent:#d99b5c; --accent-soft:#d99b5c26; --good:#9bc08a; --good-soft:#9bc08a22;
+    --line:#3a3225; --card:#241e17; --shadow:0 1px 0 rgba(0,0,0,0.3);
+  }
+  *{box-sizing:border-box;}
+  body{ margin:0; background:var(--paper); color:var(--ink); font-family:'Inter', system-ui, sans-serif; padding-bottom:80px; transition:background .3s, color .3s;}
+
+  header{ max-width:800px; margin:0 auto; padding:52px 24px 26px; border-bottom:1px solid var(--line);}
+  .eyebrow{ font-family:'IBM Plex Mono', monospace; font-size:12px; letter-spacing:.14em; text-transform:uppercase; color:var(--ink-soft); margin-bottom:12px;}
+  h1{ font-family:'Fraunces', serif; font-size:36px; font-weight:700; margin:0 0 10px;}
+  .subtitle{ color:var(--ink-soft); font-size:15.5px; max-width:66ch; margin:0 0 10px; line-height:1.55;}
+  .subtitle-note{ color:var(--ink-soft); font-size:13px; max-width:66ch; margin:0 0 22px; font-style:italic; opacity:.85;}
+
+  .toggle-row{ display:flex; justify-content:space-between; align-items:center; gap:16px; flex-wrap:wrap;}
+  .progress-wrap{ flex:1; min-width:220px;}
+  .progress-label{ display:flex; justify-content:space-between; font-family:'IBM Plex Mono', monospace; font-size:11px; color:var(--ink-soft); margin-bottom:6px; letter-spacing:.05em;}
+  .progress-track{ height:8px; border-radius:4px; background:var(--paper-2); overflow:hidden; border:1px solid var(--line);}
+  .progress-fill{ height:100%; width:0%; background:linear-gradient(90deg, var(--good), var(--accent)); transition:width .5s ease;}
+  #theme-toggle{ font-family:'IBM Plex Mono', monospace; font-size:12px; background:transparent; border:1px solid var(--line);
+    color:var(--ink-soft); padding:8px 14px; border-radius:20px; cursor:pointer;}
+  #theme-toggle:hover{ border-color:var(--accent); color:var(--accent);}
+
+  .materiel{ max-width:800px; margin:20px auto 0; padding:0 24px;}
+  .materiel-box{ background:var(--accent-soft); border:1px solid var(--accent); border-radius:8px; padding:16px 18px;}
+  .materiel-title{ font-family:'IBM Plex Mono', monospace; font-size:12px; letter-spacing:.06em; color:var(--accent); text-transform:uppercase; margin:0 0 10px;}
+  .materiel-grid{ display:grid; grid-template-columns:1fr 1fr; gap:6px 20px; font-size:13.5px;}
+  @media(max-width:600px){ .materiel-grid{ grid-template-columns:1fr;} }
+  .materiel-grid b{ font-weight:600;}
+  .materiel-grid span{ color:var(--ink-soft);}
+
+  main{ max-width:800px; margin:0 auto; padding:20px 24px;}
+  .phase{ border-bottom:1px solid var(--line);}
+  .phase-head{ display:flex; align-items:center; gap:16px; padding:22px 4px; cursor:pointer; user-select:none;}
+  .phase-num{ font-family:'IBM Plex Mono', monospace; font-size:13px; color:var(--ink-soft); min-width:88px;}
+  .phase-titles{ flex:1;}
+  .phase-fr{ font-size:18.5px; font-weight:600; margin:0;}
+  .phase-meta{ font-size:13px; color:var(--ink-soft); margin-top:2px;}
+  .phase-count{ font-family:'IBM Plex Mono', monospace; font-size:12px; color:var(--ink-soft); white-space:nowrap;}
+  .chevron{ width:18px; height:18px; flex-shrink:0; transition:transform .25s ease; color:var(--ink-soft);}
+  .phase.open .chevron{ transform:rotate(90deg); color:var(--accent);}
+  .phase-body{ max-height:0; overflow:hidden; transition:max-height .4s ease;}
+  .phase.open .phase-body{ max-height:1800px;}
+
+  .phase-why{ margin:0 4px 14px; padding:14px 16px; background:var(--accent-soft); border-left:2px solid var(--accent);
+    font-size:13.5px; color:var(--ink-soft); border-radius:0 4px 4px 0; line-height:1.55;}
+
+  .section-label{ font-family:'IBM Plex Mono', monospace; font-size:11px; letter-spacing:.08em; text-transform:uppercase;
+    color:var(--ink-soft); margin:16px 4px 8px; display:flex; align-items:center; gap:8px;}
+  .section-label::after{ content:""; flex:1; height:1px; background:var(--line);}
+
+  .item{ display:flex; align-items:flex-start; gap:12px; background:var(--card); border:1px solid var(--line); border-radius:6px;
+    padding:10px 12px; margin:0 4px 6px; box-shadow:var(--shadow);}
+  .item input[type="checkbox"]{ width:16px; height:16px; margin-top:2px; accent-color:var(--accent); flex-shrink:0; cursor:pointer;}
+  .item.checked{ opacity:.55;}
+  .item .txt{ font-size:14px; line-height:1.4;}
+  .item .tag{ font-family:'IBM Plex Mono', monospace; font-size:9.5px; text-transform:uppercase; letter-spacing:.05em;
+    color:var(--ink-soft); border:1px dashed var(--line); border-radius:10px; padding:1px 6px; margin-right:6px;}
+
+  .piece{ margin:14px 4px 4px; padding:14px 16px; background:var(--good-soft); border:1px solid var(--good); border-radius:8px;}
+  .piece-label{ font-family:'IBM Plex Mono', monospace; font-size:11px; text-transform:uppercase; letter-spacing:.06em; color:var(--good); margin-bottom:6px;}
+  .piece-text{ font-size:13.5px; color:var(--ink-soft); line-height:1.5;}
+
+  footer{ max-width:800px; margin:44px auto 0; padding:20px 24px; text-align:center; font-family:'IBM Plex Mono', monospace; font-size:11px; color:var(--ink-soft);}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="eyebrow">Dudley Orestil · Atelier · Sculpture, diorama & pensée visuelle</div>
+  <h1>Sculpter pour Penser</h1>
+  <p class="subtitle">Argile, bois, carton, post-its — cinq modules qui vont du geste (modeler, tailler) jusqu'à la méthode (le diorama comme outil d'observation, la pensée visuelle comme extension de la mémoire de travail). Pas d'ordre imposé, pas de compte à rebours : chaque module se suffit à lui-même, et rien n'empêche de sculpter une semaine, faire une pause, puis reprendre par le module 4.</p>
+  <p class="subtitle-note">Le seul parcours de ce hub qui ne se joue pas sur un écran — c'est voulu.</p>
+  <div class="toggle-row">
+    <div class="progress-wrap">
+      <div class="progress-label"><span id="progress-text">0 / 0 étapes</span><span id="progress-pct">0%</span></div>
+      <div class="progress-track"><div class="progress-fill" id="progress-fill"></div></div>
+    </div>
+    <button id="theme-toggle">☾ Mode sombre</button>
+  </div>
+</header>
+
+<div class="materiel">
+  <div class="materiel-box">
+    <p class="materiel-title">Matériel de départ, par module</p>
+    <div class="materiel-grid">
+      <span><b>Modelage</b> — argile autodurcissante, pâte polymère (Sculpey/Fimo)</span>
+      <span><b>Bois</b> — blocs de tilleul (basswood), couteau de sculpture (detail knife), gouges en U, gant anti-coupure</span>
+      <span><b>Diorama</b> — carton plume (foam board), carton ondulé de récupération, cutter, colle</span>
+      <span><b>Pensée visuelle</b> — post-its 4 couleurs, ficelle rouge, grand support mural ou tableau</span>
+    </div>
+  </div>
+</div>
+
+<main id="phases"></main>
+
+<footer>modeler · tailler · observer · relier — penser avec les mains</footer>
+
+<script>
+const DATA = [
+  {
+    fr: "Premiers gestes — argile & pâte polymère",
+    numLabel: "Module 1",
+    meta: "Fondations tactiles · aucun outil spécialisé requis",
+    why: "Avant le bois et ses outils tranchants, l'argile et la pâte polymère laissent l'erreur réversible — on peut refaire une forme dix fois sans rien gâcher. C'est le terrain d'essai le plus sûr pour retrouver le réflexe de modeler avec les mains, un geste que la plupart des adultes ont perdu depuis l'enfance.",
+    items: [
+      ["technique","Argile autodurcissante : une forme organique simple (sphère, coquille, vague) pour sentir la matière sans objectif de résultat"],
+      ["technique","Pâte polymère : un petit objet détaillé (figurine, bouton, breloque), cuisson au four ménager"],
+      ["exercice","Comparer consciemment les deux matières : laquelle donne envie de continuer, laquelle frustre — et pourquoi"],
+      ["exercice","Peindre et vernir une pièce en argile séchée, pour fermer le cycle complet (façonner → sécher → finir)"]
+    ],
+    piece: "Pièce du module : un objet en argile fini (peint, verni) et un objet en pâte polymère cuit — deux matières, deux sensations, gardées comme repère pour la suite."
+  },
+  {
+    fr: "Sculpture sur bois — Whittling & esprit japonais",
+    numLabel: "Module 2",
+    meta: "Netsuke, Ichi-ittobori · patience et outils tranchants",
+    why: "Le whittling (sculpture au couteau) est la discipline la plus proche de l'esthétique que tu recherchais au départ — le style épuré des figurines japonaises. Le tilleul pardonne les erreurs de débutant mieux que n'importe quel autre bois ; les gouges et le couteau demandent en retour un vrai respect de la sécurité.",
+    items: [
+      ["sécurité","Gant anti-coupure obligatoire avant toute session — le dérapage sur une pièce tenue en main arrive vite"],
+      ["matériel","S'équiper : couteau de sculpture (detail knife), gouge en U, ciseau droit, blocs de tilleul (basswood)"],
+      ["technique","Premiers exercices de dégrossissage sur une forme géométrique simple, sans objectif figuratif"],
+      ["culture","Étudier le Netsuke (根付) — leur fonction historique de bouton de kimono, leur niveau de détail poli"],
+      ["technique","Étudier et pratiquer l'Ichi-ittobori (一刀彫) — sculpture 'à un seul coup de couteau', facettes visibles, pas de ponçage"]
+    ],
+    piece: "Pièce du module : une petite figurine stylisée (renard, chat, moine) en Ittobori — facettes visibles assumées, pas de finition lisse."
+  },
+  {
+    fr: "Dioramas & prototypage basse fidélité",
+    numLabel: "Module 3",
+    meta: "Frances Glessner Lee, échelles 1:12/1:24/1:48 · observer par la miniature",
+    why: "Le diorama n'est pas qu'un objet décoratif — dans les Nutshell Studies of Unexplained Death de Frances Glessner Lee, chaque détail miniature (position d'un objet, angle d'une porte) était une donnée d'enquête. C'est un outil d'observation autant qu'un objet créatif, et c'est ce deuxième usage qui rend ce module particulièrement pertinent pour toi.",
+    items: [
+      ["matériel","S'équiper : carton plume (foam board), carton ondulé de récupération, cutter, colle, échelle 1:12 ou 1:24"],
+      ["culture","Étudier les Nutshell Studies de Frances Glessner Lee — comprendre comment un détail miniature devient une preuve"],
+      ["technique","Construire une pièce simple à l'échelle 1:12 (une seule salle, murs + un objet clé)"],
+      ["projet","Reconstituer une scène réelle ou fictive de ton choix en diorama complet, avec au moins un indice caché à observer"]
+    ],
+    piece: "Pièce du module : un diorama complet à échelle fixe, avec un détail délibérément placé pour être découvert par quelqu'un qui l'observe sans explication."
+  },
+  {
+    fr: "Pensée visuelle & modélisation cognitive",
+    numLabel: "Module 4",
+    meta: "Post-its, cognition incarnée, LEGO Serious Play",
+    why: "Externaliser sa mémoire de travail dans l'espace physique (cognition incarnée) est une compétence distincte de la pensée sur écran — et c'est probablement celle qui manque le plus dans le reste de ce hub, entièrement numérique. Ce module rend explicite ce que tu fais peut-être déjà intuitivement en construisant tes systèmes HTML, mais en version tangible.",
+    items: [
+      ["technique","Code couleur Post-it : attribuer une fonction fixe à chaque couleur (fait avéré / acteur / question / théorie)"],
+      ["technique","Liens physiques : relier des post-its avec de la ficelle ou des flèches pour forcer la lecture des relations de cause à effet"],
+      ["méthode","Mur Kanban physique à trois colonnes : à analyser / en cours / résolu"],
+      ["méthode","LEGO Serious Play — exercice guidé de modélisation d'un concept abstrait avec des briques"],
+      ["projet","Modéliser physiquement un vrai problème que tu as en tête en ce moment (professionnel ou personnel) en combinant post-its et objets 3D"]
+    ],
+    piece: "Pièce du module : une photo du mur ou de la table de modélisation, prise au moment où le problème réel devient visuellement clair — pas avant."
+  },
+  {
+    fr: "Synthèse — le praticien complet",
+    numLabel: "Module 5",
+    meta: "Aucune urgence à l'atteindre · sculpture + diorama + pensée visuelle réunis",
+    why: "Ce module n'a de sens qu'après avoir pratiqué les quatre précédents séparément. Il ne s'agit pas d'ajouter de la difficulté, mais de laisser les trois pratiques se rencontrer naturellement dans un seul projet, comme le fait Brian Finch dans Limitless — sauf que toi, tu n'as pas besoin de NZT.",
+    items: [
+      ["projet","Concevoir un diorama narratif complet avec au moins une figurine sculptée par toi (bois ou pâte polymère)"],
+      ["méthode","Construire le mur d'indices en post-its qui accompagne le diorama — la scène et son analyse, côte à côte"],
+      ["documentation","Photographier et documenter le processus complet, du premier croquis à la pièce finie"]
+    ],
+    piece: "Réalisation finale : un objet physique complet qui n'existerait pas si les quatre modules précédents n'avaient pas été pratiqués séparément d'abord."
+  }
+];
+
+const container = document.getElementById('phases');
+let totalItems = 0;
+DATA.forEach(p => totalItems += p.items.length);
+
+DATA.forEach((phase, pi) => {
+  const el = document.createElement('div');
+  el.className = 'phase';
+  el.innerHTML = `
+    <div class="phase-head" data-idx="${pi}">
+      <div class="phase-num">${phase.numLabel}</div>
+      <div class="phase-titles">
+        <p class="phase-fr">${phase.fr}</p>
+        <div class="phase-meta">${phase.meta}</div>
+      </div>
+      <div class="phase-count" data-count="${pi}">0/${phase.items.length}</div>
+      <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6l6 6-6 6"/></svg>
+    </div>
+    <div class="phase-body">
+      <div class="phase-why">${phase.why}</div>
+      <div class="section-label">🪵 Pratique</div>
+      ${phase.items.map((it,ii) => {
+        const [tag, label] = it;
+        return `
+          <label class="item" data-item="${pi}-${ii}">
+            <input type="checkbox" data-item-cb="${pi}-${ii}">
+            <span class="txt"><span class="tag">${tag}</span>${label}</span>
+          </label>`;
+      }).join('')}
+      <div class="piece">
+        <div class="piece-label">🏺 Réalisation du module</div>
+        <div class="piece-text">${phase.piece}</div>
+      </div>
+    </div>
+  `;
+  container.appendChild(el);
+  el.querySelector('.phase-head').addEventListener('click', () => el.classList.toggle('open'));
+});
+container.querySelector('.phase').classList.add('open');
+
+const STORE_KEY = 'sculpter_penser_v1';
+function loadState(){ try{ return JSON.parse(localStorage.getItem(STORE_KEY)) || {}; }catch(e){ return {}; } }
+function saveState(s){ localStorage.setItem(STORE_KEY, JSON.stringify(s)); }
+let state = loadState();
+
+function updatePhaseCount(pi){
+  const total = DATA[pi].items.length;
+  let checked = 0;
+  DATA[pi].items.forEach((it,ii) => { if(state[`${pi}-${ii}`]) checked++; });
+  document.querySelector(`[data-count="${pi}"]`).textContent = `${checked}/${total}`;
+}
+function updateGlobalProgress(){
+  let checked = 0;
+  Object.values(state).forEach(v => { if(v) checked++; });
+  const pct = totalItems > 0 ? Math.round((checked/totalItems)*100) : 0;
+  document.getElementById('progress-text').textContent = `${checked} / ${totalItems} étapes`;
+  document.getElementById('progress-pct').textContent = `${pct}%`;
+  document.getElementById('progress-fill').style.width = pct + '%';
+}
+document.querySelectorAll('[data-item-cb]').forEach(cb => {
+  const key = cb.getAttribute('data-item-cb');
+  cb.checked = !!state[key];
+  const wrapper = document.querySelector(`[data-item="${key}"]`);
+  if(cb.checked) wrapper.classList.add('checked');
+  cb.addEventListener('change', () => {
+    state[key] = cb.checked;
+    saveState(state);
+    wrapper.classList.toggle('checked', cb.checked);
+    const pi = parseInt(key.split('-')[0]);
+    updatePhaseCount(pi);
+    updateGlobalProgress();
+  });
+});
+DATA.forEach((_,pi) => updatePhaseCount(pi));
+updateGlobalProgress();
+
+const themeBtn = document.getElementById('theme-toggle');
+const root = document.documentElement;
+function applyTheme(t){
+  root.setAttribute('data-theme', t);
+  themeBtn.textContent = t === 'dark' ? '☀ Mode clair' : '☾ Mode sombre';
+  localStorage.setItem('sculpter_theme', t);
+}
+applyTheme(localStorage.getItem('sculpter_theme') || 'light');
+themeBtn.addEventListener('click', () => applyTheme(root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark'));
+</script>
+
+<a href="index.html" title="Retour à l'accueil"
+   style="position:fixed; bottom:20px; left:20px; z-index:99999; display:flex; align-items:center; gap:8px;
+          background:#211f1c; color:#f1ece0; text-decoration:none; font-family:system-ui,sans-serif;
+          font-size:13px; padding:10px 16px 10px 12px; border-radius:24px; box-shadow:0 3px 10px rgba(0,0,0,.25);
+          border:1px solid rgba(255,255,255,.15); opacity:.88; transition:opacity .2s, transform .2s;"
+   onmouseover="this.style.opacity=1; this.style.transform='translateY(-2px)';"
+   onmouseout="this.style.opacity=.88; this.style.transform='translateY(0)';">
+  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><path d="M9 22V12h6v10"/></svg>
+  Accueil
+</a>
+</body>
+</html>

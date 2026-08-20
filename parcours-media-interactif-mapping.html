@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Média Interactif — Mapping, Code & Motion Design</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap');
+
+  :root{
+    --paper:#efecf2; --paper-2:#e3dfe9; --ink:#211f26; --ink-soft:#5d5868;
+    --accent:#7a3fb0; --accent-soft:#7a3fb01c; --good:#4d6b4a; --good-soft:#4d6b4a1e;
+    --line:#d6d0e0; --card:#f8f6fb; --shadow:0 1px 0 rgba(33,31,38,0.05);
+  }
+  html[data-theme="dark"]{
+    --paper:#18161c; --paper-2:#201d26; --ink:#eae6f0; --ink-soft:#a89fb5;
+    --accent:#b284e0; --accent-soft:#b284e026; --good:#8fb37f; --good-soft:#8fb37f22;
+    --line:#332e3d; --card:#201d26; --shadow:0 1px 0 rgba(0,0,0,0.3);
+  }
+  *{box-sizing:border-box;}
+  body{ margin:0; background:var(--paper); color:var(--ink); font-family:'Inter', system-ui, sans-serif; padding-bottom:80px; transition:background .3s, color .3s;}
+
+  header{ max-width:840px; margin:0 auto; padding:52px 24px 26px; border-bottom:1px solid var(--line);}
+  .eyebrow{ font-family:'IBM Plex Mono', monospace; font-size:12px; letter-spacing:.14em; text-transform:uppercase; color:var(--ink-soft); margin-bottom:12px;}
+  h1{ font-family:'Fraunces', serif; font-size:32px; font-weight:700; margin:0 0 8px;}
+  .subtitle{ color:var(--ink-soft); font-size:15.5px; max-width:68ch; margin:0 0 22px; line-height:1.55;}
+
+  .toggle-row{ display:flex; justify-content:space-between; align-items:center; gap:16px; flex-wrap:wrap;}
+  .progress-wrap{ flex:1; min-width:220px;}
+  .progress-label{ display:flex; justify-content:space-between; font-family:'IBM Plex Mono', monospace; font-size:11px; color:var(--ink-soft); margin-bottom:6px; letter-spacing:.05em;}
+  .progress-track{ height:8px; border-radius:4px; background:var(--paper-2); overflow:hidden; border:1px solid var(--line);}
+  .progress-fill{ height:100%; width:0%; background:linear-gradient(90deg, var(--good), var(--accent)); transition:width .5s ease;}
+  #theme-toggle{ font-family:'IBM Plex Mono', monospace; font-size:12px; background:transparent; border:1px solid var(--line);
+    color:var(--ink-soft); padding:8px 14px; border-radius:20px; cursor:pointer;}
+  #theme-toggle:hover{ border-color:var(--accent); color:var(--accent);}
+
+  main{ max-width:840px; margin:0 auto; padding:20px 24px;}
+  .module{ border-bottom:1px solid var(--line);}
+  .module-head{ display:flex; align-items:center; gap:16px; padding:22px 4px; cursor:pointer; user-select:none;}
+  .module-num{ font-family:'IBM Plex Mono', monospace; font-size:13px; color:var(--ink-soft); min-width:78px;}
+  .module-titles{ flex:1;}
+  .module-fr{ font-size:19px; font-weight:600; margin:0;}
+  .module-goal{ font-size:13.5px; color:var(--ink-soft); margin-top:4px; line-height:1.5;}
+  .module-count{ font-family:'IBM Plex Mono', monospace; font-size:12px; color:var(--ink-soft); white-space:nowrap;}
+  .chevron{ width:18px; height:18px; flex-shrink:0; transition:transform .25s ease; color:var(--ink-soft);}
+  .module.open .chevron{ transform:rotate(90deg); color:var(--accent);}
+  .module-body{ max-height:0; overflow:hidden; transition:max-height .5s ease;}
+  .module.open .module-body{ max-height:3600px;}
+
+  .jalon{ margin:0 4px 20px; padding:16px 18px; background:var(--card); border:1px solid var(--line); border-radius:8px;}
+  .jalon-title{ font-size:15px; font-weight:600; margin:0 0 12px; display:flex; align-items:center; gap:8px;}
+  .jalon-title .badge{ font-family:'IBM Plex Mono', monospace; font-size:10px; background:var(--accent-soft); color:var(--accent);
+    border-radius:10px; padding:2px 8px; text-transform:uppercase; letter-spacing:.04em;}
+
+  .block-title{ font-family:'IBM Plex Mono', monospace; font-size:10.5px; letter-spacing:.06em; text-transform:uppercase;
+    color:var(--ink-soft); margin:12px 0 8px;}
+  .res-grid{ display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:4px;}
+  @media(max-width:600px){ .res-grid{ grid-template-columns:1fr;} }
+  .res-card{ background:var(--paper); border:1px solid var(--line); border-radius:6px; padding:9px 11px; font-size:12.5px;}
+  .res-card .type{ font-family:'IBM Plex Mono', monospace; font-size:9.5px; color:var(--accent); text-transform:uppercase; letter-spacing:.04em; margin-bottom:2px;}
+  .res-card a{ color:var(--ink); font-weight:600; text-decoration:none;}
+  .res-card a:hover{ color:var(--accent); text-decoration:underline;}
+  .res-card .who{ color:var(--ink-soft); font-size:11.5px; margin-top:2px; line-height:1.35;}
+
+  .checklist{ list-style:none; margin:0; padding:0;}
+  .checklist li{ display:flex; align-items:flex-start; gap:10px; padding:6px 0; font-size:13.5px;}
+  .checklist input[type="checkbox"]{ width:15px; height:15px; margin-top:2px; accent-color:var(--accent); flex-shrink:0; cursor:pointer;}
+  .checklist li.checked label{ opacity:.5; text-decoration:line-through;}
+  .checklist label{ cursor:pointer; line-height:1.4;}
+
+  .synth-box{ margin:0 4px 4px; padding:16px 18px; background:var(--good-soft); border:1px solid var(--good); border-radius:8px;}
+  .synth-title{ font-family:'IBM Plex Mono', monospace; font-size:11px; text-transform:uppercase; letter-spacing:.06em; color:var(--good); margin-bottom:6px;}
+  .synth-text{ font-size:14px; margin:0 0 8px;}
+  .synth-detail{ font-size:12.5px; color:var(--ink-soft); margin:0;}
+
+  .bridge-box{ margin:12px 4px 0; padding:12px 16px; background:var(--accent-soft); border-left:2px solid var(--accent);
+    border-radius:0 6px 6px 0; font-size:13px; color:var(--ink-soft);}
+  .bridge-box b{ color:var(--ink);}
+
+  footer{ max-width:840px; margin:44px auto 0; padding:20px 24px; text-align:center; font-family:'IBM Plex Mono', monospace; font-size:11px; color:var(--ink-soft);}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="eyebrow">Dudley Orestil · Média Interactif · Code, capteurs & projection</div>
+  <h1>Média Interactif — Mapping, Code & Motion Design</h1>
+  <p class="subtitle">Lier création visuelle et développement technique : montage vidéo, motion design, creative coding (Processing), programmation nodale temps réel (TouchDesigner), capteurs physiques (Arduino), et projection monumentale (mapping vidéo). 5 modules, chacun avec ses jalons, ses ressources nommées et un projet de synthèse qui sert de pont vers le module suivant.</p>
+  <div class="toggle-row">
+    <div class="progress-wrap">
+      <div class="progress-label"><span id="progress-text">0 / 0 tâches</span><span id="progress-pct">0%</span></div>
+      <div class="progress-track"><div class="progress-fill" id="progress-fill"></div></div>
+    </div>
+    <button id="theme-toggle">☾ Mode sombre</button>
+  </div>
+</header>
+
+<main id="modules"></main>
+
+<footer>monter · animer · coder · capter · projeter — chaque module nourrit le suivant</footer>
+
+<script>
+const DATA = [
+  {
+    fr: "Édition vidéo & Motion Design",
+    numLabel: "Module 1",
+    goal: "Objectif : produire un contenu visuel monté et animé, propre techniquement — c'est la matière première que tous les modules suivants vont manipuler, transformer ou projeter.",
+    jalons: [
+      {
+        title: "Jalon 1.1 — Montage & post-production",
+        resources: [
+          ["Logiciel — gratuit", "https://www.blackmagicdesign.com/products/davinciresolve", "DaVinci Resolve", "Étalonnage couleur de niveau professionnel inclus gratuitement, référence de l'industrie"],
+          ["Tutoriels", "https://www.youtube.com/results?search_query=Casey+Faris+DaVinci+Resolve+beginner+tutorial", "Casey Faris — DaVinci Resolve débutant", "Série structurée coupe / rythme / étalonnage / son"]
+        ],
+        tasks: [
+          "Installer DaVinci Resolve, importer et organiser des rushs (bins, proxys)",
+          "Monter un clip de 45-60s avec au moins 3 types de coupe (cut, J-cut, montage rythmique)",
+          "Étalonnage couleur basique : correction primaire (exposition, balance des blancs) sur tout le clip",
+          "Mixage son basique : niveau, fade in/out, un morceau de musique libre de droits"
+        ]
+      },
+      {
+        title: "Jalon 1.2 — Motion design de base",
+        resources: [
+          ["Logiciel", "https://www.adobe.com/products/aftereffects.html", "Adobe After Effects", "Standard de l'industrie pour l'animation 2D et les effets visuels"],
+          ["Tutoriels officiels", "https://helpx.adobe.com/after-effects/tutorials.html", "Adobe After Effects — tutoriels débutant", "Parcours officiel, gratuit, animation par keyframes"]
+        ],
+        tasks: [
+          "Animer un texte ou logo simple avec keyframes et easing (pas d'interpolation linéaire brute)",
+          "Créer une boucle animée de 8-10 secondes, exportable en vidéo avec fond transparent (alpha)",
+          "Exporter l'asset animé dans un format compatible mapping (ProRes 4444 ou équivalent avec alpha)"
+        ]
+      }
+    ],
+    synthesis: {
+      text: "Projet de synthèse : une courte vidéo (30-60s) combinant montage DaVinci Resolve + au moins un asset motion design After Effects intégré à même le montage.",
+      detail: "Cette vidéo devient la matière première projetée en mapping au module 5 — garde le fichier source, tu vas le réutiliser plusieurs fois."
+    },
+    bridge: "Pont vers le Module 2 : la même logique d'animation par keyframes (After Effects) se retrouve en code dans Processing — sauf que tu vas l'écrire toi-même plutôt que la manipuler à la souris."
+  },
+  {
+    fr: "Creative Coding — Processing",
+    numLabel: "Module 2",
+    goal: "Objectif : comprendre la logique des boucles graphiques (setup / draw) — l'équivalent d'Arduino pour l'animation, et la porte d'entrée vers toute interactivité codée.",
+    jalons: [
+      {
+        title: "Jalon 2.1 — Bases de Processing",
+        resources: [
+          ["Logiciel officiel", "https://processing.org/", "Processing", "IDE et langage open-source basé sur Java, même philosophie qu'Arduino"],
+          ["Tutoriels — référence", "https://thecodingtrain.com/", "The Coding Train — Daniel Shiffman", "La référence absolue pour apprendre Processing, séries complètes et gratuites"]
+        ],
+        tasks: [
+          "Installer Processing, comprendre setup() (une fois) vs draw() (en boucle, ~60x/seconde)",
+          "Dessiner et animer 5 formes géométriques avec des variables qui évoluent à chaque frame",
+          "Implémenter un système de particules simple (position, vitesse, rebond sur les bords)"
+        ]
+      },
+      {
+        title: "Jalon 2.2 — Interactivité basique",
+        resources: [
+          ["Bibliothèque intégrée", "https://processing.org/reference/libraries/", "Minim (audio) — via Sketch > Import Library", "Analyse audio en temps réel dans Processing"],
+          ["Tutoriel ciblé", "https://www.youtube.com/results?search_query=coding+train+processing+audio+input+visualization", "The Coding Train — Audio Visualization", "Réagir au son du micro en direct"]
+        ],
+        tasks: [
+          "Animer une forme dont la taille ou la couleur réagit au volume du micro en direct",
+          "Faire réagir une animation à la position de la souris et aux touches du clavier",
+          "Combiner les deux : un système où le son ET la souris influencent la même animation"
+        ]
+      }
+    ],
+    synthesis: {
+      text: "Projet de synthèse : une animation générative interactive qui réagit à un input en temps réel (son ou souris), documentée avec le code source commenté.",
+      detail: "Le comportement de cette animation (logique, pas le code) sera reconstruit de façon nodale au module suivant — observe bien ce qui est simple vs pénible à coder à la main."
+    },
+    bridge: "Pont vers le Module 3 : ce que tu viens de coder ligne par ligne en Processing, TouchDesigner permet de le faire par assemblage de nodes — utile quand la logique devient trop complexe pour rester lisible en code."
+  },
+  {
+    fr: "Programmation graphique temps réel — TouchDesigner",
+    numLabel: "Module 3",
+    goal: "Objectif : lier des flux de données à des visuels sans tout coder de zéro — la programmation nodale devient rentable dès que la composition combine plusieurs sources (vidéo, code, capteurs).",
+    jalons: [
+      {
+        title: "Jalon 3.1 — Logique nodale",
+        resources: [
+          ["Logiciel — gratuit non-commercial", "https://derivative.ca/", "TouchDesigner (Derivative)", "Licence non-commerciale gratuite, largement suffisante pour ce parcours"],
+          ["Apprentissage officiel", "https://derivative.ca/community/learn", "Derivative — Learn", "Documentation et tutoriels structurés par niveau"],
+          ["Tutoriels débutant", "https://www.youtube.com/results?search_query=elburz+touchdesigner+beginner+tutorial", "Elburz Sorkhabi — Interactive & Immersive HQ", "Référence pédagogique la plus citée par la communauté TouchDesigner"]
+        ],
+        tasks: [
+          "Installer TouchDesigner, distinguer les familles de nodes : TOP (image), CHOP (données/audio), SOP (géométrie 3D)",
+          "Recréer une version nodale simplifiée de l'animation générative du Module 2 (forme qui réagit à un paramètre)",
+          "Construire une chaîne de 5-6 nodes qui transforme un signal audio en effet visuel"
+        ]
+      },
+      {
+        title: "Jalon 3.2 — Import de contenu externe",
+        resources: [
+          ["Tutoriel ciblé", "https://www.youtube.com/results?search_query=touchdesigner+import+video+after+effects+alpha", "Importer vidéo + alpha dans TouchDesigner", "Formats et codecs compatibles, gestion de la transparence"]
+        ],
+        tasks: [
+          "Importer la vidéo montée au Module 1 (Movie File In TOP) et vérifier la lecture fluide",
+          "Importer l'asset motion design avec alpha et le composer par-dessus la vidéo",
+          "Ajouter un effet généré par node (distorsion, colorisation) piloté par un paramètre en temps réel"
+        ]
+      }
+    ],
+    synthesis: {
+      text: "Projet de synthèse : une composition TouchDesigner qui combine la vidéo montée (Module 1), l'asset motion design (Module 1) et un effet généré par code (Module 2/3), le tout modifiable en direct.",
+      detail: "Cette composition est la base de contenu qui sera projetée en mapping au Module 5 — et le point d'entrée pour les données du capteur au Module 4."
+    },
+    bridge: "Pont vers le Module 4 : cette composition tourne encore sans lien avec le monde physique. Le module suivant branche un capteur réel qui va piloter un des paramètres que tu contrôles actuellement à la souris."
+  },
+  {
+    fr: "Hardware & Interactivité physique — Arduino",
+    numLabel: "Module 4",
+    goal: "Objectif : connecter le monde réel (capteurs de distance, présence, lumière, boutons) au monde virtuel construit dans les modules précédents.",
+    jalons: [
+      {
+        title: "Jalon 4.1 — Bases Arduino",
+        resources: [
+          ["Matériel/logiciel officiel", "https://www.arduino.cc/", "Arduino (IDE + plateforme)", "Écosystème open-source, même philosophie que Processing"],
+          ["Documentation officielle", "https://docs.arduino.cc/", "Arduino Docs", "Référence pour les capteurs et le câblage de base"],
+          ["Tutoriels débutant", "https://www.youtube.com/results?search_query=Paul+McWhorter+Arduino+tutorial+series", "Paul McWhorter — Arduino Tutorial Series", "Série complète et très pédagogique, du câblage au code"]
+        ],
+        tasks: [
+          "Installer l'IDE Arduino, câbler un capteur de distance (ultrason) ou de présence (PIR)",
+          "Lire les valeurs du capteur dans le moniteur série et comprendre le bruit du signal (lissage)",
+          "Ajouter un bouton et une LED pilotés par le même sketch, pour un retour physique immédiat"
+        ]
+      },
+      {
+        title: "Jalon 4.2 — Communication hardware ↔ software",
+        resources: [
+          ["Bibliothèque Processing", "http://www.sojamo.de/libraries/oscP5/", "oscP5 (protocole OSC)", "Alternative au Serial pour envoyer des données structurées"],
+          ["Référence", "https://processing.org/reference/libraries/serial/index.html", "Processing — bibliothèque Serial", "Lire les données Arduino directement dans Processing"]
+        ],
+        tasks: [
+          "Envoyer les valeurs du capteur Arduino vers Processing via le port Serial",
+          "Faire piloter un paramètre visuel de l'animation du Module 2 par le capteur physique",
+          "Tester une communication via OSC en parallèle du Serial, comparer latence et fiabilité"
+        ]
+      }
+    ],
+    synthesis: {
+      text: "Projet de synthèse : un capteur physique qui pilote en direct un paramètre de la composition TouchDesigner du Module 3 (ex : distance → vitesse d'animation, couleur, ou intensité d'un effet).",
+      detail: "C'est la première fois que quelqu'un peut agir physiquement sur la composition sans toucher un clavier — teste-le avec quelqu'un qui ne sait pas ce que le capteur fait."
+    },
+    bridge: "Pont vers le Module 5 : la composition interactive est prête. Il ne manque qu'une chose — la projeter sur une vraie surface plutôt que de la regarder sur un écran plat."
+  },
+  {
+    fr: "Spatialisation & Mapping vidéo",
+    numLabel: "Module 5",
+    goal: "Objectif final : déformer et adapter le contenu construit dans les 4 modules précédents sur une surface réelle non plane — le rendu qui transforme un fichier vidéo en installation physique.",
+    jalons: [
+      {
+        title: "Jalon 5.1 — Bases du mapping",
+        resources: [
+          ["Logiciel — mapping géométrique", "https://madmapper.com/", "MadMapper", "Référence pour le mapping sur des volumes complexes, interface visuelle claire"],
+          ["Logiciel — VJing & interactivité", "https://resolume.com/", "Resolume Arena", "Plus orienté performance live et déclenchement de clips"]
+        ],
+        tasks: [
+          "Installer MadMapper ou Resolume Arena, projeter une vidéo simple sur une surface plane (mur ou drap)",
+          "Mapper la même vidéo sur une surface non plane (boîte en carton, objet à plusieurs faces) avec un mesh ou quad mapping",
+          "Projeter la vidéo montée au Module 1 sur la surface, ajuster la déformation géométrique jusqu'à ce qu'elle soit propre"
+        ]
+      },
+      {
+        title: "Jalon 5.2 — Intégration temps réel complète",
+        resources: [
+          ["Partage vidéo temps réel — Mac", "http://syphon.v002.info/", "Syphon", "Envoyer un flux TouchDesigner en direct vers MadMapper/Resolume sur macOS"],
+          ["Partage vidéo temps réel — Windows", "https://spout.zeal.co/", "Spout", "Équivalent de Syphon pour Windows"]
+        ],
+        tasks: [
+          "Envoyer le flux de la composition TouchDesigner (Module 3) en direct dans MadMapper/Resolume via Syphon/Spout",
+          "Reconnecter le capteur Arduino (Module 4) pour que l'interaction physique modifie la projection en direct",
+          "Ajuster le mapping final sur la surface choisie avec l'interactivité complète active"
+        ]
+      }
+    ],
+    synthesis: {
+      text: "Projet de synthèse final : une installation complète — vidéo montée, motion design, animation générative, capteur physique et projection mappée sur une surface réelle, fonctionnant ensemble en direct.",
+      detail: "C'est la démonstration à filmer et documenter : elle prouve la chaîne complète, de la matière première (Module 1) jusqu'à l'objet physique projeté et interactif (Module 5)."
+    },
+    bridge: null
+  }
+];
+
+const container = document.getElementById('modules');
+let totalTasks = 0;
+DATA.forEach(m => m.jalons.forEach(j => totalTasks += j.tasks.length));
+
+DATA.forEach((mod, mi) => {
+  const el = document.createElement('div');
+  el.className = 'module';
+
+  const jalonHtml = mod.jalons.map((jalon, ji) => `
+    <div class="jalon">
+      <p class="jalon-title">${jalon.title}</p>
+      <p class="block-title">📚 Ressources</p>
+      <div class="res-grid">
+        ${jalon.resources.map(r => `
+          <div class="res-card">
+            <div class="type">${r[0]}</div>
+            <a href="${r[1]}" target="_blank" rel="noopener">${r[2]}</a>
+            <div class="who">${r[3]}</div>
+          </div>
+        `).join('')}
+      </div>
+      <p class="block-title">✅ Tâches</p>
+      <ul class="checklist">
+        ${jalon.tasks.map((t,ti) => `
+          <li data-item="${mi}-${ji}-${ti}">
+            <input type="checkbox" data-item-cb="${mi}-${ji}-${ti}">
+            <label>${t}</label>
+          </li>
+        `).join('')}
+      </ul>
+    </div>
+  `).join('');
+
+  const bridgeHtml = mod.bridge ? `<div class="bridge-box"><b>🌉 Pont —</b> ${mod.bridge}</div>` : '';
+
+  el.innerHTML = `
+    <div class="module-head" data-idx="${mi}">
+      <div class="module-num">${mod.numLabel}</div>
+      <div class="module-titles">
+        <p class="module-fr">${mod.fr}</p>
+        <div class="module-goal">${mod.goal}</div>
+      </div>
+      <div class="module-count" data-count="${mi}">0/0</div>
+      <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6l6 6-6 6"/></svg>
+    </div>
+    <div class="module-body">
+      ${jalonHtml}
+      <div class="synth-box">
+        <div class="synth-title">🏆 Projet de synthèse</div>
+        <p class="synth-text">${mod.synthesis.text}</p>
+        <p class="synth-detail">${mod.synthesis.detail}</p>
+      </div>
+      ${bridgeHtml}
+    </div>
+  `;
+  container.appendChild(el);
+  el.querySelector('.module-head').addEventListener('click', () => el.classList.toggle('open'));
+});
+container.querySelector('.module').classList.add('open');
+
+const STORE_KEY = 'media_interactif_v1';
+function loadState(){ try{ return JSON.parse(localStorage.getItem(STORE_KEY)) || {}; }catch(e){ return {}; } }
+function saveState(s){ localStorage.setItem(STORE_KEY, JSON.stringify(s)); }
+let state = loadState();
+
+function moduleTaskCount(mi){
+  let total = 0, checked = 0;
+  DATA[mi].jalons.forEach((jalon, ji) => {
+    jalon.tasks.forEach((t, ti) => {
+      total++;
+      if(state[`${mi}-${ji}-${ti}`]) checked++;
+    });
+  });
+  return {total, checked};
+}
+function updateModuleCount(mi){
+  const {total, checked} = moduleTaskCount(mi);
+  document.querySelector(`[data-count="${mi}"]`).textContent = `${checked}/${total}`;
+}
+function updateGlobalProgress(){
+  let checked = 0;
+  Object.values(state).forEach(v => { if(v) checked++; });
+  const pct = totalTasks > 0 ? Math.round((checked/totalTasks)*100) : 0;
+  document.getElementById('progress-text').textContent = `${checked} / ${totalTasks} tâches`;
+  document.getElementById('progress-pct').textContent = `${pct}%`;
+  document.getElementById('progress-fill').style.width = pct + '%';
+}
+document.querySelectorAll('[data-item-cb]').forEach(cb => {
+  const key = cb.getAttribute('data-item-cb');
+  cb.checked = !!state[key];
+  const wrapper = document.querySelector(`[data-item="${key}"]`);
+  if(cb.checked) wrapper.classList.add('checked');
+  cb.addEventListener('change', () => {
+    state[key] = cb.checked;
+    saveState(state);
+    wrapper.classList.toggle('checked', cb.checked);
+    const mi = parseInt(key.split('-')[0]);
+    updateModuleCount(mi);
+    updateGlobalProgress();
+  });
+});
+DATA.forEach((_,mi) => updateModuleCount(mi));
+updateGlobalProgress();
+
+const themeBtn = document.getElementById('theme-toggle');
+const root = document.documentElement;
+function applyTheme(t){
+  root.setAttribute('data-theme', t);
+  themeBtn.textContent = t === 'dark' ? '☀ Mode clair' : '☾ Mode sombre';
+  localStorage.setItem('media_theme', t);
+}
+applyTheme(localStorage.getItem('media_theme') || 'light');
+themeBtn.addEventListener('click', () => applyTheme(root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark'));
+</script>
+
+<a href="index.html" title="Retour à l'accueil"
+   style="position:fixed; bottom:20px; left:20px; z-index:99999; display:flex; align-items:center; gap:8px;
+          background:#211f1c; color:#f1ece0; text-decoration:none; font-family:system-ui,sans-serif;
+          font-size:13px; padding:10px 16px 10px 12px; border-radius:24px; box-shadow:0 3px 10px rgba(0,0,0,.25);
+          border:1px solid rgba(255,255,255,.15); opacity:.88; transition:opacity .2s, transform .2s;"
+   onmouseover="this.style.opacity=1; this.style.transform='translateY(-2px)';"
+   onmouseout="this.style.opacity=.88; this.style.transform='translateY(0)';">
+  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><path d="M9 22V12h6v10"/></svg>
+  Accueil
+</a>
+</body>
+</html>

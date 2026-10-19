@@ -6,7 +6,7 @@
 <title>Stratégie, Parole, Écrit — Plan intégré</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap');
-
+ 
 :root{
   --ink:#171c22;
   --paper:#efe8d8;
@@ -48,8 +48,7 @@ body{
   padding-bottom:80px;
 }
 .wrap{max-width:980px; margin:0 auto; padding:0 24px;}
-
-/* HEADER */
+ 
 header{
   border-bottom:1px solid var(--border);
   padding:56px 0 40px;
@@ -75,7 +74,7 @@ h1{
 h1 em{font-style:italic; font-weight:500; color:var(--gold);}
 .subtitle{
   margin-top:18px;
-  max-width:620px;
+  max-width:640px;
   color:var(--text-dim);
   font-size:16px;
 }
@@ -94,8 +93,7 @@ h1 em{font-style:italic; font-weight:500; color:var(--gold);}
   cursor:pointer;
 }
 .icon-btn:hover{border-color:var(--gold);}
-
-/* GLOBAL PROGRESS */
+ 
 .global-progress{
   margin-top:32px;
   display:flex;
@@ -122,8 +120,7 @@ h1 em{font-style:italic; font-weight:500; color:var(--gold);}
   color:var(--text-dim);
   white-space:nowrap;
 }
-
-/* THE PREMISE — how the 3 fit together */
+ 
 .premise{
   padding:40px 0;
   border-bottom:1px solid var(--border);
@@ -156,8 +153,7 @@ h1 em{font-style:italic; font-weight:500; color:var(--gold);}
   .triad{grid-template-columns:1fr; }
   .triad-arrow{transform:rotate(90deg);}
 }
-
-/* TRACK LEGEND */
+ 
 .legend{
   display:flex; gap:18px; flex-wrap:wrap;
   padding:24px 0;
@@ -171,8 +167,7 @@ h1 em{font-style:italic; font-weight:500; color:var(--gold);}
 .dot.jeu{background:var(--gold);}
 .dot.arg{background:var(--teal);}
 .dot.dis{background:var(--red);}
-
-/* PHASES */
+ 
 .phase{
   border-bottom:1px solid var(--border);
   padding:32px 0;
@@ -227,16 +222,39 @@ h1 em{font-style:italic; font-weight:500; color:var(--gold);}
   height:4px; background:var(--panel-2); border-radius:2px; margin-top:14px; overflow:hidden; margin-left:52px;
 }
 .phase-bar-fill{height:100%; background:var(--gold); width:0%; transition:width .3s;}
-
+ 
 .phase-body{
   max-height:0;
   overflow:hidden;
   transition:max-height .4s ease;
   margin-left:52px;
 }
-.phase.open .phase-body{max-height:4000px;}
+.phase.open .phase-body{max-height:6000px;}
 .phase-body-inner{padding-top:22px;}
-
+ 
+/* JALONS */
+.jalon{ margin-bottom:28px; }
+.jalon:last-of-type{ margin-bottom:0; }
+.jalon-label{
+  font-family:var(--font-mono);
+  font-size:12.5px;
+  letter-spacing:.04em;
+  color:var(--gold);
+  margin-bottom:10px;
+  display:flex;
+  align-items:center;
+  gap:8px;
+}
+.jalon-label::after{ content:""; flex:1; height:1px; background:var(--border); }
+.block-label{
+  font-family:var(--font-mono);
+  font-size:10.5px;
+  letter-spacing:.06em;
+  text-transform:uppercase;
+  color:var(--text-dim);
+  margin:14px 0 6px;
+}
+ 
 .item{
   display:flex;
   gap:12px;
@@ -255,7 +273,19 @@ h1 em{font-style:italic; font-weight:500; color:var(--gold);}
 .item .item-title{font-weight:600; font-size:14.5px;}
 .item .item-desc{color:var(--text-dim); font-size:13.5px; margin-top:2px;}
 .item.done .item-title{text-decoration:line-through; color:var(--text-dim);}
-
+ 
+.micro-box{
+  border:1px dashed var(--border);
+  border-radius:8px;
+  padding:4px 14px;
+  margin:10px 0 4px;
+  background:var(--panel);
+}
+.item.micro{ padding:9px 0; }
+.item.micro input[type=checkbox]{ accent-color:var(--teal); }
+.item.micro .item-title{ font-weight:500; font-size:13.5px; }
+.item.micro .item-desc{ font-size:12.5px; }
+ 
 .callout{
   background:var(--panel-2);
   border:1px solid var(--border);
@@ -269,7 +299,7 @@ h1 em{font-style:italic; font-weight:500; color:var(--gold);}
 .callout.arg{border-left-color:var(--teal);}
 .callout.dis{border-left-color:var(--red);}
 .callout strong{color:var(--text); font-weight:600;}
-
+ 
 .matrix-demo{
   font-family:var(--font-mono);
   font-size:12.5px;
@@ -283,9 +313,9 @@ h1 em{font-style:italic; font-weight:500; color:var(--gold);}
   border:1px solid var(--border);
 }
 [data-theme="light"] .matrix-demo{background:#22201a; color:#efe8d8;}
-
+ 
 .resources{
-  margin-top:16px;
+  margin-top:10px;
   display:grid;
   grid-template-columns:1fr 1fr;
   gap:10px;
@@ -303,8 +333,29 @@ h1 em{font-style:italic; font-weight:500; color:var(--gold);}
 .resource-link:hover{border-color:var(--gold);}
 .resource-link .rl-title{font-weight:600;}
 .resource-link .rl-desc{color:var(--text-dim); font-size:12px; margin-top:2px;}
-
-/* CAPSTONE */
+.resource-card{
+  display:block;
+  border:1px solid var(--border);
+  border-radius:8px;
+  padding:10px 12px;
+  font-size:13px;
+}
+.resource-card .rl-title{font-weight:600;}
+.resource-card .rl-desc{color:var(--text-dim); font-size:12px; margin-top:2px;}
+ 
+.module-synth{
+  margin-top:20px;
+  padding:16px 18px;
+  background:var(--teal-soft);
+  border:1px solid var(--teal);
+  border-radius:8px;
+}
+.module-synth-label{
+  font-family:var(--font-mono); font-size:11px; letter-spacing:.06em; text-transform:uppercase;
+  color:var(--teal); margin-bottom:6px;
+}
+.module-synth-text{ font-size:13.5px; color:var(--text); }
+ 
 .capstone{
   padding:48px 0 20px;
   text-align:center;
@@ -320,7 +371,7 @@ h1 em{font-style:italic; font-weight:500; color:var(--gold);}
 .capstone-node .cn-eyebrow{font-family:var(--font-mono); font-size:11px; letter-spacing:.1em; color:var(--gold); text-transform:uppercase;}
 .capstone-node h3{font-family:var(--font-display); font-size:24px; margin-top:8px;}
 .capstone-node p{color:var(--text-dim); font-size:14px; margin-top:10px;}
-
+ 
 footer{
   text-align:center;
   padding:40px 0;
@@ -328,8 +379,7 @@ footer{
   font-family:var(--font-mono);
   font-size:12px;
 }
-
-/* SVG tree connector between phases */
+ 
 .tree-connector{
   margin-left:52px;
   height:24px;
@@ -340,40 +390,40 @@ footer{
 </head>
 <body data-theme="dark">
 <div class="wrap">
-
+ 
 <header>
   <div class="controls">
     <button class="icon-btn" id="themeToggle">☾ mode</button>
   </div>
-  <div class="eyebrow">Programme autodidacte — 20 semaines</div>
+  <div class="eyebrow">Programme autodidacte — 20 semaines — 5 modules</div>
   <h1>Penser en <em>stratège</em>,<br>parler en <em>débatteur</em>,<br>écrire en <em>analyste</em>.</h1>
-  <p class="subtitle">Un parcours en trois volets tissés ensemble : la théorie des jeux comme grammaire des interactions stratégiques, le débat comme terrain d'application orale, et la dissertation comme mise en forme écrite et rigoureuse de cette pensée.</p>
+  <p class="subtitle">Un parcours en trois volets tissés ensemble : la théorie des jeux comme grammaire des interactions stratégiques, le débat comme terrain d'application orale, et la dissertation comme mise en forme écrite et rigoureuse de cette pensée. Chaque module est découpé en jalons, chaque jalon a ses tâches précises, ses micro-exercices de répétition et ses ressources nommées.</p>
   <div class="global-progress">
     <div class="global-bar"><div class="global-bar-fill" id="globalBarFill"></div></div>
     <div class="global-label" id="globalLabel">0 / 0 tâches</div>
   </div>
 </header>
-
+ 
 <section class="premise">
   <h2>Pourquoi ces trois volets tiennent ensemble</h2>
   <p>Un débat <em>est</em> un jeu : deux joueurs (ou plus), un ensemble de coups possibles (arguments, réfutations, concessions), un ordre de parole, et un gain à la fin (convaincre un jury). La théorie des jeux donne le squelette formel pour comprendre pourquoi certains arguments fonctionnent, quand bluffer sur la force d'un dossier est rentable, et pourquoi la réputation compte dans les débats répétés.</p>
   <p>La dissertation, elle, est l'endroit où cette pensée stratégique est ralentie, vérifiée et mise en ordre : la structure thèse-antithèse-synthèse est elle-même une forme de jeu séquentiel résolu par écrit plutôt qu'à l'oral.</p>
   <div class="triad">
-    <div class="triad-node"><div class="n">VOLET 1</div><div class="t">Théorie des jeux</div></div>
+    <div class="triad-node"><div class="n">MODULES 0–1</div><div class="t">Théorie des jeux</div></div>
     <div class="triad-arrow">→</div>
-    <div class="triad-node"><div class="n">VOLET 2</div><div class="t">Argumentation &amp; débat</div></div>
+    <div class="triad-node"><div class="n">MODULE 2</div><div class="t">Argumentation &amp; débat</div></div>
     <div class="triad-arrow">→</div>
-    <div class="triad-node"><div class="n">VOLET 3</div><div class="t">Dissertation</div></div>
+    <div class="triad-node"><div class="n">MODULE 3</div><div class="t">Dissertation</div></div>
   </div>
 </section>
-
+ 
 <div class="legend">
   <span><span class="dot jeu"></span> Théorie des jeux</span>
   <span><span class="dot arg"></span> Argumentation / débat</span>
   <span><span class="dot dis"></span> Dissertation</span>
 </div>
-
-<!-- PHASE 0 -->
+ 
+<!-- MODULE 0 -->
 <div class="phase open" data-phase="0">
   <div class="phase-head" onclick="togglePhase(0)">
     <div class="phase-num">00</div>
@@ -388,71 +438,143 @@ footer{
   </div>
   <div class="phase-bar"><div class="phase-bar-fill" id="bar-0"></div></div>
   <div class="phase-body"><div class="phase-body-inner">
-
-    <div class="item">
-      <input type="checkbox" id="p0-1"><label for="p0-1">
-        <div class="item-title">Vocabulaire de base de la théorie des jeux</div>
-        <div class="item-desc">Joueurs, actions, information, stratégies pures/mixtes, gains (payoffs), forme normale (matrice) vs forme extensive (arbre).</div>
-      </label>
+ 
+    <div class="jalon">
+      <div class="jalon-label">Jalon 0.1 — Vocabulaire et résolution de jeux simples</div>
+ 
+      <div class="item">
+        <input type="checkbox" id="p0-1"><label for="p0-1">
+          <div class="item-title">Définir par écrit les 6 termes de base</div>
+          <div class="item-desc">Joueurs, actions, information, stratégie pure vs mixte, gain (payoff), forme normale (matrice) vs forme extensive (arbre) — une définition d'une phrase chacun, dans tes propres mots.</div>
+        </label>
+      </div>
+      <div class="item">
+        <input type="checkbox" id="p0-2"><label for="p0-2">
+          <div class="item-title">Résoudre 3 matrices 2x2 par élimination de stratégies dominées</div>
+          <div class="item-desc">Dilemme du prisonnier, jeu de la Poule (Chicken), et bataille des sexes — trouver l'équilibre de Nash de chacun à la main, sans outil.</div>
+        </label>
+      </div>
+      <div class="item">
+        <input type="checkbox" id="p0-3"><label for="p0-3">
+          <div class="item-title">Résoudre un arbre à 3 niveaux par induction à rebours</div>
+          <div class="item-desc">Partir de la fin de l'arbre, identifier le choix optimal à chaque nœud, remonter jusqu'à la racine. Un exemple simple suffit (ex. négociation en 3 tours).</div>
+        </label>
+      </div>
+ 
+      <div class="micro-box">
+        <div class="item micro">
+          <input type="checkbox" id="m0-1-1"><label for="m0-1-1">
+            <div class="item-title">⚡ 10 min — Identifier le type de jeu</div>
+            <div class="item-desc">Prendre 3 situations du quotidien (négocier un prix, se partager une tâche, choisir un restaurant à deux) et dire si chacune est à somme nulle ou non, simultanée ou séquentielle.</div>
+          </label>
+        </div>
+        <div class="item micro">
+          <input type="checkbox" id="m0-1-2"><label for="m0-1-2">
+            <div class="item-title">⚡ 15 min — Construire une matrice 2x2 de zéro</div>
+            <div class="item-desc">Choisir une décision binaire que tu as prise récemment avec quelqu'un d'autre, la formaliser en matrice de gains même grossière.</div>
+          </label>
+        </div>
+      </div>
+ 
+      <div class="block-label">📚 Ressources</div>
+      <div class="resources">
+        <a class="resource-link" href="https://www.coursera.org/learn/game-theory-introduction" target="_blank">
+          <div class="rl-title">Game Theory (Stanford/UBC, Coursera)</div>
+          <div class="rl-desc">Cours de référence sur Nash, formes extensive/normale, jeux répétés</div>
+        </a>
+        <a class="resource-link" href="https://gametheory101.com/courses/game-theory-101/" target="_blank">
+          <div class="rl-title">Game Theory 101 (William Spaniel)</div>
+          <div class="rl-desc">Vidéos + manuel gratuit, très progressif, bon pour l'induction à rebours</div>
+        </a>
+        <div class="resource-card">
+          <div class="rl-title">Livre — Thinking Strategically (Dixit &amp; Nalebuff)</div>
+          <div class="rl-desc">L'introduction la plus citée à la théorie des jeux appliquée, sans notation lourde</div>
+        </div>
+      </div>
     </div>
-    <div class="item">
-      <input type="checkbox" id="p0-2"><label for="p0-2">
-        <div class="item-title">Équilibre de Nash et dominance</div>
-        <div class="item-desc">Stratégies dominantes, élimination itérée, équilibre de Nash en stratégies pures. Exercice : Dilemme du prisonnier et jeu de la Poule (Chicken).</div>
-      </label>
+ 
+    <div class="jalon">
+      <div class="jalon-label">Jalon 0.2 — Anatomie de l'argument et rhétorique</div>
+ 
+      <div class="item">
+        <input type="checkbox" id="p0-4"><label for="p0-4">
+          <div class="item-title">Décomposer 5 arguments réels en prémisse(s) → conclusion</div>
+          <div class="item-desc">Prendre 5 arguments entendus récemment (actualité, conversation) et les reformuler en syllogisme explicite. Marquer lesquels sont déductifs, inductifs ou abductifs.</div>
+        </label>
+      </div>
+      <div class="item">
+        <input type="checkbox" id="p0-5"><label for="p0-5">
+          <div class="item-title">Classer 10 publicités ou discours selon ethos / pathos / logos</div>
+          <div class="item-desc">Identifier le levier dominant dans chacun, et noter dans quel format de débat (voir Module 2) chaque levier est le plus payant.</div>
+        </label>
+      </div>
+      <div class="item">
+        <input type="checkbox" id="p0-6"><label for="p0-6">
+          <div class="item-title">Repérer 8 sophismes dans des textes réels</div>
+          <div class="item-desc">Homme de paille, pente glissante, ad hominem, faux dilemme, appel à l'autorité — en trouver des exemples réels (commentaires en ligne, débats politiques), pas des exemples de manuel.</div>
+        </label>
+      </div>
+ 
+      <div class="micro-box">
+        <div class="item micro">
+          <input type="checkbox" id="m0-2-1"><label for="m0-2-1">
+            <div class="item-title">⚡ 10 min — Chasse au sophisme</div>
+            <div class="item-desc">Relire un de tes propres textes ou messages récents et chercher si toi-même tu as glissé un sophisme sans t'en rendre compte.</div>
+          </label>
+        </div>
+      </div>
+ 
+      <div class="block-label">📚 Ressources</div>
+      <div class="resources">
+        <div class="resource-card">
+          <div class="rl-title">Livre — Thank You for Arguing (Jay Heinrichs)</div>
+          <div class="rl-desc">Rhétorique classique rendue concrète, ethos/pathos/logos expliqués par l'exemple</div>
+        </div>
+        <div class="resource-card">
+          <div class="rl-title">Livre — A Rulebook for Arguments (Anthony Weston)</div>
+          <div class="rl-desc">Court, dense, la référence pour construire un argument solide phrase par phrase</div>
+        </div>
+      </div>
     </div>
-    <div class="item">
-      <input type="checkbox" id="p0-3"><label for="p0-3">
-        <div class="item-title">Induction à rebours</div>
-        <div class="item-desc">Résoudre un arbre de décision simple (2-3 niveaux) en partant de la fin. Base pour modéliser un échange de répliques en débat.</div>
-      </label>
+ 
+    <div class="jalon">
+      <div class="jalon-label">Jalon 0.3 — Méthode de la dissertation française</div>
+ 
+      <div class="item">
+        <input type="checkbox" id="p0-7"><label for="p0-7">
+          <div class="item-title">Comparer les 3 plans sur un même sujet</div>
+          <div class="item-desc">Prendre un sujet simple et esquisser son plan dialectique, son plan analytique (causes-conséquences-solutions) et son plan thématique — pour sentir dans quel cas chacun s'impose naturellement.</div>
+        </label>
+      </div>
+ 
+      <div class="block-label">📚 Ressources</div>
+      <div class="resources">
+        <a class="resource-link" href="https://www.scribbr.fr/dissertation/" target="_blank">
+          <div class="rl-title">Scribbr — méthode de la dissertation</div>
+          <div class="rl-desc">Guide français sur les plans dialectique, analytique, thématique</div>
+        </a>
+        <a class="resource-link" href="https://www.ccdmd.qc.ca/" target="_blank">
+          <div class="rl-title">CCDMD</div>
+          <div class="rl-desc">Centre collégial de développement de matériel didactique (Québec) — exercices d'écriture argumentative</div>
+        </a>
+      </div>
     </div>
-    <div class="item">
-      <input type="checkbox" id="p0-4"><label for="p0-4">
-        <div class="item-title">Anatomie d'un argument</div>
-        <div class="item-desc">Prémisse(s) → conclusion, syllogisme, distinction validité / vérité, argument déductif vs inductif vs abductif.</div>
-      </label>
-    </div>
-    <div class="item">
-      <input type="checkbox" id="p0-5"><label for="p0-5">
-        <div class="item-title">Les trois leviers rhétoriques</div>
-        <div class="item-desc">Ethos (crédibilité), pathos (émotion), logos (logique) — et où chacun est le plus payant selon le format de débat.</div>
-      </label>
-    </div>
-    <div class="item">
-      <input type="checkbox" id="p0-6"><label for="p0-6">
-        <div class="item-title">Catalogue des sophismes courants</div>
-        <div class="item-desc">Homme de paille, pente glissante, ad hominem, faux dilemme, appel à l'autorité. Objectif : les repérer chez l'adversaire ET dans ses propres brouillons.</div>
-      </label>
-    </div>
-    <div class="item">
-      <input type="checkbox" id="p0-7"><label for="p0-7">
-        <div class="item-title">Méthode dissertation française : thèse-antithèse-synthèse</div>
-        <div class="item-desc">Plan dialectique, plan analytique (causes-conséquences-solutions), plan thématique. Rôle de la problématique et de l'accroche.</div>
-      </label>
-    </div>
-
+ 
     <div class="callout">
-      <strong>Pont conceptuel :</strong> l'induction à rebours (jeux) et le plan dialectique (dissertation) résolvent le même problème : anticiper la réplique de l'autre camp avant d'écrire son propre coup.
+      <strong>Pont conceptuel :</strong> l'induction à rebours (jeu 0.1) et le plan dialectique (jalon 0.3) résolvent le même problème : anticiper la réplique de l'autre camp avant d'écrire son propre coup.
     </div>
-
-    <div class="resources">
-      <a class="resource-link" href="https://www.coursera.org/learn/game-theory-introduction" target="_blank">
-        <div class="rl-title">Game Theory (Stanford/UBC, Coursera)</div>
-        <div class="rl-desc">Cours de référence sur Nash, formes extensive/normale, jeux répétés</div>
-      </a>
-      <a class="resource-link" href="https://gametheory101.com/courses/game-theory-101/" target="_blank">
-        <div class="rl-title">Game Theory 101 (William Spaniel)</div>
-        <div class="rl-desc">Vidéos + manuel gratuit, très progressif, bon pour l'induction à rebours</div>
-      </a>
+ 
+    <div class="module-synth">
+      <div class="module-synth-label">🏆 Projet de synthèse du module</div>
+      <div class="module-synth-text">Un document d'une page : un arbre de décision à 3 niveaux résolu, un syllogisme tiré d'un vrai débat, et un plan dialectique esquissé sur un sujet de ton choix — les trois outils de base, prêts à être combinés dans les modules suivants.</div>
     </div>
-
+ 
   </div></div>
 </div>
-
+ 
 <div class="tree-connector"></div>
-
-<!-- PHASE 1 -->
+ 
+<!-- MODULE 1 -->
 <div class="phase" data-phase="1">
   <div class="phase-head" onclick="togglePhase(1)">
     <div class="phase-num">01</div>
@@ -465,140 +587,248 @@ footer{
   </div>
   <div class="phase-bar"><div class="phase-bar-fill" id="bar-1"></div></div>
   <div class="phase-body"><div class="phase-body-inner">
-
-    <div class="item">
-      <input type="checkbox" id="p1-1"><label for="p1-1">
-        <div class="item-title">Jeux séquentiels et forme extensive</div>
-        <div class="item-desc">Modéliser un débat à deux tours (proposition → réfutation → réplique) comme un arbre. Identifier les nœuds de décision et les branches "crédibles".</div>
-      </label>
+ 
+    <div class="jalon">
+      <div class="jalon-label">Jalon 1.1 — Jeux séquentiels et crédibilité</div>
+ 
+      <div class="item">
+        <input type="checkbox" id="p1-1"><label for="p1-1">
+          <div class="item-title">Modéliser un débat à 2 tours en arbre complet</div>
+          <div class="item-desc">Proposition → réfutation → réplique, avec tous les nœuds de décision et branches possibles dessinés — pas seulement le chemin qu'on a réellement suivi.</div>
+        </label>
+      </div>
+      <div class="item">
+        <input type="checkbox" id="p1-2"><label for="p1-2">
+          <div class="item-title">Trouver l'équilibre parfait en sous-jeux de cet arbre</div>
+          <div class="item-desc">Identifier quelle branche est réellement crédible à chaque nœud — pourquoi une menace rhétorique non crédible ("si vous ne répondez pas à X, votre cas s'effondre") échoue si le nœud suivant ne la confirme pas.</div>
+        </label>
+      </div>
+ 
+      <div class="micro-box">
+        <div class="item micro">
+          <input type="checkbox" id="m1-1-1"><label for="m1-1-1">
+            <div class="item-title">⚡ 10 min — Tester une menace rhétorique</div>
+            <div class="item-desc">Prendre une menace ou promesse entendue récemment ("si vous votez X, Y arrivera") et vérifier si elle est crédible à chaque étape de la chaîne logique.</div>
+          </label>
+        </div>
+      </div>
+ 
+      <div class="block-label">📚 Ressources</div>
+      <div class="resources">
+        <a class="resource-link" href="https://gametheory101.com/courses/game-theory-101/" target="_blank">
+          <div class="rl-title">Game Theory 101 — Sequential Games</div>
+          <div class="rl-desc">Chapitres spécifiques sur l'équilibre parfait en sous-jeux</div>
+        </a>
+      </div>
     </div>
-    <div class="item">
-      <input type="checkbox" id="p1-2"><label for="p1-2">
-        <div class="item-title">Équilibre parfait en sous-jeux</div>
-        <div class="item-desc">Pourquoi une menace ou une promesse rhétorique ("si vous ne répondez pas à X, votre cas s'effondre") doit être crédible à chaque étape pour fonctionner.</div>
-      </label>
+ 
+    <div class="jalon">
+      <div class="jalon-label">Jalon 1.2 — Information imparfaite et signalement</div>
+ 
+      <div class="item">
+        <input type="checkbox" id="p1-3"><label for="p1-3">
+          <div class="item-title">Modéliser un bluff rhétorique comme jeu de signalement</div>
+          <div class="item-desc">Formaliser le cas où un débatteur affirme un dossier plus solide qu'il ne l'est : qui envoie le signal, quel est le coût du bluff s'il est découvert, quand est-il rationnel de bluffer.</div>
+        </label>
+      </div>
+      <div class="item">
+        <input type="checkbox" id="p1-4"><label for="p1-4">
+          <div class="item-title">Reproduire un tournoi de dilemme du prisonnier itéré</div>
+          <div class="item-desc">Via Axelrod-Python ou à la main sur papier (10+ tours), tester Tit-for-Tat contre 2-3 autres stratégies simples et noter pourquoi Tit-for-Tat gagne généralement.</div>
+        </label>
+      </div>
+ 
+      <div class="micro-box">
+        <div class="item micro">
+          <input type="checkbox" id="m1-2-1"><label for="m1-2-1">
+            <div class="item-title">⚡ 15 min — Jouer 10 tours de dilemme itéré à la main</div>
+            <div class="item-desc">Sur papier, simuler Tit-for-Tat contre une stratégie "toujours trahir", comptabiliser les scores sur 10 tours.</div>
+          </label>
+        </div>
+      </div>
+ 
+      <div class="block-label">📚 Ressources</div>
+      <div class="resources">
+        <a class="resource-link" href="https://axelrod.readthedocs.io/" target="_blank">
+          <div class="rl-title">Axelrod-Python</div>
+          <div class="rl-desc">Librairie pour reproduire les tournois de dilemme du prisonnier itéré</div>
+        </a>
+        <div class="resource-card">
+          <div class="rl-title">Livre — The Evolution of Cooperation (Robert Axelrod)</div>
+          <div class="rl-desc">Le livre d'origine sur le tournoi Tit-for-Tat, courte lecture, très applicable</div>
+        </div>
+      </div>
     </div>
-    <div class="item">
-      <input type="checkbox" id="p1-3"><label for="p1-3">
-        <div class="item-title">Information imparfaite et signalement</div>
-        <div class="item-desc">En débat, on ne connaît pas tout le dossier adverse. Modéliser le bluff rhétorique (affirmer une position plus forte qu'elle ne l'est) comme un jeu de signalement.</div>
-      </label>
+ 
+    <div class="jalon">
+      <div class="jalon-label">Jalon 1.3 — Jeux répétés, réputation et simulation (optionnel)</div>
+ 
+      <div class="item">
+        <input type="checkbox" id="p1-5"><label for="p1-5">
+          <div class="item-title">Construire la matrice ou l'arbre d'un cas réel sur une saison</div>
+          <div class="item-desc">Choisir une négociation, un tournoi de débat répété, ou une émission avec alliances — montrer comment la réputation (honnête, agressif, technique) change les stratégies futures des autres joueurs.</div>
+        </label>
+      </div>
+      <div class="item">
+        <input type="checkbox" id="p1-6"><label for="p1-6">
+          <div class="item-title">Implémenter une simulation multi-agents (orienté dev)</div>
+          <div class="item-desc">Avec Mesa ou Axelrod-Python, coder un tournoi de dilemme du prisonnier itéré avec au moins 4 stratégies, produire un classement final.</div>
+        </label>
+      </div>
+ 
+      <div class="block-label">📚 Ressources</div>
+      <div class="resources">
+        <a class="resource-link" href="https://mesa.readthedocs.io/" target="_blank">
+          <div class="rl-title">Mesa (Python)</div>
+          <div class="rl-desc">Framework de simulation multi-agents, alternative à NetLogo</div>
+        </a>
+      </div>
     </div>
-    <div class="item">
-      <input type="checkbox" id="p1-4"><label for="p1-4">
-        <div class="item-title">Jeux répétés et réputation</div>
-        <div class="item-desc">Cas des tournois de débat sur une saison : la réputation d'un débatteur (honnête, agressif, technique) influence les stratégies des adversaires futurs. Lien avec le tournoi de dilemme du prisonnier itéré d'Axelrod (Tit-for-Tat).</div>
-      </label>
-    </div>
-    <div class="item">
-      <input type="checkbox" id="p1-5"><label for="p1-5">
-        <div class="item-title">Construire une matrice de gains pour un cas réel</div>
-        <div class="item-desc">Choisir une négociation ou confrontation publique réelle (politique, marché, émission de téléréalité) et construire sa matrice 2x2 ou son arbre.</div>
-      </label>
-    </div>
-    <div class="item">
-      <input type="checkbox" id="p1-6"><label for="p1-6">
-        <div class="item-title">Simulation multi-agents (optionnel, orienté dev)</div>
-        <div class="item-desc">Implémenter un tournoi de dilemme du prisonnier itéré en Python avec Mesa ou Axelrod-Python, tester Tit-for-Tat contre d'autres stratégies.</div>
-      </label>
-    </div>
-
+ 
     <div class="matrix-demo">Exemple — négociation salariale (jeu simultané, forme normale)
-
+ 
                     Employeur: Concède      Employeur: Tient bon
 Employé: Insiste        (3, 2)                   (0, 4)
 Employé: Modère         (2, 3)                   (1, 1)
-
+ 
 → Chercher les stratégies dominées avant de chercher l'équilibre de Nash.</div>
-
-    <div class="resources">
-      <a class="resource-link" href="https://axelrod.readthedocs.io/" target="_blank">
-        <div class="rl-title">Axelrod-Python</div>
-        <div class="rl-desc">Librairie pour reproduire les tournois de dilemme du prisonnier itéré</div>
-      </a>
-      <a class="resource-link" href="https://mesa.readthedocs.io/" target="_blank">
-        <div class="rl-title">Mesa (Python)</div>
-        <div class="rl-desc">Framework de simulation multi-agents, alternative à NetLogo</div>
-      </a>
+ 
+    <div class="module-synth">
+      <div class="module-synth-label">🏆 Projet de synthèse du module</div>
+      <div class="module-synth-text">Un cas réel (négociation, tournoi de débat, émission) entièrement modélisé : arbre ou matrice, équilibre identifié, et une phrase expliquant pourquoi l'équilibre théorique correspond (ou non) à ce qui s'est réellement passé.</div>
     </div>
-
+ 
   </div></div>
 </div>
-
+ 
 <div class="tree-connector"></div>
-
-<!-- PHASE 2 -->
+ 
+<!-- MODULE 2 -->
 <div class="phase" data-phase="2">
   <div class="phase-head" onclick="togglePhase(2)">
     <div class="phase-num">02</div>
     <div class="phase-title-block">
       <div class="phase-title">Techniques d'argumentation et de débat</div>
-      <div class="phase-sub">Semaines 6–11 (en parallèle) — s'entraîner à l'oral avec la grille stratégique du volet 1</div>
+      <div class="phase-sub">Semaines 6–11 (en parallèle) — s'entraîner à l'oral avec la grille stratégique du module 1</div>
       <div class="phase-meta"><span class="tag arg">argumentation</span></div>
     </div>
     <div class="chevron">›</div>
   </div>
   <div class="phase-bar"><div class="phase-bar-fill" id="bar-2"></div></div>
   <div class="phase-body"><div class="phase-body-inner">
-
-    <div class="item">
-      <input type="checkbox" id="p2-1"><label for="p2-1">
-        <div class="item-title">Formats de débat compétitif</div>
-        <div class="item-desc">Parlementaire britannique (BP), Lincoln-Douglas, Karl Popper. Comparer leur structure de tours à des arbres de jeu séquentiels différents.</div>
-      </label>
+ 
+    <div class="jalon">
+      <div class="jalon-label">Jalon 2.1 — Formats de débat compétitif</div>
+ 
+      <div class="item">
+        <input type="checkbox" id="p2-1"><label for="p2-1">
+          <div class="item-title">Comparer 3 formats (BP, Lincoln-Douglas, Karl Popper) sur une page</div>
+          <div class="item-desc">Nombre de tours, temps par tour, qui parle quand — puis dessiner la structure de tours de chaque format comme un arbre de jeu séquentiel.</div>
+        </label>
+      </div>
+      <div class="item">
+        <input type="checkbox" id="p2-2"><label for="p2-2">
+          <div class="item-title">Regarder et annoter un débat compétitif complet</div>
+          <div class="item-desc">Une vidéo de tournoi dans l'un des 3 formats, en notant le pilier argumentatif principal de chaque intervenant et le moment où un sophisme ou un bluff rhétorique apparaît.</div>
+        </label>
+      </div>
+ 
+      <div class="block-label">📚 Ressources</div>
+      <div class="resources">
+        <a class="resource-link" href="https://www.youtube.com/results?search_query=british+parliamentary+debate+final+round" target="_blank">
+          <div class="rl-title">Finales de débat BP (recherche YouTube)</div>
+          <div class="rl-desc">Rounds complets de tournois universitaires en format parlementaire britannique</div>
+        </a>
+      </div>
     </div>
-    <div class="item">
-      <input type="checkbox" id="p2-2"><label for="p2-2">
-        <div class="item-title">Construction de cas (case building)</div>
-        <div class="item-desc">Définir la motion, poser 2-3 piliers argumentatifs solides plutôt que 6 fragiles — équivalent du choix d'une stratégie dominante plutôt que dispersée.</div>
-      </label>
+ 
+    <div class="jalon">
+      <div class="jalon-label">Jalon 2.2 — Construction de cas et réfutation</div>
+ 
+      <div class="item">
+        <input type="checkbox" id="p2-3"><label for="p2-3">
+          <div class="item-title">Construire un cas de 2-3 piliers sur une motion donnée</div>
+          <div class="item-desc">Choisir une motion réelle, écrire 2-3 arguments solides plutôt que 6 fragiles — équivalent du choix d'une stratégie dominante plutôt que dispersée (lien direct avec le jalon 0.1).</div>
+        </label>
+      </div>
+      <div class="item">
+        <input type="checkbox" id="p2-4"><label for="p2-4">
+          <div class="item-title">Écrire 3 questions de contre-interrogatoire pour un cas adverse</div>
+          <div class="item-desc">Identifier le maillon le plus faible d'un cas (réel ou fictif) et rédiger des questions qui l'exposent sans tomber dans le faux dilemme toi-même.</div>
+        </label>
+      </div>
+ 
+      <div class="micro-box">
+        <div class="item micro">
+          <input type="checkbox" id="m2-2-1"><label for="m2-2-1">
+            <div class="item-title">⚡ 5 min — Réfutation éclair</div>
+            <div class="item-desc">Minuter 1 minute, prendre un argument au hasard dans un article d'opinion, écrire la meilleure réfutation possible avant la fin du chrono.</div>
+          </label>
+        </div>
+      </div>
+ 
+      <div class="block-label">📚 Ressources</div>
+      <div class="resources">
+        <div class="resource-card">
+          <div class="rl-title">Livre — The Debater's Guide (Ericson, Murphy &amp; Zeuschner)</div>
+          <div class="rl-desc">Manuel de référence en anglais pour la construction de cas et la réfutation</div>
+        </div>
+      </div>
     </div>
-    <div class="item">
-      <input type="checkbox" id="p2-3"><label for="p2-3">
-        <div class="item-title">Réfutation et contre-interrogatoire</div>
-        <div class="item-desc">Techniques de cross-examination, identifier le maillon faible du cas adverse, refuser les questions pièges (faux dilemmes posés par l'adversaire).</div>
-      </label>
+ 
+    <div class="jalon">
+      <div class="jalon-label">Jalon 2.3 — Pratique orale et exposition réelle</div>
+ 
+      <div class="item">
+        <input type="checkbox" id="p2-5"><label for="p2-5">
+          <div class="item-title">Débattre 2 motions légères en solo ou avec un pair</div>
+          <div class="item-desc">Sujet type téléréalité (Occupation Double, Big Brother, Amazing Race) : "Le jeu X récompense la meilleure stratégie plutôt que le meilleur joueur." Pratique à faible enjeu, haute répétition.</div>
+        </label>
+      </div>
+      <div class="item">
+        <input type="checkbox" id="p2-6"><label for="p2-6">
+          <div class="item-title">Assister à au moins une pratique d'ARGUQAM ou d'un club LiDUC</div>
+          <div class="item-desc">S'exposer à un vrai jeu répété avec juges et classement — le premier contact compte plus que la performance.</div>
+        </label>
+      </div>
+ 
+      <div class="micro-box">
+        <div class="item micro">
+          <input type="checkbox" id="m2-3-1"><label for="m2-3-1">
+            <div class="item-title">⚡ 7 min — Impromptu chronométré</div>
+            <div class="item-desc">Tirer un sujet au hasard (appli ou liste perso), 2 min de préparation, 5 min d'argumentation à voix haute, seul ou enregistré.</div>
+          </label>
+        </div>
+      </div>
+ 
+      <div class="block-label">📚 Ressources</div>
+      <div class="resources">
+        <a class="resource-link" href="https://www.liduc.org/clubs-membres" target="_blank">
+          <div class="rl-title">LiDUC — Ligue de débat universitaire et collégiale</div>
+          <div class="rl-desc">Fédère les clubs francophones du Québec, dont ARGUQAM à l'UQAM</div>
+        </a>
+        <a class="resource-link" href="https://www.liduc.org" target="_blank">
+          <div class="rl-title">ARGUQAM (club de débat de l'UQAM)</div>
+          <div class="rl-desc">Membre de la LiDUC, pratiques hebdomadaires et tournois</div>
+        </a>
+      </div>
     </div>
-    <div class="item">
-      <input type="checkbox" id="p2-4"><label for="p2-4">
-        <div class="item-title">Gestion du temps et de la voix</div>
-        <div class="item-desc">Rythme, silences stratégiques, structuration orale ("premièrement... deuxièmement...") pour rester lisible sous pression.</div>
-      </label>
-    </div>
-    <div class="item">
-      <input type="checkbox" id="p2-5"><label for="p2-5">
-        <div class="item-title">Débats d'entraînement sur sujets légers</div>
-        <div class="item-desc">Ton idée : prendre une émission de téléréalité (Occupation Double, Big Brother, Amazing Race) comme terrain d'exercice — motion type "Le jeu X récompense la meilleure stratégie plutôt que le meilleur joueur". Pratique à faible enjeu, haute répétition.</div>
-      </label>
-    </div>
-    <div class="item">
-      <input type="checkbox" id="p2-6"><label for="p2-6">
-        <div class="item-title">Rejoindre un club de débat francophone à Montréal</div>
-        <div class="item-desc">S'exposer à un vrai jeu répété avec juges et classement — voir ressources ci-dessous.</div>
-      </label>
-    </div>
-
+ 
     <div class="callout arg">
-      <strong>Pont conceptuel :</strong> chaque tactique de débat ci-dessus a un nom en théorie des jeux — la construction de cas est un choix de stratégie sous incertitude, la réfutation est une réponse à un signal, le contre-interrogatoire est une tentative d'extraire de l'information cachée.
+      <strong>Pont conceptuel :</strong> chaque tactique ci-dessus a un nom en théorie des jeux — la construction de cas est un choix de stratégie sous incertitude, la réfutation est une réponse à un signal, le contre-interrogatoire une tentative d'extraire de l'information cachée.
     </div>
-
-    <div class="resources">
-      <a class="resource-link" href="https://www.liduc.org/clubs-membres" target="_blank">
-        <div class="rl-title">LiDUC — Ligue de débat universitaire et collégiale</div>
-        <div class="rl-desc">Fédère les clubs francophones du Québec, dont ARGUQAM à l'UQAM</div>
-      </a>
-      <a class="resource-link" href="https://www.liduc.org" target="_blank">
-        <div class="rl-title">ARGUQAM (club de débat de l'UQAM)</div>
-        <div class="rl-desc">Membre de la LiDUC, pratiques hebdomadaires et tournois</div>
-      </a>
+ 
+    <div class="module-synth">
+      <div class="module-synth-label">🏆 Projet de synthèse du module</div>
+      <div class="module-synth-text">Un débat complet mené jusqu'au bout — seul, avec un pair, ou en club — sur une motion que tu as construite toi-même, avec un cas de 2-3 piliers et au moins une réfutation préparée à l'avance.</div>
     </div>
-
+ 
   </div></div>
 </div>
-
+ 
 <div class="tree-connector"></div>
-
-<!-- PHASE 3 -->
+ 
+<!-- MODULE 3 -->
 <div class="phase" data-phase="3">
   <div class="phase-head" onclick="togglePhase(3)">
     <div class="phase-num">03</div>
@@ -611,71 +841,108 @@ Employé: Modère         (2, 3)                   (1, 1)
   </div>
   <div class="phase-bar"><div class="phase-bar-fill" id="bar-3"></div></div>
   <div class="phase-body"><div class="phase-body-inner">
-
-    <div class="item">
-      <input type="checkbox" id="p3-1"><label for="p3-1">
-        <div class="item-title">Formuler une problématique</div>
-        <div class="item-desc">Passer d'un sujet ("le débat politique") à une question qui appelle une tension réelle ("le meilleur argument gagne-t-il toujours le débat, ou la meilleure stratégie ?").</div>
-      </label>
+ 
+    <div class="jalon">
+      <div class="jalon-label">Jalon 3.1 — Problématique et plan</div>
+ 
+      <div class="item">
+        <input type="checkbox" id="p3-1"><label for="p3-1">
+          <div class="item-title">Transformer un sujet large en problématique à tension réelle</div>
+          <div class="item-desc">Exemple de transformation : "le débat politique" → "le meilleur argument gagne-t-il toujours le débat, ou la meilleure stratégie ?" — la problématique doit pouvoir être répondue différemment selon l'angle choisi.</div>
+        </label>
+      </div>
+      <div class="item">
+        <input type="checkbox" id="p3-2"><label for="p3-2">
+          <div class="item-title">Écrire le plan dialectique complet en 3 phrases</div>
+          <div class="item-desc">Thèse : la qualité argumentative détermine l'issue. Antithèse : la théorie des jeux montre que la stratégie et l'asymétrie d'information dominent. Synthèse : sous quelles conditions l'un l'emporte sur l'autre.</div>
+        </label>
+      </div>
+ 
+      <div class="block-label">📚 Ressources</div>
+      <div class="resources">
+        <a class="resource-link" href="https://www.scribbr.fr/dissertation/" target="_blank">
+          <div class="rl-title">Scribbr — formuler une problématique</div>
+          <div class="rl-desc">Méthode pour passer d'un sujet à une vraie question de tension</div>
+        </a>
+      </div>
     </div>
-    <div class="item">
-      <input type="checkbox" id="p3-2"><label for="p3-2">
-        <div class="item-title">Plan dialectique appliqué</div>
-        <div class="item-desc">Thèse : la qualité argumentative détermine l'issue. Antithèse : les biais et la théorie des jeux montrent que la stratégie et l'asymétrie d'information dominent. Synthèse : sous quelles conditions l'un l'emporte sur l'autre.</div>
-      </label>
+ 
+    <div class="jalon">
+      <div class="jalon-label">Jalon 3.2 — Rédaction (introduction, paragraphes AEI, modèles formels)</div>
+ 
+      <div class="item">
+        <input type="checkbox" id="p3-3"><label for="p3-3">
+          <div class="item-title">Rédiger l'introduction complète</div>
+          <div class="item-desc">Accroche (réutiliser un exemple vécu du module 2), problématique, annonce du plan — viser 150-200 mots.</div>
+        </label>
+      </div>
+      <div class="item">
+        <input type="checkbox" id="p3-4"><label for="p3-4">
+          <div class="item-title">Rédiger 4 paragraphes au format AEI</div>
+          <div class="item-desc">Affirmation-Exemple-Interprétation — chaque paragraphe est un argument autonome avec preuve et analyse, jamais une simple accumulation d'exemples.</div>
+        </label>
+      </div>
+      <div class="item">
+        <input type="checkbox" id="p3-5"><label for="p3-5">
+          <div class="item-title">Intégrer une matrice ou un arbre comme preuve à l'appui</div>
+          <div class="item-desc">Reprendre un modèle du module 1, l'insérer dans un paragraphe sans que le texte ne devienne un exposé technique — l'objet formel doit servir l'argument, pas le remplacer.</div>
+        </label>
+      </div>
+ 
+      <div class="micro-box">
+        <div class="item micro">
+          <input type="checkbox" id="m3-2-1"><label for="m3-2-1">
+            <div class="item-title">⚡ 15 min — Un paragraphe AEI sur un sujet imposé</div>
+            <div class="item-desc">Tirer un sujet au hasard, écrire un seul paragraphe AEI complet en 15 minutes chrono, sans recherche préalable.</div>
+          </label>
+        </div>
+      </div>
     </div>
-    <div class="item">
-      <input type="checkbox" id="p3-3"><label for="p3-3">
-        <div class="item-title">Introduction : accroche, problématique, annonce du plan</div>
-        <div class="item-desc">L'accroche peut réutiliser un exemple du volet débat (une confrontation vécue ou observée) pour ancrer la dissertation dans du concret.</div>
-      </label>
+ 
+    <div class="jalon">
+      <div class="jalon-label">Jalon 3.3 — Conclusion et révision stratégique</div>
+ 
+      <div class="item">
+        <input type="checkbox" id="p3-6"><label for="p3-6">
+          <div class="item-title">Rédiger la conclusion avec ouverture</div>
+          <div class="item-desc">Synthèse des trois temps, puis ouverture vers une question connexe (ex. : le rôle de l'IA comme juge de débat — sujet réel du Concours du Barreau de Montréal 2026).</div>
+        </label>
+      </div>
+      <div class="item">
+        <input type="checkbox" id="p3-7"><label for="p3-7">
+          <div class="item-title">Relire le texte entier comme un adversaire</div>
+          <div class="item-desc">Chercher activement la faille, le sophisme caché, l'affirmation non prouvée — annoter au moins 3 points faibles même si le texte semble terminé.</div>
+        </label>
+      </div>
+ 
+      <div class="block-label">📚 Ressources</div>
+      <div class="resources">
+        <a class="resource-link" href="https://www.antidote.info/" target="_blank">
+          <div class="rl-title">Antidote</div>
+          <div class="rl-desc">Correcteur et dictionnaire de synonymes, offert en prix par le Concours du Barreau de Montréal</div>
+        </a>
+        <a class="resource-link" href="https://www.ccdmd.qc.ca/" target="_blank">
+          <div class="rl-title">CCDMD — révision et cohérence textuelle</div>
+          <div class="rl-desc">Exercices de révision de texte argumentatif, contexte collégial québécois</div>
+        </a>
+      </div>
     </div>
-    <div class="item">
-      <input type="checkbox" id="p3-4"><label for="p3-4">
-        <div class="item-title">Paragraphes AEI (Affirmation-Exemple-Interprétation)</div>
-        <div class="item-desc">Chaque paragraphe = un argument autonome avec preuve et analyse, jamais une simple accumulation d'exemples.</div>
-      </label>
-    </div>
-    <div class="item">
-      <input type="checkbox" id="p3-5"><label for="p3-5">
-        <div class="item-title">Intégrer un modèle formel dans un texte académique</div>
-        <div class="item-desc">Insérer une matrice de gains ou un schéma d'arbre comme preuve à l'appui d'un argument, sans que la dissertation devienne un exposé technique.</div>
-      </label>
-    </div>
-    <div class="item">
-      <input type="checkbox" id="p3-6"><label for="p3-6">
-        <div class="item-title">Conclusion et ouverture</div>
-        <div class="item-desc">Synthèse des trois temps, puis ouverture vers une question connexe (ex. : le rôle de l'IA comme juge de débat — sujet réel du Concours du Barreau de Montréal 2026).</div>
-      </label>
-    </div>
-    <div class="item">
-      <input type="checkbox" id="p3-7"><label for="p3-7">
-        <div class="item-title">Relecture stratégique</div>
-        <div class="item-desc">Relire son propre texte comme un adversaire le ferait : chercher la faille, le sophisme caché, l'affirmation non prouvée.</div>
-      </label>
-    </div>
-
+ 
     <div class="callout dis">
       <strong>Pont conceptuel :</strong> une dissertation bien construite est un jeu séquentiel résolu par induction à rebours — on écrit la conclusion (le point d'arrivée) avant de bâtir les paragraphes qui y mènent nécessairement.
     </div>
-
-    <div class="resources">
-      <a class="resource-link" href="https://www.antidote.info/" target="_blank">
-        <div class="rl-title">Antidote</div>
-        <div class="rl-desc">Correcteur et dictionnaire de synonymes, offert en prix par le Concours du Barreau de Montréal</div>
-      </a>
-      <a class="resource-link" href="https://www.scribbr.fr/dissertation/" target="_blank">
-        <div class="rl-title">Scribbr — méthode de la dissertation</div>
-        <div class="rl-desc">Guide français sur les plans dialectique, analytique, thématique</div>
-      </a>
+ 
+    <div class="module-synth">
+      <div class="module-synth-label">🏆 Projet de synthèse du module</div>
+      <div class="module-synth-text">Une dissertation complète (introduction, 4 paragraphes AEI, conclusion) sur la problématique du jalon 3.1, intégrant au moins un modèle formel du module 1 et un exemple vécu du module 2.</div>
     </div>
-
+ 
   </div></div>
 </div>
-
+ 
 <div class="tree-connector"></div>
-
-<!-- PHASE 4 : CAPSTONE -->
+ 
+<!-- MODULE 4 : CAPSTONE -->
 <div class="phase" data-phase="4">
   <div class="phase-head" onclick="togglePhase(4)">
     <div class="phase-num">04</div>
@@ -688,41 +955,50 @@ Employé: Modère         (2, 3)                   (1, 1)
   </div>
   <div class="phase-bar"><div class="phase-bar-fill" id="bar-4"></div></div>
   <div class="phase-body"><div class="phase-body-inner">
-
-    <div class="item">
-      <input type="checkbox" id="p4-1"><label for="p4-1">
-        <div class="item-title">Choisir un cas d'étude réel</div>
-        <div class="item-desc">Un débat électoral, une négociation médiatisée, ou une émission de téléréalité avec alliances et éliminations.</div>
-      </label>
+ 
+    <div class="jalon">
+      <div class="jalon-label">Jalon 4.1 — Choix et modélisation du cas</div>
+ 
+      <div class="item">
+        <input type="checkbox" id="p4-1"><label for="p4-1">
+          <div class="item-title">Choisir un cas d'étude réel et documenté</div>
+          <div class="item-desc">Un débat électoral, une négociation médiatisée, ou une émission de téléréalité avec alliances et éliminations — doit avoir assez de matière publique pour être modélisé sérieusement.</div>
+        </label>
+      </div>
+      <div class="item">
+        <input type="checkbox" id="p4-2"><label for="p4-2">
+          <div class="item-title">Modéliser formellement le cas et identifier l'équilibre observé</div>
+          <div class="item-desc">Matrice de gains ou arbre de décision complet, avec l'équilibre réellement observé dans les faits comparé à l'équilibre théorique prédit.</div>
+        </label>
+      </div>
     </div>
-    <div class="item">
-      <input type="checkbox" id="p4-2"><label for="p4-2">
-        <div class="item-title">Modéliser formellement le cas</div>
-        <div class="item-desc">Matrice de gains ou arbre de décision, identification de l'équilibre observé dans la réalité.</div>
-      </label>
+ 
+    <div class="jalon">
+      <div class="jalon-label">Jalon 4.2 — Débat et rédaction finale</div>
+ 
+      <div class="item">
+        <input type="checkbox" id="p4-3"><label for="p4-3">
+          <div class="item-title">Débattre le cas en pratique</div>
+          <div class="item-desc">Organiser ou participer à un débat sur une motion tirée du cas, idéalement dans un club (ARGUQAM/LiDUC) — à défaut, avec un pair en conditions chronométrées réelles.</div>
+        </label>
+      </div>
+      <div class="item">
+        <input type="checkbox" id="p4-4"><label for="p4-4">
+          <div class="item-title">Rédiger la dissertation de synthèse finale</div>
+          <div class="item-desc">Combiner le modèle formel (jalon 4.1), l'expérience du débat (jalon 4.2) et une problématique originale en un texte académique complet, au format AEI du module 3.</div>
+        </label>
+      </div>
+      <div class="item">
+        <input type="checkbox" id="p4-5"><label for="p4-5">
+          <div class="item-title">Faire réviser par deux lecteurs distincts</div>
+          <div class="item-desc">Idéalement quelqu'un du club de débat pour la partie argumentative, et un pair académique pour la structure de dissertation — deux retours différents valent mieux qu'un retour généraliste.</div>
+        </label>
+      </div>
     </div>
-    <div class="item">
-      <input type="checkbox" id="p4-3"><label for="p4-3">
-        <div class="item-title">Débattre le cas en pratique</div>
-        <div class="item-desc">Organiser ou participer à un débat sur la motion tirée du cas, idéalement dans un club (ARGUQAM/LiDUC).</div>
-      </label>
-    </div>
-    <div class="item">
-      <input type="checkbox" id="p4-4"><label for="p4-4">
-        <div class="item-title">Rédiger la dissertation de synthèse</div>
-        <div class="item-desc">Combiner le modèle formel, l'expérience du débat et une problématique originale en un texte académique complet.</div>
-      </label>
-    </div>
-    <div class="item">
-      <input type="checkbox" id="p4-5"><label for="p4-5">
-        <div class="item-title">Faire réviser par un tiers</div>
-        <div class="item-desc">Idéalement quelqu'un du club de débat pour la partie argumentative, et un pair académique pour la structure de dissertation.</div>
-      </label>
-    </div>
-
+ 
   </div></div>
 </div>
-
+ 
 <div class="capstone">
   <div class="capstone-node">
     <div class="cn-eyebrow">Livrable final</div>
@@ -730,33 +1006,33 @@ Employé: Modère         (2, 3)                   (1, 1)
     <p>Le texte final n'est pas seulement un exercice académique : c'est la démonstration, sur papier, de la même pensée stratégique que celle entraînée à l'oral en club de débat.</p>
   </div>
 </div>
-
+ 
 <footer>Plan généré pour un usage personnel — progression sauvegardée localement dans ce navigateur</footer>
-
+ 
 </div>
-
+ 
 <script>
 const phaseIds = [0,1,2,3,4];
-
+ 
 function togglePhase(n){
   const el = document.querySelector('.phase[data-phase="'+n+'"]');
   el.classList.toggle('open');
 }
-
+ 
 function allCheckboxes(){
   return Array.from(document.querySelectorAll('.phase input[type=checkbox]'));
 }
-
+ 
 function checkboxesForPhase(n){
   return Array.from(document.querySelectorAll('.phase[data-phase="'+n+'"] input[type=checkbox]'));
 }
-
+ 
 function updateProgress(){
   const all = allCheckboxes();
   const doneAll = all.filter(c=>c.checked).length;
   document.getElementById('globalBarFill').style.width = (all.length? (doneAll/all.length*100):0) + '%';
   document.getElementById('globalLabel').textContent = doneAll + ' / ' + all.length + ' tâches';
-
+ 
   phaseIds.forEach(n=>{
     const boxes = checkboxesForPhase(n);
     const done = boxes.filter(c=>c.checked).length;
@@ -765,13 +1041,13 @@ function updateProgress(){
     if(bar) bar.style.width = pct + '%';
   });
 }
-
+ 
 function saveState(){
   const state = {};
   allCheckboxes().forEach(c=>{ state[c.id] = c.checked; });
   try{ localStorage.setItem('plan-jeux-arg-dissertation', JSON.stringify(state)); }catch(e){}
 }
-
+ 
 function loadState(){
   try{
     const raw = localStorage.getItem('plan-jeux-arg-dissertation');
@@ -782,7 +1058,7 @@ function loadState(){
     });
   }catch(e){}
 }
-
+ 
 allCheckboxes().forEach(c=>{
   c.addEventListener('change', ()=>{
     c.closest('.item').classList.toggle('done', c.checked);
@@ -790,7 +1066,7 @@ allCheckboxes().forEach(c=>{
     updateProgress();
   });
 });
-
+ 
 document.getElementById('themeToggle').addEventListener('click', ()=>{
   const html = document.body;
   const current = html.getAttribute('data-theme');
@@ -799,7 +1075,7 @@ document.getElementById('themeToggle').addEventListener('click', ()=>{
   document.getElementById('themeToggle').textContent = next === 'dark' ? '☾ mode' : '☀ mode';
   try{ localStorage.setItem('plan-jeux-arg-theme', next); }catch(e){}
 });
-
+ 
 (function initTheme(){
   try{
     const saved = localStorage.getItem('plan-jeux-arg-theme');
@@ -809,7 +1085,7 @@ document.getElementById('themeToggle').addEventListener('click', ()=>{
     }
   }catch(e){}
 })();
-
+ 
 loadState();
 updateProgress();
 </script>
